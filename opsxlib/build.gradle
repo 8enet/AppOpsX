@@ -1,0 +1,91 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "25.0.0"
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+//    compile project(":opsdeps")
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+}
+
+def creatJar(){
+    def MyJarName="appopsx-orig.jar"
+    def relatPath='build/intermediates/classes/debug'
+    def pkgPath=["com/zzzmode/appopsx/server/","com/zzzmode/appopsx/common/"]
+    def buildArgs=['cvf',project.buildDir.absolutePath+File.separator+MyJarName]
+    buildArgs.addAll(get_args(relatPath,pkgPath))
+    exec{
+        workingDir=relatPath
+        executable='jar'
+        args=buildArgs
+    }
+
+}
+
+def get_args(String path,List pkgPath){
+
+    def ret=[]
+    pkgPath.forEach{
+        it ->
+            def file = new File(path + File.separator + it)
+            loadClsFiles(file,ret,path+File.separator)
+    }
+    return ret
+}
+
+def loadClsFiles(File f,List paths,String ignorePrefix){
+
+    File[] files = f.listFiles()
+    if(files != null){
+        files.each{
+            file ->
+                if(file.file){
+                    if(file.name.endsWith(".class")){
+                        paths.add(file.path.replaceFirst(ignorePrefix,""))
+                    }
+                }else{
+                    loadClsFiles(file,paths,ignorePrefix)
+                }
+        }
+    }
+
+}
+
+build.doLast {
+    creatJar()
+    creatCommonJar()
+}
+
+def creatCommonJar(){
+    def MyJarName="appopsx-common.jar"
+    def relatPath='build/intermediates/classes/debug'
+    def pkgPath=["com/zzzmode/appopsx/common/"]
+    def buildArgs=['cvf',project.buildDir.absolutePath+File.separator+MyJarName]
+    buildArgs.addAll(get_args(relatPath,pkgPath))
+    exec{
+        workingDir=relatPath
+        executable='jar'
+        args=buildArgs
+    }
+    copy {
+        from "build/appopsx-common.jar"
+        into "../app/libs"
+    }
+}
