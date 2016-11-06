@@ -1,0 +1,14 @@
+# AppOpsX
+主要是解决防止国内流氓应用在Android6.0上不给权限就不让用的问题,e.g. 几个外卖应用。   
+也可以不root通过`adb shell appops set [--user <USER_ID>] <PACKAGE> <OP> <MODE>` 忽略授予的权限。
+
+`AppOpsX` 现在没有调用appops命令的方式去设置，用的是以root权限启用jar后开放`LocalSocks`通讯的方式去代理修改权限，
+理论上多条执行的时候要比调用命令快，在应用内使用感觉会比较明显，当然底层和appops命令实现一致。
+
+用法:
+```
+cd opsxlib
+make all
+```
+将会启动一个`LocalServerSocket`,供client调用。
+前端连接到`LocalSocks` 后即可发送命令去类似代理执行一样执行`IAppOpsService`中的方法。
