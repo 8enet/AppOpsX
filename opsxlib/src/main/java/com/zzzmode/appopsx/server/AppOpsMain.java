@@ -12,7 +12,9 @@ import android.util.Log;
 import com.android.internal.app.IAppOpsService;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
+import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
+import com.zzzmode.appopsx.common.ParcelableUtil;
 import com.zzzmode.appopsx.common.ReflectUtils;
 
 import java.io.BufferedReader;
@@ -48,23 +50,16 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback{
     }
 
 
-    private void handleCommand(String req){
-        System.out.println(req);
-        String s = OpsCommands.parseAction(req);
+    private void handleCommand(OpsCommands.Builder builder){
+        String s = builder.getAction();
         if(OpsCommands.ACTION_GET.equals(s)){
-            OpsCommands.GetBuilder getBuilder = OpsCommands.GetBuilder.parseObject(req);
-            if(getBuilder != null){
-                runGet(getBuilder);
-            }
+                runGet(builder);
         }else if(OpsCommands.ACTION_SET.equals(s)){
-            OpsCommands.SetBuilder setBuilder = OpsCommands.SetBuilder.parseObject(req);
-            if(setBuilder != null){
-                runSet(setBuilder);
-            }
+                runSet(builder);
         }
     }
 
-    private void runGet(OpsCommands.GetBuilder getBuilder){
+    private void runGet(OpsCommands.Builder  getBuilder){
         final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
                 ServiceManager.getService(Context.APP_OPS_SERVICE));
         try {
@@ -81,13 +76,20 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback{
             }
 
             System.out.println(packageOpses);
-            server.sendResult(OpsCommands.toGetRestlt(packageOpses));
+            //server.sendResult(OpsCommands.toGetRestlt(packageOpses));
+            server.sendResult(ParcelableUtil.marshall(new OpsResult(packageOpses,null)));
         } catch (Exception e) {
             e.printStackTrace();
+
+            try {
+                server.sendResult(ParcelableUtil.marshall(new OpsResult(null,e)));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 
-    private void runSet(OpsCommands.SetBuilder setBuilder){
+    private void runSet(OpsCommands.Builder setBuilder){
 
     }
 
@@ -158,6 +160,8 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback{
 
     @Override
     public void onMessage(byte[] bytes) {
-        handleCommand(new String(bytes));
+        OpsCommands.Builder unmarshall = ParcelableUtil.unmarshall(bytes, OpsCommands.Builder.CREATOR);
+        System.out.println("onMessage --->  "+unmarshall);
+        handleCommand(unmarshall);
     }
 }

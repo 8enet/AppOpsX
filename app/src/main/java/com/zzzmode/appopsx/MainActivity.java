@@ -10,6 +10,8 @@ import android.view.View;
 
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
+import com.zzzmode.appopsx.common.OpsResult;
+import com.zzzmode.appopsx.common.ParcelableUtil;
 
 import java.io.IOException;
 
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                     transfer.setCallback(new OpsDataTransfer.OnRecvCallback() {
                         @Override
                         public void onMessage(byte[] bytes) {
-                            Log.e(TAG, "onMessage --> "+new String(bytes));
+                            Log.e(TAG, "onMessage --> "+ParcelableUtil.unmarshall(bytes, OpsResult.CREATOR));
                         }
                     });
 
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }).start();
 
-                    transfer.sendMsg(new OpsCommands.GetBuilder("com.taobao.trip").build().getBytes());
+                    transfer.sendMsg(ParcelableUtil.marshall(new OpsCommands.Builder().setAction("get").setPackageName("com.taobao.trip")));
                     transfer.handleRecv();
 
                     Log.e(TAG, "run --> end");

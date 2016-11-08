@@ -42,6 +42,12 @@ class OpsXServer implements Runnable{
         }
     }
 
+    public void sendResult(byte[] bytes) throws IOException {
+        if(running && opsDataTransfer != null){
+            opsDataTransfer.sendMsg(bytes);
+        }
+    }
+
     public void setStop(){
         running=false;
         if(opsDataTransfer != null){

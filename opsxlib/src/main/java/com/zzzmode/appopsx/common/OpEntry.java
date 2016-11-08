@@ -1,6 +1,9 @@
 package com.zzzmode.appopsx.common;
 
-public class OpEntry {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class OpEntry implements Parcelable {
     private final int mOp;
     private final int mMode;
     private final long mTime;
@@ -65,4 +68,42 @@ public class OpEntry {
                 ", mProxyPackageName='" + mProxyPackageName + '\'' +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.mOp);
+        dest.writeInt(this.mMode);
+        dest.writeLong(this.mTime);
+        dest.writeLong(this.mRejectTime);
+        dest.writeInt(this.mDuration);
+        dest.writeInt(this.mProxyUid);
+        dest.writeString(this.mProxyPackageName);
+    }
+
+    protected OpEntry(Parcel in) {
+        this.mOp = in.readInt();
+        this.mMode = in.readInt();
+        this.mTime = in.readLong();
+        this.mRejectTime = in.readLong();
+        this.mDuration = in.readInt();
+        this.mProxyUid = in.readInt();
+        this.mProxyPackageName = in.readString();
+    }
+
+    public static final Parcelable.Creator<OpEntry> CREATOR = new Parcelable.Creator<OpEntry>() {
+        @Override
+        public OpEntry createFromParcel(Parcel source) {
+            return new OpEntry(source);
+        }
+
+        @Override
+        public OpEntry[] newArray(int size) {
+            return new OpEntry[size];
+        }
+    };
 }
