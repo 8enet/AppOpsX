@@ -11,9 +11,14 @@ import android.view.View;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
 import com.zzzmode.appopsx.common.OpsResult;
+import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.common.ParcelableUtil;
 
 import java.io.IOException;
+import java.util.List;
+
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,18 +36,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         running=false;
+        if(manager!= null){
+            manager.destory();
+        }
     }
 
     public void onClickServer(View view){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                //copy file
-
-
-            }
-        }).start();
+       LocalServerManager.getInstance().stop();
     }
 
     public void onClickClient(View view){
@@ -83,5 +83,41 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
     }
+
+
+
+    OpsxManager manager;
+    public void onManagerClient(View view){
+        if(manager == null){
+
+            manager=new OpsxManager(getApplicationContext());
+        }
+        manager.getOpsForPackage("com.taobao.trip").observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<OpsResult>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onStart() {
+                super.onStart();
+                Log.e(TAG, "onStart --> ");
+            }
+
+            @Override
+            public void onNext(OpsResult opsResult) {
+                Log.e(TAG, "onManagerClient --> "+opsResult);
+            }
+        });
+
+
+    }
+
+
 
 }

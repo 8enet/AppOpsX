@@ -14,17 +14,23 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="server"
-        android:onClick="onClickServer"
         android:layout_alignParentLeft="true"
-        />
+        android:onClick="onClickServer"
+        android:text="server" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="client"
-        android:onClick="onClickClient"
         android:layout_alignParentRight="true"
-        />
+        android:onClick="onClickClient"
+        android:text="client" />
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:onClick="onManagerClient"
+        android:text="serve00client" />
 
 </RelativeLayout>

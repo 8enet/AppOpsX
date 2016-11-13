@@ -1,6 +1,8 @@
 buildJar:
 	gradle build
 	dx --dex --output=build/appopsx.jar build/appopsx-orig.jar
+	cp build/appopsx.jar ../app/src/main/assets
+	cp appopsx ../app/src/main/assets
 
 push:
 	adb push appopsx /data/local/tmp/appopsx

@@ -19,6 +19,15 @@ public class OpsResult implements Parcelable {
         this.list = list;
     }
 
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public List<PackageOps> getList() {
+        return list;
+    }
+
     @Override
     public int describeContents() {
         return 0;
