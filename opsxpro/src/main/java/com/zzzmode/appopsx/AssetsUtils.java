@@ -11,7 +11,7 @@ import java.io.InputStream;
  * Created by zl on 2016/11/13.
  */
 
-public class AssetsUtils {
+class AssetsUtils {
 
     public static void copyFile(Context context, String fileName, File destFile, boolean force){
         InputStream open=null;

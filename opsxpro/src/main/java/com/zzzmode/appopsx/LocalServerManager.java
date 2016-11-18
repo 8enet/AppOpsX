@@ -13,7 +13,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -21,11 +20,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * Created by zl on 2016/11/13.
  */
 
-public class LocalServerManager {
+class LocalServerManager {
 
+    private static final String TAG = "LocalServerManager";
     private static LocalServerManager sLocalServerManager;
 
-    public static LocalServerManager getInstance(){
+    static LocalServerManager getInstance(){
         if(sLocalServerManager == null){
             synchronized (LocalServerManager.class){
                 if(sLocalServerManager == null){
@@ -37,7 +37,6 @@ public class LocalServerManager {
     }
 
 
-    private RunnerServerThread mServerThread = null;
     private SyncClient mClientThread = null;
 
     private LocalServerManager(){
@@ -46,20 +45,20 @@ public class LocalServerManager {
 
 
     public void start(){
-        if(mServerThread == null || !mServerThread.isRunning()){
-            mServerThread =new RunnerServerThread();
-            mServerThread.start();
-        }
+
         if(mClientThread == null || !mClientThread.isRunning()){
             mClientThread=new SyncClient();
-            mClientThread.start();
+            if(mClientThread.start()){
+                Log.e(TAG, "start --> server alread start !!!!!");
+
+            }else {
+                startServer();
+                mClientThread.start();
+            }
         }
     }
 
     public void stop(){
-        if(mServerThread != null && mServerThread.isRunning()){
-            mServerThread.exit();
-        }
         if(mClientThread != null && mClientThread.isRunning()){
             mClientThread.exit();
         }
@@ -68,6 +67,51 @@ public class LocalServerManager {
     public OpsResult exec(OpsCommands.Builder builder){
         start();
         return mClientThread.exec(builder);
+    }
+
+
+    private static void startServer(){
+        BufferedWriter writer=null;
+        Process exec=null;
+        try {
+            exec= new ProcessBuilder("sh").redirectErrorStream(true).start();
+            writer = new BufferedWriter(new OutputStreamWriter(exec.getOutputStream()));
+
+            String[] cmds={"su","export LD_LIBRARY_PATH=/vendor/lib:/system/lib",
+                    "export CLASSPATH="+SConfig.getClassPath(),"" +
+                    "echo start",
+                    "exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain \"$@\""};
+
+            for (String cmd:cmds){
+                writer.write(cmd);
+                writer.newLine();
+                writer.flush();
+            }
+            writer.flush();
+            exec.waitFor();
+
+            Log.e(TAG, "startServer --> server start ----- ");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+//            try {
+//                if(writer != null){
+//                    writer.close();
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            try {
+//                if(exec != null){
+//                    exec.destroy();
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+        }
+
     }
 
     private static class RunnerServerThread extends Thread{
@@ -85,17 +129,16 @@ public class LocalServerManager {
 
 
                 exec= new ProcessBuilder("sh").redirectErrorStream(true).start();
-//                writer = new BufferedWriter(new OutputStreamWriter(exec.getOutputStream()));
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(exec.getInputStream()));
-//
-//                String[] cmds={"su","export LD_LIBRARY_PATH=/vendor/lib:/system/lib",
-//                        "export CLASSPATH=/data/data/com.zzzmode.appopsx/app_opsx/appopsx.jar","" +
-//                        "echo start",
-//                        "exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain \"$@\""};
-//
-//                for (String cmd:cmds){
-//                   execWriter(cmd);
-//                }
+                writer = new BufferedWriter(new OutputStreamWriter(exec.getOutputStream()));
+
+                String[] cmds={"su","export LD_LIBRARY_PATH=/vendor/lib:/system/lib",
+                        "export CLASSPATH="+SConfig.getClassPath(),"" +
+                        "echo start",
+                        "exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain \"$@\""};
+
+                for (String cmd:cmds){
+                   execWriter(cmd);
+                }
                 Log.e(TAG, "run --> start server");
 //                isRunning=true;
 //                String tmp;
@@ -105,7 +148,8 @@ public class LocalServerManager {
 //                }
 
                 //exec=Runtime.getRuntime().exec(new String[]{"su","-C","export LD_LIBRARY_PATH=/vendor/lib:/system/lib;export CLASSPATH=/data/data/com.zzzmode.appopsx/app_opsx/appopsx.jar;app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain \"$@\""});
-                exec=Runtime.getRuntime().exec("su -C /data/data/com.zzzmode.appopsx/app_opsx/appopsx");
+                //exec=Runtime.getRuntime().exec("su -C /data/data/com.zzzmode.appopsx/app_opsx/appopsx");
+                isRunning=true;
                 int waitFor = exec.waitFor();
                 Log.e(TAG, "run --> server end "+waitFor);
             } catch (Exception e) {
@@ -137,7 +181,7 @@ public class LocalServerManager {
                 exec.destroy();
             }
             Log.e(TAG, "exit --> destroy");
-            //isRunning=false;
+            isRunning=false;
         }
 
         boolean isRunning() {
@@ -222,25 +266,36 @@ public class LocalServerManager {
     private static class SyncClient{
         private volatile boolean isRunning=false;
         private OpsDataTransfer transfer;
-        void start(){
-            try {
-                LocalSocket localSocket=new LocalSocket();
-                localSocket.connect(new LocalSocketAddress("com.zzzmode.appopsx"));
-                transfer=new OpsDataTransfer(localSocket.getOutputStream(),localSocket.getInputStream(),false);
-                isRunning=true;
-            } catch (IOException e) {
-                e.printStackTrace();
+
+        private void connect(){
+            if(!isRunning) {
+                try {
+                    LocalSocket localSocket = new LocalSocket();
+                    localSocket.connect(new LocalSocketAddress("com.zzzmode.appopsx"));
+                    transfer = new OpsDataTransfer(localSocket.getOutputStream(), localSocket.getInputStream(), false);
+                    isRunning = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    startServer();
+                    isRunning = false;
+                }
             }
+        }
+
+        boolean start(){
+            connect();
+            return isRunning;
         }
 
         OpsResult exec(OpsCommands.Builder builder) {
             if(!isRunning){
-                return null;
+                connect();
             }
             try {
                 byte[] bytes = transfer.sendMsgAndRecv(ParcelableUtil.marshall(builder));
                 return ParcelableUtil.unmarshall(bytes, OpsResult.CREATOR);
             } catch (IOException e) {
+                isRunning=false;
                 e.printStackTrace();
             }
             return null;

@@ -4,6 +4,9 @@ package com.zzzmode.appopsx.server;
 import android.app.ActivityThread;
 import android.app.AppOpsManager;
 import android.content.Context;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.system.Os;
@@ -27,6 +30,9 @@ import java.util.List;
 
 public class AppOpsMain implements OpsDataTransfer.OnRecvCallback{
 
+    private static final int MSG_TIMEOUT=1;
+    private static final int DEFAULT_TIME_OUT_TIME=1000*60*1; //1min
+
     public static void main(String[] args){
 
         try {
@@ -38,15 +44,42 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback{
 
 
     private OpsXServer server;
+    private Handler handler;
+    private volatile boolean isDeath=false;
+    private final int timeOut=DEFAULT_TIME_OUT_TIME;
+
     private AppOpsMain(String[] args) throws IOException {
         server = new OpsXServer("com.zzzmode.appopsx",this);
-        Thread thread = new Thread(server);
-        thread.start();
+
         try {
-            thread.join();
-        } catch (InterruptedException e) {
+
+            HandlerThread thread1=new HandlerThread("watcher-ups");
+            thread1.start();
+            handler=new Handler(thread1.getLooper()){
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+                    switch (msg.what){
+                        case MSG_TIMEOUT:
+                            try {
+                                isDeath=true;
+                                server.setStop();
+                                System.out.println("timeout stop-----");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                    }
+
+                }
+            };
+
+            server.run();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+        System.out.println("end ---- ");
     }
 
 
@@ -160,8 +193,14 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback{
 
     @Override
     public void onMessage(byte[] bytes) {
-        OpsCommands.Builder unmarshall = ParcelableUtil.unmarshall(bytes, OpsCommands.Builder.CREATOR);
-        System.out.println("onMessage --->  "+unmarshall);
-        handleCommand(unmarshall);
+        handler.removeCallbacksAndMessages(null);
+        handler.removeMessages(MSG_TIMEOUT);
+        if(!isDeath) {
+            handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
+
+            OpsCommands.Builder unmarshall = ParcelableUtil.unmarshall(bytes, OpsCommands.Builder.CREATOR);
+            System.out.println("onMessage --->  " + unmarshall);
+            handleCommand(unmarshall);
+        }
     }
 }

@@ -14,11 +14,14 @@ import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.common.ParcelableUtil;
 
+import org.reactivestreams.Subscriber;
+
 import java.io.IOException;
 import java.util.List;
 
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.ResourceObserver;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -92,10 +95,10 @@ public class MainActivity extends AppCompatActivity {
 
             manager=new OpsxManager(getApplicationContext());
         }
-        manager.getOpsForPackage("com.taobao.trip").observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<OpsResult>() {
+        manager.getOpsForPackage("com.taobao.trip").observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<OpsResult>() {
             @Override
-            public void onCompleted() {
-
+            public void onNext(OpsResult value) {
+                Log.e(TAG, "onManagerClient --> "+value);
             }
 
             @Override
@@ -104,17 +107,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onStart() {
-                super.onStart();
-                Log.e(TAG, "onStart --> ");
+            public void onComplete() {
+
             }
 
             @Override
-            public void onNext(OpsResult opsResult) {
-                Log.e(TAG, "onManagerClient --> "+opsResult);
+            protected void onStart() {
+                super.onStart();
+                Log.e(TAG, "onStart --> ");
             }
         });
-
 
     }
 

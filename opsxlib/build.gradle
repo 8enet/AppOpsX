@@ -84,8 +84,8 @@ def creatCommonJar(){
         executable='jar'
         args=buildArgs
     }
-    copy {
-        from "build/appopsx-common.jar"
-        into "../app/libs"
-    }
+//    copy {
+//        from "build/appopsx-common.jar"
+//        into "../app/libs"
+//    }
 }

@@ -1,1 +1,1 @@
-include ':app', ':opsxlib'
+include ':app', ':opsxlib', ':opsxpro'
