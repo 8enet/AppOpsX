@@ -172,24 +172,6 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback{
     }
 
 
-    private static void aaa(){
-        java.lang.Process id=null;
-        try {
-            id = Runtime.getRuntime().exec("id");
-            BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(id.getInputStream()));
-            String line=null;
-            while ( (line=bufferedReader.readLine()) != null){
-                System.out.println(line);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally {
-            if(id != null){
-                id.destroy();
-            }
-        }
-    }
 
     @Override
     public void onMessage(byte[] bytes) {

@@ -85,4 +85,32 @@ public class ReflectUtils {
         }
         return 0;
     }
+
+
+
+    public static Object getArrayFieldValue(Class cls,String arrayFieldName,int index){
+        Field field = sFieldCache.get(arrayFieldName);
+        if (field == null) {
+            try {
+                field = cls.getDeclaredField(arrayFieldName);
+                field.setAccessible(true);
+                sFieldCache.put(arrayFieldName, field);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (field != null) {
+            try {
+                Object object= field.get(cls);
+                if(object.getClass().isArray()){
+                    Object[] array= (Object[]) object;
+                    return array[index];
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 }

@@ -5,8 +5,6 @@ import android.content.Context;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsResult;
 
-import java.io.File;
-
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -36,6 +34,7 @@ public class OpsxManager {
 
 
     public Observable<OpsResult> getOpsForPackage(final String packageName){
+
         return Observable.create(new ObservableOnSubscribe<OpsResult>() {
             @Override
             public void subscribe(ObservableEmitter<OpsResult>  subscriber) {

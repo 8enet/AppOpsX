@@ -21,5 +21,9 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
+    compile ('com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.10.0@aar'){
+        transitive=true
+    }
     compile project(":opsxpro")
 }
