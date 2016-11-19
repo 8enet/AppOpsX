@@ -31,16 +31,27 @@ public class OpsxManager {
     }
 
 
-    public OpsResult getOpsForPackage(final String packageName)throws RemoteException{
+    public OpsResult getOpsForPackage(final String packageName) throws Exception{
         OpsCommands.Builder builder=new OpsCommands.Builder();
         builder.setAction(OpsCommands.ACTION_GET);
         builder.setPackageName(packageName);
-        try {
-            return mLocalServerManager.exec(builder);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RemoteException("remote error:"+e.getMessage());
-        }
+        return mLocalServerManager.exec(builder);
+    }
+
+    public OpsResult setOpsMode(String packageName,int opInt,int modeInt)throws Exception{
+        OpsCommands.Builder builder=new OpsCommands.Builder();
+        builder.setAction(OpsCommands.ACTION_SET);
+        builder.setPackageName(packageName);
+        builder.setOpInt(opInt);
+        builder.setModeInt(modeInt);
+        return mLocalServerManager.exec(builder);
+    }
+
+    public OpsResult resetAllModes(String packageName)throws Exception{
+        OpsCommands.Builder builder=new OpsCommands.Builder();
+        builder.setAction(OpsCommands.ACTION_RESET);
+        builder.setPackageName(packageName);
+        return mLocalServerManager.exec(builder);
     }
 
     public void destory(){

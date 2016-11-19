@@ -8,12 +8,17 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.OpsxManager;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpEntry;
@@ -23,8 +28,11 @@ import com.zzzmode.appopsx.common.ReflectUtils;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -38,6 +46,7 @@ import io.reactivex.functions.BooleanSupplier;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
+import io.reactivex.observers.ResourceObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -51,98 +60,261 @@ public class AppPermissionActivity extends AppCompatActivity {
     public static final String EXTRA_APP = "extra.app";
 
     private AppPermissionAdapter adapter;
+    private AppInfo appInfo;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_opsx);
 
-        final AppInfo info = getIntent().getParcelableExtra(EXTRA_APP);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        setTitle(info.appName);
+        appInfo= getIntent().getParcelableExtra(EXTRA_APP);
 
+        setTitle(appInfo.appName);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        recyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(getApplicationContext(), R.drawable.list_divider_h), true));
 
         adapter = new AppPermissionAdapter();
         recyclerView.setAdapter(adapter);
 
+        adapter.setListener(new AppPermissionAdapter.OnSwitchItemClickListener() {
+            @Override
+            public void onSwitch(OpEntryInfo info, boolean v) {
+                if(v){
+                    info.mode=AppOpsManager.MODE_ALLOWED;
+                }else {
+                    info.mode=AppOpsManager.MODE_ERRORED;
+                }
 
-        getAppInfo(info.packageName)
-                .subscribeOn(Schedulers.io())
-                .retry(10, new Predicate<Throwable>() {
+                setMode(info);
+            }
+        });
+
+        initData(appInfo.packageName);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.action_reset:
+                resetMode();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.ops_menu, menu);
+//        return true;
+//    }
+
+    private void initData(String packageName){
+        getAppInfo(packageName)
+                .map(new Function<List<OpEntryInfo>, List<OpEntryInfo>>() {
                     @Override
-                    public boolean test(Throwable throwable) throws Exception {
-                        Log.e(TAG, "test --> retry "+throwable+"   "+Thread.currentThread());
-                        return throwable instanceof RemoteException;
+                    public List<OpEntryInfo> apply(List<OpEntryInfo> opEntryInfos) throws Exception {
+                        Collections.sort(opEntryInfos, new Comparator<OpEntryInfo>() {
+                            @Override
+                            public int compare(OpEntryInfo o1, OpEntryInfo o2) {
+                                if(o1.opPermsLab == null && o2.opPermsLab != null){
+                                    return 1;
+                                }
+                                if(o1.opPermsDesc == null && o2.opPermsDesc != null){
+                                    return 1;
+                                }
+                                if(o1.opPermsLab != null && o2.opPermsLab != null && o1.opPermsDesc!=null && o2.opPermsDesc != null){
+                                    return 0;
+                                }
+                                if(o1.opPermsLab != null && o2.opPermsLab != null && o1.opPermsDesc == null && o2.opPermsDesc == null){
+                                    return o1.opPermsLab.compareTo(o2.opPermsLab);
+                                }
+                                return -1;
+                            }
+                        });
+                        return opEntryInfos;
                     }
                 })
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new ResourceObserver<List<OpEntryInfo>>() {
 
-                .subscribe(new Consumer<List<OpEntryInfo>>() {
                     @Override
-                    public void accept(List<OpEntryInfo> opEntryInfos) throws Exception {
+                    protected void onStart() {
+                        super.onStart();
+                    }
+
+                    @Override
+                    public void onNext(List<OpEntryInfo> opEntryInfos) {
                         if (opEntryInfos != null) {
                             adapter.setDatas(opEntryInfos);
                             adapter.notifyDataSetChanged();
                         }
                     }
-                }, new Consumer<Throwable>() {
+
                     @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "onError --> ", e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
                     }
                 });
-
     }
-
 
     private Observable<List<OpEntryInfo>> getAppInfo(final String packageName) {
         return Observable.create(new ObservableOnSubscribe<OpsResult>() {
             @Override
             public void subscribe(ObservableEmitter<OpsResult> e) throws Exception {
 
-                Log.e(TAG, "subscribe --> ");
                 OpsResult opsForPackage = AppOpsx.getInstance(getApplicationContext()).getOpsForPackage(packageName);
-                e.onNext(opsForPackage);
+                if(opsForPackage != null ){
+                    if(opsForPackage.getException() == null){
+                        e.onNext(opsForPackage);
+                    }else {
+                        throw opsForPackage.getException();
+                    }
+                }
                 e.onComplete();
 
             }
-        }).retry(5).subscribeOn(Schedulers.io()).map(new Function<OpsResult, List<OpEntryInfo>>() {
-            @Override
-            public List<OpEntryInfo> apply(OpsResult opsResult) throws Exception {
-                List<PackageOps> opses = opsResult.getList();
-                Log.e("test", "apply --> " + opsResult);
-                if (opses != null) {
-                    List<OpEntryInfo> list = new ArrayList<OpEntryInfo>();
-                    PackageManager pm = getPackageManager();
-                    for (PackageOps opse : opses) {
-                        List<OpEntry> ops = opse.getOps();
-                        if (ops != null) {
-                            for (OpEntry op : ops) {
-                                OpEntryInfo opEntryInfo = new OpEntryInfo(op);
-                                try {
-                                    PermissionInfo permissionInfo = pm.getPermissionInfo(opEntryInfo.opPermsName, 0);
-                                    opEntryInfo.opPermsLab = String.valueOf(permissionInfo.loadLabel(pm));
-                                } catch (PackageManager.NameNotFoundException e) {
-                                    //e.printStackTrace();
-                                }
-                                list.add(opEntryInfo);
-                            }
-                        }
-
-                        PackageInfo packageInfo = pm.getPackageInfo(opse.getPackageName(), PackageManager.GET_PERMISSIONS);
-                        Log.e("test", "apply --> " + Arrays.toString(packageInfo.requestedPermissions));
-
-
+        })
+                .retry(5, new Predicate<Throwable>() {
+                    @Override
+                    public boolean test(Throwable throwable) throws Exception {
+                        return throwable instanceof IOException || throwable instanceof NullPointerException;
                     }
-                    return list;
+                })
+                .subscribeOn(Schedulers.io()).map(new Function<OpsResult, List<OpEntryInfo>>() {
+                    @Override
+                    public List<OpEntryInfo> apply(OpsResult opsResult) throws Exception {
+                        List<PackageOps> opses = opsResult.getList();
+                        Log.e("test", "apply --> " + opsResult);
+                        if (opses != null) {
+                            List<OpEntryInfo> list = new ArrayList<OpEntryInfo>();
+                            PackageManager pm = getPackageManager();
+                            for (PackageOps opse : opses) {
+                                List<OpEntry> ops = opse.getOps();
+                                if (ops != null) {
+                                    for (OpEntry op : ops) {
+                                        OpEntryInfo opEntryInfo = new OpEntryInfo(op);
+                                        try {
+                                            PermissionInfo permissionInfo = pm.getPermissionInfo(opEntryInfo.opPermsName, 0);
+                                            opEntryInfo.opPermsLab = String.valueOf(permissionInfo.loadLabel(pm));
+                                            opEntryInfo.opPermsDesc = String.valueOf(permissionInfo.loadDescription(pm));
+                                        } catch (PackageManager.NameNotFoundException e) {
+                                            //e.printStackTrace();
+                                        }
+                                        list.add(opEntryInfo);
+                                    }
+                                }
+
+                                PackageInfo packageInfo = pm.getPackageInfo(opse.getPackageName(), PackageManager.GET_PERMISSIONS);
+                                Log.e("test", "apply --> " + Arrays.toString(packageInfo.requestedPermissions));
+
+                            }
+                            return list;
+                        }
+                        return Collections.emptyList();
+                    }
+                });
+    }
+
+
+    private void setMode(final OpEntryInfo info){
+        Observable.create(new ObservableOnSubscribe<OpsResult>() {
+            @Override
+            public void subscribe(ObservableEmitter<OpsResult> e) throws Exception {
+
+                OpsResult opsForPackage = AppOpsx.getInstance(getApplicationContext()).setOpsMode(appInfo.packageName,info.opEntry.getOp(),info.mode);
+                if(opsForPackage != null ){
+                    if(opsForPackage.getException() == null){
+                        e.onNext(opsForPackage);
+                    }else {
+                        throw opsForPackage.getException();
+                    }
                 }
-                return null;
+                e.onComplete();
+
+            }
+        }).retry(5, new Predicate<Throwable>() {
+            @Override
+            public boolean test(Throwable throwable) throws Exception {
+                return throwable instanceof IOException || throwable instanceof NullPointerException;
+            }
+        })
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<OpsResult>() {
+            @Override
+            public void onNext(OpsResult value) {
+                if(value.getException() !=null){
+
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+                info.mode=info.opEntry.getMode();
+                adapter.updateItem(info);
+
+                Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onComplete() {
+
             }
         });
     }
 
+    private void resetMode(){
+        Observable.create(new ObservableOnSubscribe<OpsResult>() {
+            @Override
+            public void subscribe(ObservableEmitter<OpsResult> e) throws Exception {
 
+                OpsResult opsForPackage = AppOpsx.getInstance(getApplicationContext()).resetAllModes(appInfo.packageName);
+                if(opsForPackage != null ){
+                    if(opsForPackage.getException() == null){
+                        e.onNext(opsForPackage);
+                    }else {
+                        throw opsForPackage.getException();
+                    }
+                }
+                e.onComplete();
+
+            }
+        }).retry(5, new Predicate<Throwable>() {
+            @Override
+            public boolean test(Throwable throwable) throws Exception {
+                return throwable instanceof IOException || throwable instanceof NullPointerException;
+            }
+        })
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<OpsResult>() {
+            @Override
+            public void onNext(OpsResult value) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+                Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onComplete() {
+                initData(appInfo.packageName);
+            }
+        });
+    }
 }

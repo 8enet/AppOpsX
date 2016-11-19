@@ -17,197 +17,13 @@ public class OpsCommands {
 
     public static final String ACTION_GET="get";
     public static final String ACTION_SET="set";
-
-//    public static class GetBuilder{
-//        String packageName;
-//        String opStr;
-//
-//        public GetBuilder(String packageName){
-//            this.packageName=packageName;
-//        }
-//
-//        public GetBuilder(String packageName,String opStr){
-//            this.packageName=packageName;
-//            this.opStr=opStr;
-//        }
-//
-//        public GetBuilder opStr(String opStr){
-//            this.opStr=opStr;
-//            return this;
-//        }
-//
-//        public String getPackageName() {
-//            return packageName;
-//        }
-//
-//        public String getOpStr() {
-//            return opStr;
-//        }
-//
-//        public String build(){
-//            JSONObject jsonObject=new JSONObject();
-//            try {
-//                jsonObject.put("action",ACTION_GET);
-//                JSONObject args=new JSONObject();
-//                args.put("packageName",packageName);
-//                args.put("opStr",opStr);
-//                jsonObject.put("args",args);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            return jsonObject.toString();
-//        }
-//
-//        public static GetBuilder parseObject(String json){
-//            try {
-//                JSONObject jsonObject=new JSONObject(json);
-//                jsonObject=jsonObject.getJSONObject("args");
-//                return new GetBuilder(jsonObject.getString("packageName"),jsonObject.optString("opStr"));
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
-//        }
-//    }
-//
-//
-//    public static class SetBuilder{
-//        String packageName;
-//        String opStr;
-//        String mode;
-//
-//        public SetBuilder(String packageName,String opStr,String mode){
-//            this.packageName=packageName;
-//            this.opStr=opStr;
-//            this.mode=mode;
-//        }
-//
-//        public String getPackageName() {
-//            return packageName;
-//        }
-//
-//        public String getOpStr() {
-//            return opStr;
-//        }
-//
-//        public String build(){
-//            JSONObject jsonObject=new JSONObject();
-//            try {
-//                jsonObject.put("action",ACTION_SET);
-//                JSONObject args=new JSONObject();
-//                args.put("packageName",packageName);
-//                args.put("opStr",opStr);
-//                args.put("mode",mode);
-//                jsonObject.put("args",args);
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            return jsonObject.toString();
-//        }
-//
-//
-//
-//        public static final SetBuilder parseObject(String json){
-//            try {
-//                JSONObject jsonObject=new JSONObject(json);
-//                jsonObject=jsonObject.getJSONObject("args");
-//                return new SetBuilder(jsonObject.getString("packageName"),jsonObject.getString("opStr"),jsonObject.getString("mode"));
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
-//        }
-//    }
-//
-//
-//
-//    public static String parseAction(String json){
-//        try {
-//            JSONObject jsonObject=new JSONObject(json);
-//            if(jsonObject.has("action")){
-//                return jsonObject.optString("action");
-//            }
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//    public static String toGetRestlt(List<PackageOps> list){
-//        JSONObject jsonObject=new JSONObject();
-//        try {
-//            jsonObject.put("code",0);
-//            JSONObject data=new JSONObject();
-//            data.put("list",toJSONArray(list));
-//            jsonObject.put("data",data);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return jsonObject.toString();
-//    }
-//
-//    public static JSONArray toJSONArray(List<PackageOps> list){
-//        if(list == null){
-//            return new JSONArray();
-//        }
-//
-//        JSONArray jsonArray=new JSONArray();
-//        for (PackageOps packageOps : list) {
-//            jsonArray.put(toJSONObject(packageOps));
-//        }
-//        return jsonArray;
-//    }
-//
-//
-//    public static JSONObject toJSONObject(PackageOps packageOps){
-//        if(packageOps == null){
-//            return new JSONObject();
-//        }
-//        JSONObject jsonObject=new JSONObject();
-//        try {
-//            jsonObject.put("mPackageName",packageOps.getPackageName());
-//            jsonObject.put("mUid",packageOps.getUid());
-//            List<OpEntry> ops = packageOps.getOps();
-//            if(ops != null){
-//                JSONArray jsonArray=new JSONArray();
-//                for (OpEntry op : ops) {
-//                    jsonArray.put(toJSONObject(op));
-//                }
-//                jsonObject.put("mEntries",jsonArray);
-//            }
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return jsonObject;
-//    }
-//
-//    public static JSONObject toJSONObject(OpEntry opEntry){
-//        if(opEntry == null){
-//            return new JSONObject();
-//        }
-//        JSONObject jsonObject=new JSONObject();
-//        try {
-//            jsonObject.put("mOp",opEntry.getOp());
-//            jsonObject.put("mMode",opEntry.getMode());
-//            jsonObject.put("mTime",opEntry.getTime());
-//            jsonObject.put("mRejectTime",opEntry.getRejectTime());
-//            jsonObject.put("mDuration",opEntry.getDuration());
-//            jsonObject.put("mProxyUid",opEntry.getProxyUid());
-//            jsonObject.put("mProxyPackageName",opEntry.getProxyPackageName());
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return jsonObject;
-//    }
-
+    public static final String ACTION_RESET="reset";
 
     public static class Builder implements Parcelable {
         private String action=ACTION_GET;
         private String packageName;
-        private String opStr;
-        private String mode;
+        private int opInt;
+        private int modeInt;
 
 
 
@@ -229,21 +45,21 @@ public class OpsCommands {
             return this;
         }
 
-        public String getOpStr() {
-            return opStr;
+        public int getOpInt() {
+            return opInt;
         }
 
-        public Builder setOpStr(String opStr) {
-            this.opStr = opStr;
+        public Builder setOpInt(int opInt) {
+            this.opInt = opInt;
             return this;
         }
 
-        public String getMode() {
-            return mode;
+        public int getModeInt() {
+            return modeInt;
         }
 
-        public Builder setMode(String mode) {
-            this.mode = mode;
+        public Builder setModeInt(int modeInt) {
+            this.modeInt = modeInt;
             return this;
         }
 
@@ -252,8 +68,8 @@ public class OpsCommands {
             return "Builder{" +
                     "action='" + action + '\'' +
                     ", packageName='" + packageName + '\'' +
-                    ", opStr='" + opStr + '\'' +
-                    ", mode='" + mode + '\'' +
+                    ", opInt=" + opInt +
+                    ", modeInt=" + modeInt +
                     '}';
         }
 
@@ -266,8 +82,8 @@ public class OpsCommands {
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeString(this.action);
             dest.writeString(this.packageName);
-            dest.writeString(this.opStr);
-            dest.writeString(this.mode);
+            dest.writeInt(this.opInt);
+            dest.writeInt(this.modeInt);
         }
 
         public Builder() {
@@ -276,11 +92,11 @@ public class OpsCommands {
         protected Builder(Parcel in) {
             this.action = in.readString();
             this.packageName = in.readString();
-            this.opStr = in.readString();
-            this.mode = in.readString();
+            this.opInt = in.readInt();
+            this.modeInt = in.readInt();
         }
 
-        public static final Parcelable.Creator<Builder> CREATOR = new Parcelable.Creator<Builder>() {
+        public static final Creator<Builder> CREATOR = new Creator<Builder>() {
             @Override
             public Builder createFromParcel(Parcel source) {
                 return new Builder(source);

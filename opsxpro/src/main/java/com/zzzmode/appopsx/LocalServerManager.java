@@ -83,6 +83,10 @@ class LocalServerManager {
 
             checker.join(20000);
 
+            if(checker.exit == -1){
+                throw new RuntimeException("grant root timeout");
+            }
+
             if(checker.exit != 1){
                 throw new RuntimeException(checker.errorMsg);
             }
@@ -109,7 +113,7 @@ class LocalServerManager {
             if(checker != null){
                 checker.interrupt();
             }
-            throw new RuntimeException(e);
+            throw e;
         } finally {
 //            try {
 //                if(writer != null){
@@ -182,7 +186,7 @@ class LocalServerManager {
         private volatile boolean isRunning = false;
         private OpsDataTransfer transfer;
 
-        private void connect(int retryCount) throws IOException {
+        private void connect(int retryCount) throws Exception {
             if (!isRunning) {
                 try {
                     LocalSocket localSocket = new LocalSocket();
@@ -199,7 +203,7 @@ class LocalServerManager {
                             connect(--retryCount);
                         } catch (Exception e1) {
                             e1.printStackTrace();
-                            throw new IOException(e1);
+                            throw e1;
                         }
                     }else {
                         throw new IOException(e);
@@ -208,12 +212,12 @@ class LocalServerManager {
             }
         }
 
-        boolean start() throws IOException {
+        boolean start() throws Exception {
             connect(10);
             return isRunning;
         }
 
-        OpsResult exec(OpsCommands.Builder builder) throws IOException {
+        OpsResult exec(OpsCommands.Builder builder) throws Exception {
             if (!isRunning) {
                 connect(10);
             }

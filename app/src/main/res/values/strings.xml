@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AppOpsX</string>
+    <string name="reset_all">重置权限设置</string>
 </resources>

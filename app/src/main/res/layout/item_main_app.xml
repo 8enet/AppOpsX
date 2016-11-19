@@ -11,8 +11,8 @@
 
     <ImageView
         android:id="@+id/app_icon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@android:dimen/app_icon_size"
+        android:layout_height="@android:dimen/app_icon_size"
         android:layout_gravity="center_vertical"
         android:src="@mipmap/ic_launcher"
         android:layout_marginLeft="8dp"

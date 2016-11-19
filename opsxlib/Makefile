@@ -3,7 +3,7 @@ buildJar:
 	dx --dex --output=build/appopsx.jar build/appopsx-orig.jar
 	cp build/appopsx-common.jar ../opsxpro/libs
 	cp build/appopsx.jar ../opsxpro/src/main/assets
-	cp appopsx ../opsxpro/src/main/assets
+	# cp appopsx ../opsxpro/src/main/assets
 
 push:
 	adb push appopsx /data/local/tmp/appopsx
