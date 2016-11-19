@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.system.Os;
@@ -64,7 +65,10 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback{
                             try {
                                 isDeath=true;
                                 server.setStop();
+
                                 System.out.println("timeout stop-----");
+                                Process.killProcess(Process.myPid());
+                                System.exit(0);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

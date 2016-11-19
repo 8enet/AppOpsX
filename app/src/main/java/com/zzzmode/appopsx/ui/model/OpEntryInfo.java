@@ -13,10 +13,13 @@ import com.zzzmode.appopsx.common.ReflectUtils;
 public class OpEntryInfo {
     public OpEntry opEntry;
     public String opName;
+    public String opPermsName;
+    public String opPermsLab;
 
     public OpEntryInfo(OpEntry opEntry){
         this.opEntry=opEntry;
         this.opName= String.valueOf(ReflectUtils.getArrayFieldValue(AppOpsManager.class,"sOpNames",opEntry.getOp()));
+        this.opPermsName=String.valueOf(ReflectUtils.getArrayFieldValue(AppOpsManager.class,"sOpPerms",opEntry.getOp()));
     }
 
 }

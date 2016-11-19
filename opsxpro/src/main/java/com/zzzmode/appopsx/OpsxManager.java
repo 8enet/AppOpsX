@@ -1,14 +1,12 @@
 package com.zzzmode.appopsx;
 
 import android.content.Context;
+import android.os.RemoteException;
 
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsResult;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
+import java.io.IOException;
 
 /**
  * Created by zl on 2016/11/13.
@@ -33,26 +31,16 @@ public class OpsxManager {
     }
 
 
-    public Observable<OpsResult> getOpsForPackage(final String packageName){
-
-        return Observable.create(new ObservableOnSubscribe<OpsResult>() {
-            @Override
-            public void subscribe(ObservableEmitter<OpsResult>  subscriber) {
-                OpsResult exec = null;
-                try {
-                    OpsCommands.Builder builder=new OpsCommands.Builder();
-                    builder.setAction(OpsCommands.ACTION_GET);
-                    builder.setPackageName(packageName);
-                    exec = mLocalServerManager.exec(builder);
-                    subscriber.onNext(exec);
-                    subscriber.onComplete();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    subscriber.onError(e);
-                }
-
-            }
-        }).subscribeOn(Schedulers.computation());
+    public OpsResult getOpsForPackage(final String packageName)throws RemoteException{
+        OpsCommands.Builder builder=new OpsCommands.Builder();
+        builder.setAction(OpsCommands.ACTION_GET);
+        builder.setPackageName(packageName);
+        try {
+            return mLocalServerManager.exec(builder);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RemoteException("remote error:"+e.getMessage());
+        }
     }
 
     public void destory(){

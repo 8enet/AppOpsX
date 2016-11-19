@@ -33,7 +33,12 @@ public class AppPermissionAdapter extends RecyclerView.Adapter<AppPermissionAdap
     public void onBindViewHolder(ViewHolder holder, int position) {
         OpEntryInfo opEntryInfo = datas.get(position);
         if(opEntryInfo != null){
-            holder.textView.setText(opEntryInfo.opName);
+            if(opEntryInfo.opPermsLab != null){
+                holder.textView.setText(opEntryInfo.opPermsLab);
+            }else {
+                holder.textView.setText(opEntryInfo.opName);
+            }
+
         }
     }
 
