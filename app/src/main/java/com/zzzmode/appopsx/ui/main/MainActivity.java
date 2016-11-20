@@ -27,7 +27,6 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private volatile boolean running=false;
 
     private MainListAdapter adapter;
 
@@ -35,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        running=true;
 
         RecyclerView recyclerView= (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -84,87 +82,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        running=false;
-//        if(manager!= null){
-//            manager.destory();
-//        }
     }
-
-//    public void onClickServer(View view){
-//
-//    }
-//
-//    public void onClickClient(View view){
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    final LocalSocket localSocket=new LocalSocket();
-//                    localSocket.connect(new LocalSocketAddress("com.zzzmode.appopsx"));
-//
-//                     OpsDataTransfer transfer=new OpsDataTransfer(localSocket.getOutputStream(),localSocket.getInputStream());
-//                    transfer.setCallback(new OpsDataTransfer.OnRecvCallback() {
-//                        @Override
-//                        public void onMessage(byte[] bytes) {
-//                            Log.e(TAG, "onMessage --> "+ParcelableUtil.unmarshall(bytes, OpsResult.CREATOR));
-//                        }
-//                    });
-//
-//                    new Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            SystemClock.sleep(10000);
-//                            try {
-//                                localSocket.close();
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    }).start();
-//
-//                    transfer.sendMsg(ParcelableUtil.marshall(new OpsCommands.Builder().setAction("get").setPackageName("com.taobao.trip")));
-//                    transfer.handleRecv();
-//
-//                    Log.e(TAG, "run --> end");
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
-//    }
-//
-//
-//
-//    OpsxManager manager;
-//    public void onManagerClient(View view){
-//        if(manager == null){
-//
-//            manager=new OpsxManager(getApplicationContext());
-//        }
-//        manager.getOpsForPackage("com.taobao.trip").observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<OpsResult>() {
-//            @Override
-//            public void onNext(OpsResult value) {
-//                Log.e(TAG, "onManagerClient --> "+value);
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//
-//            }
-//
-//            @Override
-//            public void onComplete() {
-//
-//            }
-//
-//            @Override
-//            protected void onStart() {
-//                super.onStart();
-//                Log.e(TAG, "onStart --> ");
-//            }
-//        });
-//
-//    }
 
 
 

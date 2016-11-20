@@ -199,7 +199,6 @@ public class AppPermissionActivity extends AppCompatActivity {
                     @Override
                     public List<OpEntryInfo> apply(OpsResult opsResult) throws Exception {
                         List<PackageOps> opses = opsResult.getList();
-                        Log.e("test", "apply --> " + opsResult);
                         if (opses != null) {
                             List<OpEntryInfo> list = new ArrayList<OpEntryInfo>();
                             PackageManager pm = getPackageManager();
@@ -213,14 +212,11 @@ public class AppPermissionActivity extends AppCompatActivity {
                                             opEntryInfo.opPermsLab = String.valueOf(permissionInfo.loadLabel(pm));
                                             opEntryInfo.opPermsDesc = String.valueOf(permissionInfo.loadDescription(pm));
                                         } catch (PackageManager.NameNotFoundException e) {
-                                            //e.printStackTrace();
+                                            //ignore
                                         }
                                         list.add(opEntryInfo);
                                     }
                                 }
-
-                                PackageInfo packageInfo = pm.getPackageInfo(opse.getPackageName(), PackageManager.GET_PERMISSIONS);
-                                Log.e("test", "apply --> " + Arrays.toString(packageInfo.requestedPermissions));
 
                             }
                             return list;
