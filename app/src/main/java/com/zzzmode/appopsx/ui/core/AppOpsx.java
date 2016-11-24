@@ -1,4 +1,4 @@
-package com.zzzmode.appopsx.ui.permission;
+package com.zzzmode.appopsx.ui.core;
 
 import android.content.Context;
 
@@ -8,7 +8,7 @@ import com.zzzmode.appopsx.OpsxManager;
  * Created by zl on 2016/11/19.
  */
 
-class AppOpsx {
+public class AppOpsx {
 
     private static OpsxManager sManager;
 

@@ -1,49 +1,37 @@
 package com.zzzmode.appopsx.ui.permission;
 
 import android.app.AppOpsManager;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
-import com.zzzmode.appopsx.OpsxManager;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
-import com.zzzmode.appopsx.common.ReflectUtils;
+import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.BiPredicate;
-import io.reactivex.functions.BooleanSupplier;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.observers.ResourceObserver;
@@ -86,7 +74,7 @@ public class AppPermissionActivity extends AppCompatActivity {
                 if(v){
                     info.mode=AppOpsManager.MODE_ALLOWED;
                 }else {
-                    info.mode=AppOpsManager.MODE_ERRORED;
+                    info.mode=AppOpsManager.MODE_IGNORED;
                 }
 
                 setMode(info);
@@ -111,11 +99,7 @@ public class AppPermissionActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.ops_menu, menu);
-//        return true;
-//    }
+
 
     private void initData(String packageName){
         getAppInfo(packageName)

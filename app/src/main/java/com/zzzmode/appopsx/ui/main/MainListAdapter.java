@@ -19,9 +19,9 @@ import java.util.List;
  * Created by zl on 2016/11/18.
  */
 
-public class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> implements View.OnClickListener{
+class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> implements View.OnClickListener{
 
-    private List<AppInfo> appInfos=new ArrayList<>();
+    List<AppInfo> appInfos=new ArrayList<>();
 
     public void addItem(AppInfo info){
         appInfos.add(info);
