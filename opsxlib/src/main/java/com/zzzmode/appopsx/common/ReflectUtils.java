@@ -3,17 +3,20 @@ package com.zzzmode.appopsx.common;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by zl on 2016/11/6.
  */
 
 public class ReflectUtils {
-    private static final Map<String, Field> sFieldCache = new HashMap<>();
-    private static final Map<String, Method> sMethodCache = new HashMap<>();
+    private static final Map<String, Field> sFieldCache = new HashMap<String, Field>();
+    private static final Map<String, Method> sMethodCache = new HashMap<String, Method>();
 
 
     public static PackageOps opsConvert(Object object) {
@@ -113,4 +116,48 @@ public class ReflectUtils {
         }
         return null;
     }
+
+    public static Object invokMethod(Object object,String methodName,List<Class> paramsTypes,List<Object> params){
+        StringBuilder sb=new StringBuilder(methodName);
+        if(paramsTypes != null && !paramsTypes.isEmpty()){
+            sb.append("-");
+            for (Class aClass : paramsTypes) {
+                sb.append(aClass.getSimpleName()).append(",");
+            }
+        }
+
+        Method method = sMethodCache.get(sb.toString());
+        if (method == null) {
+            try {
+                if (paramsTypes != null && !paramsTypes.isEmpty()) {
+
+
+                    method = object.getClass().getDeclaredMethod(methodName, paramsTypes.toArray(new Class[paramsTypes.size()]));
+
+                    System.out.println("----- find method "+method);
+                    method.setAccessible(true);
+                } else {
+                    method = object.getClass().getDeclaredMethod(methodName);
+                    method.setAccessible(true);
+                }
+                sMethodCache.put(sb.toString(),method);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        }
+        if(method != null){
+            try {
+                if(params != null && !params.isEmpty()){
+                    System.out.println("params -- "+Arrays.toString(params.toArray()));
+                    return method.invoke(object,params.toArray());
+                }else {
+                    return method.invoke(object);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
 }

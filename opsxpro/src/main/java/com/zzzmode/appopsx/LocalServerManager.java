@@ -190,7 +190,7 @@ class LocalServerManager {
             if (!isRunning) {
                 try {
                     LocalSocket localSocket = new LocalSocket();
-                    localSocket.connect(new LocalSocketAddress("com.zzzmode.appopsx"));
+                    localSocket.connect(new LocalSocketAddress("/data/data/com.zzzmode.appopsx/com.zzzmode.appopsx.socket"));
                     transfer = new OpsDataTransfer(localSocket.getOutputStream(), localSocket.getInputStream(), false);
                     isRunning = true;
                 } catch (IOException e) {

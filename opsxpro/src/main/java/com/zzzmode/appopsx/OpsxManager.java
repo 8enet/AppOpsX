@@ -3,6 +3,7 @@ package com.zzzmode.appopsx;
 import android.content.Context;
 import android.os.RemoteException;
 
+import com.zzzmode.android.opsxpro.BuildConfig;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsResult;
 
@@ -27,7 +28,7 @@ public class OpsxManager {
 
     private void checkFile(){
         //AssetsUtils.copyFile(mContext,"appopsx",new File(mContext.getDir(DIR_NAME,Context.MODE_PRIVATE),"appopsx"),false);
-        AssetsUtils.copyFile(mContext,SConfig.JAR_NAME,SConfig.getDestJarFile(),false);
+        AssetsUtils.copyFile(mContext,SConfig.JAR_NAME,SConfig.getDestJarFile(), BuildConfig.DEBUG);
     }
 
 

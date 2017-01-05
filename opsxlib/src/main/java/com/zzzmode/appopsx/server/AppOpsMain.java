@@ -3,11 +3,14 @@ package com.zzzmode.appopsx.server;
 
 import android.app.ActivityThread;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.os.Process;
 import android.os.ServiceManager;
+import android.util.Log;
 
 import com.android.internal.app.IAppOpsService;
 import com.zzzmode.appopsx.common.OpsCommands;
@@ -42,7 +45,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private final int timeOut = DEFAULT_TIME_OUT_TIME;
 
     private AppOpsMain(String[] args) throws IOException {
-        server = new OpsXServer("com.zzzmode.appopsx", this);
+        server = new OpsXServer("/data/data/com.zzzmode.appopsx/com.zzzmode.appopsx.socket", this);
 
         try {
 
@@ -91,13 +94,15 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     }
 
     private void runGet(OpsCommands.Builder getBuilder) {
-        final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-                ServiceManager.getService(Context.APP_OPS_SERVICE));
+
         try {
+            System.out.println("runGet "+Build.VERSION.SDK_INT);
+            final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
+                    ServiceManager.getService(Context.APP_OPS_SERVICE));
+            System.out.println("runGet service --->>>>> ");
             String packageName = getBuilder.getPackageName();
 
-            final int uid = ActivityThread.getPackageManager().getPackageUid(packageName, 0);
-            System.out.println("uid " + uid);
+            int uid=getPackageUid(packageName,0);
 
             List opsForPackage = appOpsService.getOpsForPackage(uid, packageName, null);
             List<PackageOps> packageOpses = new ArrayList<>();
@@ -107,9 +112,9 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
                 }
             }
             server.sendResult(ParcelableUtil.marshall(new OpsResult(packageOpses, null)));
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
-
+            System.out.println(Log.getStackTraceString(e));
             try {
                 server.sendResult(ParcelableUtil.marshall(new OpsResult(null, e)));
             } catch (IOException e1) {
@@ -118,12 +123,14 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
         }
     }
 
+
+
     private void runSet(OpsCommands.Builder builder) {
 
         try {
             final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
                     ServiceManager.getService(Context.APP_OPS_SERVICE));
-            final int uid = ActivityThread.getPackageManager().getPackageUid(builder.getPackageName(), 0);
+            final int uid = getPackageUid(builder.getPackageName(), 0);
 
             appOpsService.setMode(builder.getOpInt(), uid, builder.getPackageName(), builder.getModeInt());
             server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));
@@ -141,7 +148,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
         try {
             final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
                     ServiceManager.getService(Context.APP_OPS_SERVICE));
-            final int uid = ActivityThread.getPackageManager().getPackageUid(builder.getPackageName(), 0);
+            final int uid = getPackageUid(builder.getPackageName(), 0);
 
             appOpsService.resetAllModes(uid,builder.getPackageName());
             server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));
@@ -163,8 +170,34 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
 
             OpsCommands.Builder unmarshall = ParcelableUtil.unmarshall(bytes, OpsCommands.Builder.CREATOR);
-            System.out.println("onMessage --->  " + unmarshall);
+            System.out.println("onMessage ---> !!!! " + unmarshall);
             handleCommand(unmarshall);
         }
     }
+
+    private int getPackageUid(String packageName,int flag){
+        int uid=0;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            List<Class> paramsType=new ArrayList<>();
+            paramsType.add(String.class);
+            paramsType.add(int.class);
+            paramsType.add(int.class);
+            List<Object> params=new ArrayList<>();
+            params.add(packageName);
+            params.add(PackageManager.MATCH_UNINSTALLED_PACKAGES);
+            params.add(flag);
+            uid= (int) ReflectUtils.invokMethod(ActivityThread.getPackageManager(),"getPackageUid",paramsType,params);
+        }else {
+            List<Class> paramsType=new ArrayList<>();
+            paramsType.add(String.class);
+            paramsType.add(int.class);
+            List<Object> params=new ArrayList<>();
+            params.add(packageName);
+            params.add(flag);
+            uid= (int) ReflectUtils.invokMethod(ActivityThread.getPackageManager(),"getPackageUid",paramsType,params);
+        }
+
+        return uid;
+    }
+
 }

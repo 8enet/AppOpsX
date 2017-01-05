@@ -1,5 +1,5 @@
 buildJar:
-	gradle build
+	gradle clean build
 	dx --dex --output=build/appopsx.jar build/appopsx-orig.jar
 	cp build/appopsx-common.jar ../opsxpro/libs
 	cp build/appopsx.jar ../opsxpro/src/main/assets

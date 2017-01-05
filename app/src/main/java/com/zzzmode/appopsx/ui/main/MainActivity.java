@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                                 if(opsForPackage.getException() == null){
                                     return new AppOpEntry(info,opsForPackage);
                                 }else {
-                                    throw opsForPackage.getException();
+                                    throw new Exception(opsForPackage.getException());
                                 }
                             }
                             throw new RuntimeException("getOpsForPackage fail: "+info);

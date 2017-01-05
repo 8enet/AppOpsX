@@ -11,16 +11,16 @@ import java.util.List;
 
 public class OpsResult implements Parcelable {
 
-    private Exception exception;
+    private Throwable exception;
     private List<PackageOps> list;
 
-    public OpsResult( List<PackageOps> list,Exception exception) {
+    public OpsResult( List<PackageOps> list,Throwable exception) {
         this.exception = exception;
         this.list = list;
     }
 
 
-    public Exception getException() {
+    public Throwable getException() {
         return exception;
     }
 

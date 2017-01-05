@@ -166,7 +166,7 @@ public class AppPermissionActivity extends AppCompatActivity {
                     if(opsForPackage.getException() == null){
                         e.onNext(opsForPackage);
                     }else {
-                        throw opsForPackage.getException();
+                        throw new Exception(opsForPackage.getException());
                     }
                 }
                 e.onComplete();
@@ -221,7 +221,7 @@ public class AppPermissionActivity extends AppCompatActivity {
                     if(opsForPackage.getException() == null){
                         e.onNext(opsForPackage);
                     }else {
-                        throw opsForPackage.getException();
+                        throw new Exception(opsForPackage.getException());
                     }
                 }
                 e.onComplete();
@@ -267,7 +267,7 @@ public class AppPermissionActivity extends AppCompatActivity {
                     if(opsForPackage.getException() == null){
                         e.onNext(opsForPackage);
                     }else {
-                        throw opsForPackage.getException();
+                        throw new Exception(opsForPackage.getException());
                     }
                 }
                 e.onComplete();
