@@ -45,7 +45,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private final int timeOut = DEFAULT_TIME_OUT_TIME;
 
     private AppOpsMain(String[] args) throws IOException {
-        server = new OpsXServer("/data/data/com.zzzmode.appopsx/com.zzzmode.appopsx.socket", this);
+        server = new OpsXServer("com.zzzmode.appopsx.socket", this);
 
         try {
 
@@ -96,10 +96,9 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private void runGet(OpsCommands.Builder getBuilder) {
 
         try {
-            System.out.println("runGet "+Build.VERSION.SDK_INT);
+            System.out.println("runGet sdk:"+Build.VERSION.SDK_INT);
             final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
                     ServiceManager.getService(Context.APP_OPS_SERVICE));
-            System.out.println("runGet service --->>>>> ");
             String packageName = getBuilder.getPackageName();
 
             int uid=getPackageUid(packageName,0);

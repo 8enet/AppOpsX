@@ -3,12 +3,9 @@ package com.zzzmode.appopsx.common;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by zl on 2016/11/6.
@@ -130,11 +127,7 @@ public class ReflectUtils {
         if (method == null) {
             try {
                 if (paramsTypes != null && !paramsTypes.isEmpty()) {
-
-
                     method = object.getClass().getDeclaredMethod(methodName, paramsTypes.toArray(new Class[paramsTypes.size()]));
-
-                    System.out.println("----- find method "+method);
                     method.setAccessible(true);
                 } else {
                     method = object.getClass().getDeclaredMethod(methodName);
@@ -148,7 +141,6 @@ public class ReflectUtils {
         if(method != null){
             try {
                 if(params != null && !params.isEmpty()){
-                    System.out.println("params -- "+Arrays.toString(params.toArray()));
                     return method.invoke(object,params.toArray());
                 }else {
                     return method.invoke(object);
