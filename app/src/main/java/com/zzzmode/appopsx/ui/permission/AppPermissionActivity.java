@@ -13,12 +13,12 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
+import com.zzzmode.appopsx.ui.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 
