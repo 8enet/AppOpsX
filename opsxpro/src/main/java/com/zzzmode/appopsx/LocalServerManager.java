@@ -16,6 +16,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by zl on 2016/11/13.
@@ -24,6 +25,11 @@ import java.io.OutputStreamWriter;
 class LocalServerManager {
 
     private static final String TAG = "LocalServerManager";
+
+    private static final String SOCKET_PATH="com.zzzmode.appopsx.socket";
+
+    private static AtomicReference<String> sAuthToken=new AtomicReference<>();
+
     private static LocalServerManager sLocalServerManager;
 
     static LocalServerManager getInstance() {
@@ -62,7 +68,9 @@ class LocalServerManager {
     public void stop() {
         if (mClientThread != null && mClientThread.isRunning()) {
             mClientThread.exit();
+            mClientThread=null;
         }
+
     }
 
     public OpsResult exec(OpsCommands.Builder builder) throws Exception {
@@ -71,13 +79,12 @@ class LocalServerManager {
     }
 
 
-    private static boolean startServer() throws Exception{
+    private boolean startServer() throws Exception{
         BufferedWriter writer = null;
-        Process exec = null;
         RootChecker checker=null;
         try {
 
-            exec = Runtime.getRuntime().exec("su");
+            Process exec = Runtime.getRuntime().exec("su");
             checker=new RootChecker(exec);
             checker.start();
 
@@ -93,10 +100,12 @@ class LocalServerManager {
 
             writer = new BufferedWriter(new OutputStreamWriter(exec.getOutputStream()));
 
+            sAuthToken.set("appopsx-"+System.currentTimeMillis()+"%$%"+Math.random());
+
             String[] cmds = {"export LD_LIBRARY_PATH=/vendor/lib:/system/lib",
                     "export CLASSPATH=" + SConfig.getClassPath(),
                     "echo start",
-                    "exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain \"$@\""};
+                    "exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ "+SOCKET_PATH+"  "+sAuthToken.get()};
 
             for (String cmd : cmds) {
                 writer.write(cmd);
@@ -115,14 +124,6 @@ class LocalServerManager {
             }
             throw e;
         } finally {
-//            try {
-//                if(writer != null){
-//                    writer.close();
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
 //            try {
 //                if(exec != null){
 //                    exec.destroy();
@@ -182,7 +183,7 @@ class LocalServerManager {
     }
 
 
-    private static class SyncClient {
+    private class SyncClient {
         private volatile boolean isRunning = false;
         private OpsDataTransfer transfer;
 
@@ -190,8 +191,9 @@ class LocalServerManager {
             if (!isRunning) {
                 try {
                     LocalSocket localSocket = new LocalSocket();
-                    localSocket.connect(new LocalSocketAddress("com.zzzmode.appopsx.socket"));
+                    localSocket.connect(new LocalSocketAddress(SOCKET_PATH));
                     transfer = new OpsDataTransfer(localSocket.getOutputStream(), localSocket.getInputStream(), false);
+                    transfer.shakehands(sAuthToken.get(),false);
                     isRunning = true;
                 } catch (IOException e) {
                     if(retryCount >= 0) {
@@ -222,13 +224,17 @@ class LocalServerManager {
                 connect(10);
             }
             try {
-                byte[] bytes = transfer.sendMsgAndRecv(ParcelableUtil.marshall(builder));
-                return ParcelableUtil.unmarshall(bytes, OpsResult.CREATOR);
+                return ParcelableUtil.unmarshall(execCmd(builder), OpsResult.CREATOR);
             } catch (IOException e) {
                 isRunning = false;
                 e.printStackTrace();
                 throw e;
             }
+        }
+
+
+        byte[] execCmd(OpsCommands.Builder builder) throws IOException {
+            return transfer.sendMsgAndRecv(ParcelableUtil.marshall(builder));
         }
 
         void exit() {

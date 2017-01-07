@@ -1,5 +1,8 @@
 package com.zzzmode.appopsx.common;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,27 +13,28 @@ import java.io.OutputStream;
  * Created by zl on 2016/11/5.
  */
 
-public class OpsDataTransfer{
+public class OpsDataTransfer {
     private DataOutputStream outputStream;
     private DataInputStream inputStream;
     private OnRecvCallback callback;
 
-    private boolean running=true;
-    private boolean async=true;
+    private boolean running = true;
+    private boolean async = true;
+    private String token;
 
     public OpsDataTransfer(OutputStream outputStream, InputStream inputStream, OnRecvCallback callback) {
         this.outputStream = new DataOutputStream(outputStream);
         this.inputStream = new DataInputStream(inputStream);
-        this.callback=callback;
+        this.callback = callback;
     }
 
     public OpsDataTransfer(OutputStream outputStream, InputStream inputStream) {
-        this(outputStream,inputStream,true);
+        this(outputStream, inputStream, true);
     }
 
-    public OpsDataTransfer(OutputStream outputStream, InputStream inputStream,boolean async) {
-        this(outputStream,inputStream,null);
-        this.async=async;
+    public OpsDataTransfer(OutputStream outputStream, InputStream inputStream, boolean async) {
+        this(outputStream, inputStream, null);
+        this.async = async;
     }
 
     public void setCallback(OnRecvCallback callback) {
@@ -38,56 +42,75 @@ public class OpsDataTransfer{
     }
 
     public void sendMsg(String text) throws IOException {
-        if(text != null){
+        if (text != null) {
             sendMsg(text.getBytes());
         }
     }
 
     public void sendMsg(byte[] msg) throws IOException {
-        if(msg != null){
+        if (msg != null) {
             outputStream.writeInt(msg.length);
             outputStream.write(msg);
             outputStream.flush();
         }
     }
 
-    public synchronized byte[] sendMsgAndRecv(byte[] msg)throws IOException {
-        if(msg != null){
+    public synchronized byte[] sendMsgAndRecv(byte[] msg) throws IOException {
+        if (msg != null) {
             sendMsg(msg);
             return readMsg();
         }
         return null;
     }
 
-    public interface OnRecvCallback{
+    public interface OnRecvCallback {
         void onMessage(byte[] bytes);
     }
 
     private byte[] readMsg() throws IOException {
         int len = inputStream.readInt();
         byte[] bytes = new byte[len];
-        if(inputStream.read(bytes, 0, len) == len){
+        if (inputStream.read(bytes, 0, len) == len) {
             return bytes;
         }
         return null;
     }
 
-    public void handleRecv() {
-        if(!async){
+    public void shakehands(String token,boolean isServer) throws IOException {
+        if(isServer) {
+            System.out.println("shakehands --> start: token " + token + "  " + isServer);
+        }else {
+            Log.e("test", "shakehands --> start: token " + token + "  " + isServer);
+        }
+        if(isServer){
+            String recv=new String(readMsg());
+            if(TextUtils.equals(token,recv)){
+                //auth success,pass
+                System.out.println("shakehands --> hands success ");
+            }else {
+                System.out.println("shakehands --> unknow token ");
+                throw new IOException("Unauthorized client, token:"+token);
+            }
+        } else {
+            //client
+            sendMsg(token);
+        }
+    }
+
+
+    public void handleRecv() throws IOException {
+        if (!async) {
             return;
         }
-        try {
-            while (running){
+        while (running) {
 //                int len = inputStream.readInt();
 //                byte[] bytes = new byte[len];
 //                if(inputStream.read(bytes, 0, len) == len){
 //                    onRecvMsg(bytes);
 //                }
-                onRecvMsg(readMsg());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            onRecvMsg(readMsg());
         }
+
     }
 
     private void onRecvMsg(byte[] bytes) {

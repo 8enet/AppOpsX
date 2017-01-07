@@ -17,6 +17,7 @@ import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
+import com.zzzmode.appopsx.ui.BaseActivity;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.ui.model.AppInfo;
@@ -41,7 +42,7 @@ import io.reactivex.schedulers.Schedulers;
  * Created by zl on 2016/11/18.
  */
 
-public class AppPermissionActivity extends AppCompatActivity {
+public class AppPermissionActivity extends BaseActivity {
 
     private static final String TAG = "AppPermissionActivity";
 

@@ -11,28 +11,28 @@ import java.io.IOException;
  * Created by zl on 2016/11/6.
  */
 
-class OpsXServer implements Runnable{
+class OpsXServer{
 
     private boolean running=true;
     private LocalServerSocket serverSocket;
     private OpsDataTransfer opsDataTransfer;
     private OpsDataTransfer.OnRecvCallback callback;
 
-    OpsXServer(String name,OpsDataTransfer.OnRecvCallback callback) throws IOException {
+    private String token;
+
+    OpsXServer(String name,String token,OpsDataTransfer.OnRecvCallback callback) throws IOException {
         serverSocket=new LocalServerSocket(name);
         this.callback=callback;
+        this.token=token;
     }
 
-    @Override
-    public void run() {
-        while (running){
-            try {
-                LocalSocket socket = serverSocket.accept(); //only one connect
-                opsDataTransfer=new OpsDataTransfer(socket.getOutputStream(),socket.getInputStream(),callback);
-                opsDataTransfer.handleRecv();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    public void run() throws IOException {
+        while (running) {
+
+            LocalSocket socket = serverSocket.accept(); //only one connect
+            opsDataTransfer = new OpsDataTransfer(socket.getOutputStream(), socket.getInputStream(), callback);
+            opsDataTransfer.shakehands(token,true);
+            opsDataTransfer.handleRecv();
         }
     }
 

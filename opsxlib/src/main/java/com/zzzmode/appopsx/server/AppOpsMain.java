@@ -22,6 +22,7 @@ import com.zzzmode.appopsx.common.ReflectUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
@@ -42,10 +43,18 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private OpsXServer server;
     private Handler handler;
     private volatile boolean isDeath = false;
-    private final int timeOut = DEFAULT_TIME_OUT_TIME;
+    private int timeOut = DEFAULT_TIME_OUT_TIME;
 
     private AppOpsMain(String[] args) throws IOException {
-        server = new OpsXServer("com.zzzmode.appopsx.socket", this);
+        if(args == null || args.length < 2){
+            return;
+        }
+
+        String socketName=args[0]; //"com.zzzmode.appopsx.socket"
+        String token=args[1];
+
+        System.out.println("start ops server args:"+ Arrays.toString(args));
+        server = new OpsXServer(socketName,token,this);
 
         try {
 
@@ -57,16 +66,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
                     super.handleMessage(msg);
                     switch (msg.what) {
                         case MSG_TIMEOUT:
-                            try {
-                                isDeath = true;
-                                server.setStop();
-
-                                System.out.println("timeout stop-----");
-                                Process.killProcess(Process.myPid());
-                                System.exit(0);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            destory();
                             break;
                     }
 
@@ -76,11 +76,34 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             server.run();
         } catch (Exception e) {
             e.printStackTrace();
+            destory();
         }
 
         System.out.println("end ---- ");
     }
 
+    private void destory(){
+        try {
+            handler.removeCallbacksAndMessages(null);
+            handler.removeMessages(MSG_TIMEOUT);
+            handler.getLooper().quit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            isDeath = true;
+            server.setStop();
+
+            System.out.println("timeout stop----- "+Process.myPid());
+            Process.killProcess(Process.myPid());
+
+            Runtime.getRuntime().exec("kill -9 "+Process.myPid());
+
+            System.exit(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private void handleCommand(OpsCommands.Builder builder) {
         String s = builder.getAction();
@@ -90,6 +113,8 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             runSet(builder);
         } else if (OpsCommands.ACTION_RESET.equals(s)) {
             runReset(builder);
+        }else {
+            runOther(builder);
         }
     }
 
@@ -141,6 +166,11 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
                 e1.printStackTrace();
             }
         }
+    }
+
+    private void runOther(OpsCommands.Builder builder){
+
+
     }
 
     private void runReset(OpsCommands.Builder builder) {

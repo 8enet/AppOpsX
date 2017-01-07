@@ -19,6 +19,7 @@ import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
+import com.zzzmode.appopsx.ui.BaseActivity;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.ui.model.AppInfo;
@@ -37,7 +38,7 @@ import io.reactivex.observers.ResourceObserver;
 import io.reactivex.schedulers.Schedulers;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
 
