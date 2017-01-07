@@ -1,6 +1,7 @@
 package com.zzzmode.appopsx;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,12 +18,19 @@ class AssetsUtils {
         InputStream open=null;
         FileOutputStream fos=null;
         try {
-            if(!force && destFile.exists()){
-                return;
-            }
+
+            AssetFileDescriptor openFd = context.getAssets().openFd(fileName);
 
             if(force){
                 destFile.delete();
+            }else {
+                if(destFile.exists()){
+                    if( destFile.length() != openFd.getLength()){
+                        destFile.delete();
+                    }else {
+                        return;
+                    }
+                }
             }
 
             if(!destFile.exists()){
@@ -31,13 +39,11 @@ class AssetsUtils {
                 destFile.setExecutable(true,false);
             }
 
-            open= context.getAssets().open(fileName);
-            int count=open.available();
-
 
             fos=new FileOutputStream(destFile);
             byte[] buff=new byte[1024*16];
             int len=-1;
+            open=openFd.createInputStream();
 
             while ( (len=open.read(buff)) != -1){
                 fos.write(buff,0,len);
