@@ -188,7 +188,7 @@ class LocalServerManager {
         private OpsDataTransfer transfer;
 
         private void connect(int retryCount) throws Exception {
-            if (!isRunning) {
+            if (!isRunning && retryCount >= 0) {
                 try {
                     LocalSocket localSocket = new LocalSocket();
                     localSocket.connect(new LocalSocketAddress(SOCKET_PATH));
@@ -211,6 +211,8 @@ class LocalServerManager {
                         throw new IOException(e);
                     }
                 }
+            }else {
+                throw new RuntimeException("connect fail !");
             }
         }
 
