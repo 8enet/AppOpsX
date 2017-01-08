@@ -1,4 +1,7 @@
 # AppOpsX
+
+<a href='https://play.google.com/store/apps/details?id=com.zzzmode.appopsx&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width='150'/></a>
+
 主要是解决防止国内流氓应用在Android6.0上不给权限就不让用的问题,e.g. 几个外卖应用。   
 也可以不root通过`adb shell appops set [--user <USER_ID>] <PACKAGE> <OP> <MODE>` 忽略授予的权限。
 
