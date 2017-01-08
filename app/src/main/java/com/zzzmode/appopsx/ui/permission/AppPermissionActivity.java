@@ -221,7 +221,7 @@ public class AppPermissionActivity extends BaseActivity {
                 if(opsForPackage != null ){
                     if(opsForPackage.getException() == null){
                         e.onNext(opsForPackage);
-                    }else {
+                    } else {
                         throw new Exception(opsForPackage.getException());
                     }
                 }

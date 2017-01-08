@@ -6,7 +6,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -25,6 +24,9 @@ import com.zzzmode.appopsx.ui.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.AppOpEntry;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -56,27 +58,35 @@ public class MainActivity extends BaseActivity {
         adapter=new MainListAdapter();
         recyclerView.setAdapter(adapter);
 
-        Observable.create(new ObservableOnSubscribe<AppInfo>() {
+        Observable.create(new ObservableOnSubscribe<List<AppInfo>>() {
             @Override
-            public void subscribe(ObservableEmitter<AppInfo> e) throws Exception {
+            public void subscribe(ObservableEmitter<List<AppInfo>> e) throws Exception {
                 PackageManager packageManager = getPackageManager();
                 List<PackageInfo> installedPackages = packageManager.getInstalledPackages(0);
+                List<AppInfo> appInfos=new ArrayList<AppInfo>();
                 for (PackageInfo installedPackage : installedPackages) {
                     if( (installedPackage.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                         AppInfo info = new AppInfo();
                         info.packageName = installedPackage.packageName;
                         info.appName = String.valueOf(installedPackage.applicationInfo.loadLabel(packageManager));
                         info.icon = installedPackage.applicationInfo.loadIcon(packageManager);
-                        e.onNext(info);
+                        appInfos.add(info);
                     }
                 }
+                Collections.sort(appInfos, new Comparator<AppInfo>() {
+                    @Override
+                    public int compare(AppInfo o1, AppInfo o2) {
+                        return o1.appName.compareTo(o2.appName);
+                    }
+                });
+                e.onNext(appInfos);
                 e.onComplete();
             }
         }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<AppInfo>() {
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<List<AppInfo>>() {
             @Override
-            public void onNext(AppInfo value) {
-                adapter.addItem(value);
+            public void onNext(List<AppInfo> value) {
+                adapter.showItems(value);
             }
 
             @Override

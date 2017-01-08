@@ -50,11 +50,15 @@ public class ReflectUtils {
         return new PackageOps(packageName, uid, entries);
     }
 
-    private static Object getFieldValue(Object obj, String fieldName) {
+    public static Object getFieldValue(Object obj, String fieldName) {
         Field field = sFieldCache.get(fieldName);
         if (field == null) {
             try {
-                field = obj.getClass().getDeclaredField(fieldName);
+                if(obj instanceof Class){
+                    field = ((Class) obj).getDeclaredField(fieldName);
+                }else {
+                    field = obj.getClass().getDeclaredField(fieldName);
+                }
                 field.setAccessible(true);
                 sFieldCache.put(fieldName, field);
             } catch (Exception e) {
@@ -127,7 +131,12 @@ public class ReflectUtils {
         if (method == null) {
             try {
                 if (paramsTypes != null && !paramsTypes.isEmpty()) {
-                    method = object.getClass().getDeclaredMethod(methodName, paramsTypes.toArray(new Class[paramsTypes.size()]));
+                    if(object instanceof Class){
+                        //static method
+                        method = ((Class) object).getDeclaredMethod(methodName, paramsTypes.toArray(new Class[paramsTypes.size()]));
+                    } else {
+                        method = object.getClass().getDeclaredMethod(methodName, paramsTypes.toArray(new Class[paramsTypes.size()]));
+                    }
                     method.setAccessible(true);
                 } else {
                     method = object.getClass().getDeclaredMethod(methodName);

@@ -1,7 +1,9 @@
 package com.zzzmode.appopsx.server;
 
 
+import android.Manifest;
 import android.app.ActivityThread;
+import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -10,9 +12,11 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.os.Process;
 import android.os.ServiceManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.internal.app.IAppOpsService;
+import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
 import com.zzzmode.appopsx.common.OpsResult;
@@ -52,6 +56,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
 
         String socketName=args[0]; //"com.zzzmode.appopsx.socket"
         String token=args[1];
+
 
         System.out.println("start ops server args:"+ Arrays.toString(args));
         server = new OpsXServer(socketName,token,this);
@@ -95,9 +100,8 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             server.setStop();
 
             System.out.println("timeout stop----- "+Process.myPid());
-            Process.killProcess(Process.myPid());
 
-            Runtime.getRuntime().exec("kill -9 "+Process.myPid());
+            Runtime.getRuntime().exec("kill -9 "+Process.myPid()); //kill self
 
             System.exit(0);
         } catch (Exception e) {
@@ -132,9 +136,12 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             List<PackageOps> packageOpses = new ArrayList<>();
             if (opsForPackage != null) {
                 for (Object o : opsForPackage) {
-                    packageOpses.add(ReflectUtils.opsConvert(o));
+                    PackageOps packageOps = ReflectUtils.opsConvert(o);
+                    cmSupport(appOpsService,packageOps);
+                    packageOpses.add(packageOps);
                 }
             }
+
             server.sendResult(ParcelableUtil.marshall(new OpsResult(packageOpses, null)));
         } catch (Throwable e) {
             e.printStackTrace();
@@ -148,6 +155,29 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     }
 
 
+    private void cmSupport(IAppOpsService appOpsService,PackageOps ops){
+        String[] opls={Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                Manifest.permission.NFC,
+                Manifest.permission.MODIFY_PHONE_STATE};
+
+        for (String opl : opls) {
+            try {
+                int code = appOpsService.permissionToOpCode(opl);
+
+                if(code > 0){
+                    int mode = appOpsService.checkOperation(code, ops.getUid(), ops.getPackageName());
+                    if(mode != AppOpsManager.MODE_ERRORED){
+                        //
+                        ops.getOps().add(new OpEntry(code,mode,0,0,0,0,null));
+                    }
+                }
+            }catch (Throwable e){
+                e.printStackTrace();
+            }
+        }
+
+    }
 
     private void runSet(OpsCommands.Builder builder) {
 

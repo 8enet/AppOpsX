@@ -12,6 +12,18 @@ import java.util.List;
 
 public class AppOpsManager {
 
+    public static final int MODE_ALLOWED = 0;
+
+
+    public static final int MODE_IGNORED = 1;
+
+
+    public static final int MODE_ERRORED = 2;
+
+
+    public static final int MODE_DEFAULT = 3;
+
+
     public static int strOpToOp(String op) {
         return 0;
     }

@@ -23,9 +23,17 @@ class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> i
 
     List<AppInfo> appInfos=new ArrayList<>();
 
-    public void addItem(AppInfo info){
+    void addItem(AppInfo info){
         appInfos.add(info);
         notifyItemInserted(appInfos.size()-1);
+    }
+
+    void showItems(List<AppInfo> infos){
+        appInfos.clear();
+        if(infos != null){
+            appInfos.addAll(infos);
+        }
+        notifyDataSetChanged();
     }
 
     @Override
