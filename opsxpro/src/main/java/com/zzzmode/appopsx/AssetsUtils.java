@@ -2,6 +2,7 @@ package com.zzzmode.appopsx;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
+import android.os.Build;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -66,6 +67,15 @@ class AssetsUtils {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    static boolean is64Bit() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            String[] supported64BitAbis = Build.SUPPORTED_64_BIT_ABIS;
+            return supported64BitAbis != null && supported64BitAbis.length > 0;
+        }else {
+            return Build.CPU_ABI.equals("arm64-v8a");
         }
     }
 

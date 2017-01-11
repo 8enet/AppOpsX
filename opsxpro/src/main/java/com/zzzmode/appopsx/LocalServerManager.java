@@ -101,8 +101,8 @@ class LocalServerManager {
             writer = new BufferedWriter(new OutputStreamWriter(exec.getOutputStream()));
 
             sAuthToken.set("appopsx-"+System.currentTimeMillis()+"%$%"+Math.random());
-
-            String[] cmds = {"export LD_LIBRARY_PATH=/vendor/lib:/system/lib",
+            String arch = AssetsUtils.is64Bit() ? "64" : "";
+            String[] cmds = {"export LD_LIBRARY_PATH="+String.format("/vendor/lib%1$s:/system/lib%2$s", arch,arch),
                     "export CLASSPATH=" + SConfig.getClassPath(),
                     "echo start",
                     "exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ "+SOCKET_PATH+"  "+sAuthToken.get()};
