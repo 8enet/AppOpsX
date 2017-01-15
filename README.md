@@ -12,6 +12,8 @@
 ```
 cd opsxlib
 make all
+cd ../app
+gradle assembleDebug
 ```
 将会启动一个`LocalServerSocket`,供client调用。
 前端连接到`LocalSocks` 后即可发送命令去类似代理执行一样执行`IAppOpsService`中的方法。
