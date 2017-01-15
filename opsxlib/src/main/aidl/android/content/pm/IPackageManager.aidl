@@ -25,5 +25,15 @@ package android.content.pm;
  *  {@hide}
  */
 interface IPackageManager {
+PackageInfo getPackageInfo(String packageName, int flags, int userId);
+PermissionInfo getPermissionInfo(String name, int flags);
+PermissionGroupInfo getPermissionGroupInfo(String name, int flags);
+void grantRuntimePermission(String packageName, String permissionName, int userId);
 
+    void revokeRuntimePermission(String packageName, String permissionName, int userId);
+
+    void resetRuntimePermissions();
+
+    int getPermissionFlags(String permissionName, String packageName, int userId);
+    String[] getAppOpPermissionPackages(String permissionName);
 }

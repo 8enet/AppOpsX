@@ -19,9 +19,10 @@ class OpsXServer{
     private OpsDataTransfer.OnRecvCallback callback;
 
     private String token;
+    boolean allowBackgroundRun=false;
 
     OpsXServer(String name,String token,OpsDataTransfer.OnRecvCallback callback) throws IOException {
-        serverSocket=new LocalServerSocket(name);
+        serverSocket = new LocalServerSocket(name);
         this.callback=callback;
         this.token=token;
     }
@@ -29,10 +30,19 @@ class OpsXServer{
     public void run() throws IOException {
         while (running) {
 
-            LocalSocket socket = serverSocket.accept(); //only one connect
-            opsDataTransfer = new OpsDataTransfer(socket.getOutputStream(), socket.getInputStream(), callback);
-            opsDataTransfer.shakehands(token,true);
-            opsDataTransfer.handleRecv();
+            try {
+
+                LocalSocket socket = serverSocket.accept(); //only one connect
+
+                opsDataTransfer = new OpsDataTransfer(socket.getOutputStream(), socket.getInputStream(), callback);
+                opsDataTransfer.shakehands(token,true);
+                opsDataTransfer.handleRecv();
+            } catch (IOException e) {
+                if(!allowBackgroundRun){
+                    throw e;
+                }
+                e.printStackTrace();
+            }
         }
     }
 

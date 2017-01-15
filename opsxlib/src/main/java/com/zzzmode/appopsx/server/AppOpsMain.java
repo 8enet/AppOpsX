@@ -5,6 +5,7 @@ import android.Manifest;
 import android.app.ActivityThread;
 import android.app.AppOpsManager;
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
@@ -12,7 +13,6 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.os.Process;
 import android.os.ServiceManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.internal.app.IAppOpsService;
@@ -48,35 +48,37 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private Handler handler;
     private volatile boolean isDeath = false;
     private int timeOut = DEFAULT_TIME_OUT_TIME;
+    private volatile boolean allowBg=false;
 
     private AppOpsMain(String[] args) throws IOException {
-        if(args == null || args.length < 2){
+        if(args == null || args.length < 1){
             return;
         }
 
         String socketName=args[0]; //"com.zzzmode.appopsx.socket"
-        String token=args[1];
-
+        String allowBgArg=args.length>1?args[1]:null;
 
         System.out.println("start ops server args:"+ Arrays.toString(args));
-        server = new OpsXServer(socketName,token,this);
-
+        server = new OpsXServer(socketName,null,this);
+        server.allowBackgroundRun=this.allowBg="-D".equalsIgnoreCase(allowBgArg);
         try {
 
-            HandlerThread thread1 = new HandlerThread("watcher-ups");
-            thread1.start();
-            handler = new Handler(thread1.getLooper()) {
-                @Override
-                public void handleMessage(Message msg) {
-                    super.handleMessage(msg);
-                    switch (msg.what) {
-                        case MSG_TIMEOUT:
-                            destory();
-                            break;
-                    }
+            if(!allowBg) {
+                HandlerThread thread1 = new HandlerThread("watcher-ups");
+                thread1.start();
+                handler = new Handler(thread1.getLooper()) {
+                    @Override
+                    public void handleMessage(Message msg) {
+                        super.handleMessage(msg);
+                        switch (msg.what) {
+                            case MSG_TIMEOUT:
+                                destory();
+                                break;
+                        }
 
-                }
-            };
+                    }
+                };
+            }
 
             server.run();
         } catch (Exception e) {
@@ -89,9 +91,11 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
 
     private void destory(){
         try {
-            handler.removeCallbacksAndMessages(null);
-            handler.removeMessages(MSG_TIMEOUT);
-            handler.getLooper().quit();
+            if(!allowBg) {
+                handler.removeCallbacksAndMessages(null);
+                handler.removeMessages(MSG_TIMEOUT);
+                handler.getLooper().quit();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,16 +134,20 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
                     ServiceManager.getService(Context.APP_OPS_SERVICE));
             String packageName = getBuilder.getPackageName();
 
-            int uid=getPackageUid(packageName,0);
+            int uid = Helper.getPackageUid(packageName,0);
 
             List opsForPackage = appOpsService.getOpsForPackage(uid, packageName, null);
             List<PackageOps> packageOpses = new ArrayList<>();
             if (opsForPackage != null) {
                 for (Object o : opsForPackage) {
                     PackageOps packageOps = ReflectUtils.opsConvert(o);
-                    cmSupport(appOpsService,packageOps);
+                    addSuport(appOpsService,packageOps);
                     packageOpses.add(packageOps);
                 }
+            }else {
+                PackageOps packageOps=new PackageOps(packageName,uid,new ArrayList<OpEntry>());
+                addSuport(appOpsService,packageOps);
+                packageOpses.add(packageOps);
             }
 
             server.sendResult(ParcelableUtil.marshall(new OpsResult(packageOpses, null)));
@@ -155,28 +163,26 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     }
 
 
-    private void cmSupport(IAppOpsService appOpsService,PackageOps ops){
-        String[] opls={Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.RECEIVE_BOOT_COMPLETED,
-                Manifest.permission.NFC,
-                Manifest.permission.MODIFY_PHONE_STATE};
+    private void addSuport(IAppOpsService appOpsService,PackageOps ops){
+        try {
+            PackageInfo packageInfo = ActivityThread.getPackageManager().getPackageInfo(ops.getPackageName(), PackageManager.GET_PERMISSIONS, 0);
+            if (packageInfo != null && packageInfo.requestedPermissions != null) {
+                for (String permission : packageInfo.requestedPermissions) {
+                    int code = Helper.permissionToCode(permission);
 
-        for (String opl : opls) {
-            try {
-                int code = appOpsService.permissionToOpCode(opl);
-
-                if(code > 0){
-                    int mode = appOpsService.checkOperation(code, ops.getUid(), ops.getPackageName());
-                    if(mode != AppOpsManager.MODE_ERRORED){
-                        //
-                        ops.getOps().add(new OpEntry(code,mode,0,0,0,0,null));
+                    if(code > 0 && !ops.hasOp(code)){
+                        int mode = appOpsService.checkOperation(code, ops.getUid(), ops.getPackageName());
+                        if(mode != AppOpsManager.MODE_ERRORED){
+                            //
+                            ops.getOps().add(new OpEntry(code,mode,0,0,0,0,null));
+                            System.out.println(permission+"   "+code+"   "+mode);
+                        }
                     }
                 }
-            }catch (Throwable e){
-                e.printStackTrace();
             }
+        }catch (Throwable e){
+            e.printStackTrace();
         }
-
     }
 
     private void runSet(OpsCommands.Builder builder) {
@@ -184,7 +190,8 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
         try {
             final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
                     ServiceManager.getService(Context.APP_OPS_SERVICE));
-            final int uid = getPackageUid(builder.getPackageName(), 0);
+            final int uid = Helper.getPackageUid(builder.getPackageName(), 0);
+
 
             appOpsService.setMode(builder.getOpInt(), uid, builder.getPackageName(), builder.getModeInt());
             server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));
@@ -207,7 +214,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
         try {
             final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
                     ServiceManager.getService(Context.APP_OPS_SERVICE));
-            final int uid = getPackageUid(builder.getPackageName(), 0);
+            final int uid =  Helper.getPackageUid(builder.getPackageName(), 0);
 
             appOpsService.resetAllModes(uid,builder.getPackageName());
             server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));
@@ -223,10 +230,14 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
 
     @Override
     public void onMessage(byte[] bytes) {
-        handler.removeCallbacksAndMessages(null);
-        handler.removeMessages(MSG_TIMEOUT);
+        if(!allowBg) {
+            handler.removeCallbacksAndMessages(null);
+            handler.removeMessages(MSG_TIMEOUT);
+        }
         if (!isDeath) {
-            handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
+            if(!allowBg) {
+                handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
+            }
 
             OpsCommands.Builder unmarshall = ParcelableUtil.unmarshall(bytes, OpsCommands.Builder.CREATOR);
             System.out.println("onMessage ---> !!!! " + unmarshall);
@@ -234,29 +245,6 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
         }
     }
 
-    private int getPackageUid(String packageName,int flag){
-        int uid=0;
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            List<Class> paramsType=new ArrayList<>();
-            paramsType.add(String.class);
-            paramsType.add(int.class);
-            paramsType.add(int.class);
-            List<Object> params=new ArrayList<>();
-            params.add(packageName);
-            params.add(PackageManager.MATCH_UNINSTALLED_PACKAGES);
-            params.add(flag);
-            uid= (int) ReflectUtils.invokMethod(ActivityThread.getPackageManager(),"getPackageUid",paramsType,params);
-        }else {
-            List<Class> paramsType=new ArrayList<>();
-            paramsType.add(String.class);
-            paramsType.add(int.class);
-            List<Object> params=new ArrayList<>();
-            params.add(packageName);
-            params.add(flag);
-            uid= (int) ReflectUtils.invokMethod(ActivityThread.getPackageManager(),"getPackageUid",paramsType,params);
-        }
 
-        return uid;
-    }
 
 }

@@ -26,9 +26,7 @@ class LocalServerManager {
 
     private static final String TAG = "LocalServerManager";
 
-    private static final String SOCKET_PATH="com.zzzmode.appopsx.socket";
 
-    private static AtomicReference<String> sAuthToken=new AtomicReference<>();
 
     private static LocalServerManager sLocalServerManager;
 
@@ -100,12 +98,11 @@ class LocalServerManager {
 
             writer = new BufferedWriter(new OutputStreamWriter(exec.getOutputStream()));
 
-            sAuthToken.set("appopsx-"+System.currentTimeMillis()+"%$%"+Math.random());
             String arch = AssetsUtils.is64Bit() ? "64" : "";
             String[] cmds = {"export LD_LIBRARY_PATH="+String.format("/vendor/lib%1$s:/system/lib%2$s", arch,arch),
                     "export CLASSPATH=" + SConfig.getClassPath(),
                     "echo start",
-                    "exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ "+SOCKET_PATH+"  "+sAuthToken.get()};
+                    "exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ "+SConfig.generateDomainName()+""};
 
             for (String cmd : cmds) {
                 writer.write(cmd);
@@ -191,9 +188,9 @@ class LocalServerManager {
             if (!isRunning && retryCount >= 0) {
                 try {
                     LocalSocket localSocket = new LocalSocket();
-                    localSocket.connect(new LocalSocketAddress(SOCKET_PATH));
+                    localSocket.connect(new LocalSocketAddress(SConfig.getLocalServerPath()));
                     transfer = new OpsDataTransfer(localSocket.getOutputStream(), localSocket.getInputStream(), false);
-                    transfer.shakehands(sAuthToken.get(),false);
+                    transfer.shakehands(null,false);
                     isRunning = true;
                 } catch (IOException e) {
                     if(retryCount >= 0) {

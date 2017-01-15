@@ -77,6 +77,9 @@ public class OpsDataTransfer {
     }
 
     public void shakehands(String token,boolean isServer) throws IOException {
+        if(token == null){
+            return;
+        }
         if(isServer) {
             System.out.println("shakehands --> start: token " + token + "  " + isServer);
         }else {

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.SecureRandom;
 
 /**
  * Created by zl on 2016/11/13.
@@ -15,11 +16,13 @@ import java.io.InputStream;
 
 class AssetsUtils {
 
+    private static final char[] DIGITS_LOWER =
+            {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
     public static void copyFile(Context context, String fileName, File destFile, boolean force){
         InputStream open=null;
         FileOutputStream fos=null;
         try {
-
             AssetFileDescriptor openFd = context.getAssets().openFd(fileName);
 
             if(force){
@@ -77,6 +80,24 @@ class AssetsUtils {
         }else {
             return Build.CPU_ABI.equals("arm64-v8a");
         }
+    }
+
+
+    static String generateToken(int len){
+        SecureRandom secureRandom=new SecureRandom();
+        byte[] bytes=new byte[len];
+        secureRandom.nextBytes(bytes);
+        return new String(encodeHex(bytes,DIGITS_LOWER));
+    }
+
+    private static char[] encodeHex(final byte[] data, final char[] toDigits) {
+        final int l = data.length;
+        final char[] out = new char[l << 1];
+        for (int i = 0, j = 0; i < l; i++) {
+            out[j++] = toDigits[(0xF0 & data[i]) >>> 4];
+            out[j++] = toDigits[0x0F & data[i]];
+        }
+        return out;
     }
 
 }
