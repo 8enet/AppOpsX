@@ -33,6 +33,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
 
     private static final int MSG_TIMEOUT = 1;
     private static final int DEFAULT_TIME_OUT_TIME = 1000 * 60 * 1; //1min
+    private static final int BG_TIME_OUT=DEFAULT_TIME_OUT_TIME*10; //10min
 
     public static void main(String[] args) {
 
@@ -63,23 +64,20 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
         server.allowBackgroundRun=this.allowBg="-D".equalsIgnoreCase(allowBgArg);
         try {
 
-            if(!allowBg) {
-                HandlerThread thread1 = new HandlerThread("watcher-ups");
-                thread1.start();
-                handler = new Handler(thread1.getLooper()) {
-                    @Override
-                    public void handleMessage(Message msg) {
-                        super.handleMessage(msg);
-                        switch (msg.what) {
-                            case MSG_TIMEOUT:
-                                destory();
-                                break;
-                        }
-
+            HandlerThread thread1 = new HandlerThread("watcher-ups");
+            thread1.start();
+            handler = new Handler(thread1.getLooper()) {
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+                    switch (msg.what) {
+                        case MSG_TIMEOUT:
+                            destory();
+                            break;
                     }
-                };
-            }
-
+                }
+            };
+            handler.sendEmptyMessageDelayed(MSG_TIMEOUT,timeOut);
             server.run();
         } catch (Exception e) {
             e.printStackTrace();
@@ -230,13 +228,12 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
 
     @Override
     public void onMessage(byte[] bytes) {
-        if(!allowBg) {
-            handler.removeCallbacksAndMessages(null);
-            handler.removeMessages(MSG_TIMEOUT);
-        }
+        handler.removeCallbacksAndMessages(null);
+        handler.removeMessages(MSG_TIMEOUT);
+
         if (!isDeath) {
-            if(!allowBg) {
-                handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
+            if (!allowBg) {
+                handler.sendEmptyMessageDelayed(MSG_TIMEOUT, BG_TIME_OUT);
             }
 
             OpsCommands.Builder unmarshall = ParcelableUtil.unmarshall(bytes, OpsCommands.Builder.CREATOR);
