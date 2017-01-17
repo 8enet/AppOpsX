@@ -10,6 +10,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:name=".ui.core.AppGlobal"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme">
         <activity android:name=".ui.main.MainActivity">
             <intent-filter>
@@ -19,6 +20,27 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.permission.AppPermissionActivity" />
+        <activity android:name=".ui.main.SettingsActivity"/>
+
+        <receiver android:name=".ui.core.AppInstalledRevicer" android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_INSTALL"/>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".ui.core.HelpAccessibilityService"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibilityservice" />
+        </service>
+
     </application>
 
 </manifest>

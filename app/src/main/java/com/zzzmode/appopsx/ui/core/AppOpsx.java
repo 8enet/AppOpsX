@@ -1,6 +1,8 @@
 package com.zzzmode.appopsx.ui.core;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.zzzmode.appopsx.OpsxManager;
 
@@ -16,7 +18,10 @@ public class AppOpsx {
         if(sManager == null){
             synchronized (AppOpsx.class){
                 if(sManager == null){
-                    sManager=new OpsxManager(context.getApplicationContext());
+                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+                    OpsxManager.Config config=new OpsxManager.Config();
+                    config.allowBgRunning=sp.getBoolean("allow_bg_remote",false);
+                    sManager=new OpsxManager(context.getApplicationContext(),config);
                 }
             }
         }

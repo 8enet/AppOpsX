@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:key="normal" android:title="@string/normal">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="ignore_premission"
+            android:title="@string/auto_ignore_premission"
+            android:summary="@string/auto_ignore_summary" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_sysapp"
+            android:title="@string/show_sys_apps"
+            android:summary="@string/show_sys_apps_summary" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:key="experience" android:title="@string/experience">
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="allow_bg_remote"
+            android:title="@string/allow_bg_remote"
+            android:summary="@string/allow_bg_remote_summary" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="about"
+        android:title="@string/about">
+
+        <Preference android:key="version" android:title="@string/version" android:summary="1.0.4">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="market://details?id=com.zzzmode.appopsx"/>
+        </Preference>
+        <Preference android:key="project" android:summary="https://github.com/8enet/AppOpsX" android:title="Github">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/8enet/AppOpsX"/>
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

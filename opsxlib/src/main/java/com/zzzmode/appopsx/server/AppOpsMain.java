@@ -173,7 +173,6 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
                         if(mode != AppOpsManager.MODE_ERRORED){
                             //
                             ops.getOps().add(new OpEntry(code,mode,0,0,0,0,null));
-                            System.out.println(permission+"   "+code+"   "+mode);
                         }
                     }
                 }

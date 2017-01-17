@@ -6,9 +6,24 @@
     android:layout_height="match_parent"
     tools:context="com.zzzmode.appopsx.ui.main.MainActivity">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_centerInParent="true"
+        android:minHeight="24dp"
+        android:minWidth="24dp"
+        android:maxWidth="48dp"
+        android:maxHeight="48dp"
+        android:visibility="visible"
+        />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        />
 
 </RelativeLayout>

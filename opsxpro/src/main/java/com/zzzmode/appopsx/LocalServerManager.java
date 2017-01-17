@@ -26,15 +26,15 @@ class LocalServerManager {
 
     private static final String TAG = "LocalServerManager";
 
-
-
     private static LocalServerManager sLocalServerManager;
 
-    static LocalServerManager getInstance() {
+    private OpsxManager.Config mConfig;
+
+    static LocalServerManager getInstance(OpsxManager.Config config) {
         if (sLocalServerManager == null) {
             synchronized (LocalServerManager.class) {
                 if (sLocalServerManager == null) {
-                    sLocalServerManager = new LocalServerManager();
+                    sLocalServerManager = new LocalServerManager(config);
                 }
             }
         }
@@ -44,8 +44,8 @@ class LocalServerManager {
 
     private SyncClient mClientThread = null;
 
-    private LocalServerManager() {
-
+    private LocalServerManager(OpsxManager.Config config) {
+        mConfig=config;
     }
 
 
@@ -99,10 +99,16 @@ class LocalServerManager {
             writer = new BufferedWriter(new OutputStreamWriter(exec.getOutputStream()));
 
             String arch = AssetsUtils.is64Bit() ? "64" : "";
+
+            String args="";
+            if(mConfig.allowBgRunning){
+                args+=" -D ";
+            }
+
             String[] cmds = {"export LD_LIBRARY_PATH="+String.format("/vendor/lib%1$s:/system/lib%2$s", arch,arch),
                     "export CLASSPATH=" + SConfig.getClassPath(),
                     "echo start",
-                    "exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ "+SConfig.generateDomainName()+""};
+                    "exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ "+SConfig.generateDomainName()+" "+args};
 
             for (String cmd : cmds) {
                 writer.write(cmd);

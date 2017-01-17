@@ -1,4 +1,24 @@
 <resources>
     <string name="app_name">AppOpsX</string>
-    <string name="reset_all">重置权限设置</string>
+    <string name="reset_all">恢复默认设置</string>
+    <string name="menu_setting">设置</string>
+    <string name="menu_premission_sort">根据权限排序</string>
+
+    <string name="about">关于</string>
+    <string name="version">版本</string>
+    <string name="normal">常规</string>
+    <string name="experience">实验性功能</string>
+    <string name="auto_ignore_premission">自动关闭权限</string>
+    <string name="auto_ignore_summary">应用安装后自动关闭(忽略)所有权限。\r\n部分机型上AppOpsX被关闭后可能收不到应用安装广播，请酌情添加白名单。</string>
+
+    <string name="allow_bg_remote">运行后台运行</string>
+    <string name="allow_bg_remote_summary">允许后台运行可以减少申请root弹窗授权的次数，部分手机上SuperSU全局默认允许AppOpsX时也会经常出现授权提示。\r\n此功能可能不太稳定。</string>
+
+    <string name="show_sys_apps">显示系统应用</string>
+    <string name="show_sys_apps_summary">在应用列表中显示系统应用</string>
+
+
+    <string name="accessibility_description">此辅助服务仅用于保持进程存活，</string>
+
+    <string name="disable_toast">已忽略[ %s ]的所有权限</string>
 </resources>

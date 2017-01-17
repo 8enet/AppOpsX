@@ -1,16 +1,22 @@
 package com.zzzmode.appopsx.ui.main;
 
 import android.app.AppOpsManager;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.text.BidiFormatter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.zzzmode.appopsx.OpsxManager;
@@ -46,12 +52,17 @@ public class MainActivity extends BaseActivity {
 
     private MainListAdapter adapter;
 
+    private ProgressBar mProgressBar;
+    private RecyclerView recyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        RecyclerView recyclerView= (RecyclerView) findViewById(R.id.recyclerView);
+        mProgressBar= (ProgressBar) findViewById(R.id.progressBar);
+
+        recyclerView= (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(getApplicationContext(),R.drawable.list_divider_h),true));
 
@@ -64,11 +75,12 @@ public class MainActivity extends BaseActivity {
                 PackageManager packageManager = getPackageManager();
                 List<PackageInfo> installedPackages = packageManager.getInstalledPackages(0);
                 List<AppInfo> appInfos=new ArrayList<AppInfo>();
+                boolean showSysApp= PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("show_sysapp",false);
                 for (PackageInfo installedPackage : installedPackages) {
-                    if( (installedPackage.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                    if(showSysApp || (installedPackage.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                         AppInfo info = new AppInfo();
                         info.packageName = installedPackage.packageName;
-                        info.appName = String.valueOf(installedPackage.applicationInfo.loadLabel(packageManager));
+                        info.appName = BidiFormatter.getInstance().unicodeWrap(installedPackage.applicationInfo.loadLabel(packageManager)).toString();
                         info.icon = installedPackage.applicationInfo.loadIcon(packageManager);
                         appInfos.add(info);
                     }
@@ -97,7 +109,8 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onComplete() {
-
+                mProgressBar.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -107,8 +120,8 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_reset:
-                resetAll();
+            case R.id.action_setting:
+                openSetting();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -119,6 +132,10 @@ public class MainActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.ops_menu, menu);
         return true;
+    }
+
+    private void openSetting(){
+        startActivity(new Intent(this,SettingsActivity.class));
     }
 
     private void resetAll(){

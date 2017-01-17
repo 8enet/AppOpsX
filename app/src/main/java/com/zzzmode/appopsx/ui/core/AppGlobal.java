@@ -2,8 +2,12 @@ package com.zzzmode.appopsx.ui.core;
 
 import android.app.Activity;
 import android.app.Application;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.umeng.analytics.MobclickAgent;
+import com.zzzmode.android.opsxpro.BuildConfig;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,6 +22,7 @@ public class AppGlobal extends Application implements Application.ActivityLifecy
     @Override
     public void onCreate() {
         super.onCreate();
+        MobclickAgent.setDebugMode(BuildConfig.DEBUG);
         registerActivityLifecycleCallbacks(this);
     }
 
