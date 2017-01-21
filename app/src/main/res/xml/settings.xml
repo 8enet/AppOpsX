@@ -7,6 +7,8 @@
             android:title="@string/auto_ignore_premission"
             android:summary="@string/auto_ignore_summary" />
 
+        <Preference android:key="ignore_premission_templete" android:title="@string/auto_ignore_premission_title" android:summary="@string/auto_ignore_premission_temp_summary" />
+
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="show_sysapp"
@@ -38,5 +40,7 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/8enet/AppOpsX"/>
         </Preference>
+
+        <Preference android:key="acknowledgments" android:summary="感谢大家提出的反馈意见和帮助" android:title="特别鸣谢"/>
     </PreferenceCategory>
 </PreferenceScreen>

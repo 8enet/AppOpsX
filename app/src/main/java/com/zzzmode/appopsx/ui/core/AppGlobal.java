@@ -2,7 +2,6 @@ package com.zzzmode.appopsx.ui.core;
 
 import android.app.Activity;
 import android.app.Application;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -24,6 +23,7 @@ public class AppGlobal extends Application implements Application.ActivityLifecy
         super.onCreate();
         MobclickAgent.setDebugMode(BuildConfig.DEBUG);
         registerActivityLifecycleCallbacks(this);
+        Helper.updataShortcuts(this);
     }
 
 

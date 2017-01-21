@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.support.v4.text.BidiFormatter;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.widget.Toast;
 
 import com.zzzmode.appopsx.R;
@@ -15,7 +17,9 @@ import com.zzzmode.appopsx.R;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.ResourceObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -30,7 +34,7 @@ public class AppInstalledRevicer extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-
+        Helper.updataShortcuts(context.getApplicationContext());
         if(sp.getBoolean("ignore_premission",false)){
             try{
                 String pkgName = intent.getData().getEncodedSchemeSpecificPart();
@@ -43,31 +47,34 @@ public class AppInstalledRevicer extends BroadcastReceiver {
 
 
     private void disable(final Context context, final String pkgName){
-        Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(ObservableEmitter<String> e) throws Exception {
-                AppOpsx.getInstance(context).disableAllPermission(pkgName);
-                PackageInfo packageInfo = context.getPackageManager().getPackageInfo(pkgName, 0);
-                String label = BidiFormatter.getInstance().unicodeWrap(packageInfo.applicationInfo.loadLabel(context.getPackageManager())).toString();
-                e.onNext(label);
-            }
-        })
+        Helper.autoDisable(context,pkgName)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new ResourceObserver<String>() {
+        .subscribe(new SingleObserver<SparseIntArray>() {
+
             @Override
-            public void onNext(String value) {
-                Toast.makeText(context,context.getString(R.string.disable_toast,value),Toast.LENGTH_LONG).show();
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(SparseIntArray value) {
+                try {
+                    PackageInfo packageInfo = context.getPackageManager().getPackageInfo(pkgName, 0);
+                    String label = BidiFormatter.getInstance().unicodeWrap(packageInfo.applicationInfo.loadLabel(context.getPackageManager())).toString();
+
+                    Toast.makeText(context,context.getString(R.string.disable_toast,label,value.size()),Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
             public void onError(Throwable e) {
-
+                Toast.makeText(context,e.getMessage(),Toast.LENGTH_LONG).show();
             }
 
-            @Override
-            public void onComplete() {
-            }
         });
+
     }
 }

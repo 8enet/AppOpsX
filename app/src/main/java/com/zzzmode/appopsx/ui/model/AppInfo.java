@@ -12,6 +12,7 @@ public class AppInfo implements Parcelable {
     public String appName;
     public Drawable icon;
     public String packageName;
+    public long time;
 
     @Override
     public boolean equals(Object o) {
@@ -54,4 +55,14 @@ public class AppInfo implements Parcelable {
             return new AppInfo[size];
         }
     };
+
+
+    @Override
+    public String toString() {
+        return "AppInfo{" +
+                "appName='" + appName + '\'' +
+                ", packageName='" + packageName + '\'' +
+                ", time=" + time +
+                '}';
+    }
 }

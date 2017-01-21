@@ -77,17 +77,9 @@ public class AppPermissionAdapter extends RecyclerView.Adapter<AppPermissionAdap
             }else {
                 holder.lastTime.setVisibility(View.GONE);
             }
-            int mode=opEntryInfo.opEntry.getMode();
 
             holder.switchCompat.setOnCheckedChangeListener(null);
-            switch (mode){
-                case AppOpsManager.MODE_ALLOWED:
-                    holder.switchCompat.setChecked(true);
-                    break;
-                default:
-                    holder.switchCompat.setChecked(false);
-            }
-
+            holder.switchCompat.setChecked(opEntryInfo.isAllowed());
             holder.switchCompat.setOnCheckedChangeListener(this);
         }
     }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 致谢名单 -->
+    <string-array name="acknowledgments_list">
+        <item>wwsh123</item>
+        <item>乱飞的草帽</item>
+        <item>whatthefuck</item>
+        <item>SakuraYing</item>
+        <item>郁闷人</item>
+        <item>LiaR_</item>
+        <item>qqw011202</item>
+    </string-array>
+
+</resources>

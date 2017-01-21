@@ -2,7 +2,7 @@
     <string name="app_name">AppOpsX</string>
     <string name="reset_all">恢复默认设置</string>
     <string name="menu_setting">设置</string>
-    <string name="menu_premission_sort">根据权限排序</string>
+    <string name="menu_premission_sort">应用权限</string>
 
     <string name="about">关于</string>
     <string name="version">版本</string>
@@ -11,8 +11,12 @@
     <string name="auto_ignore_premission">自动关闭权限</string>
     <string name="auto_ignore_summary">应用安装后自动关闭(忽略)所有权限。\r\n部分机型上AppOpsX被关闭后可能收不到应用安装广播，请酌情添加白名单。</string>
 
-    <string name="allow_bg_remote">运行后台运行</string>
-    <string name="allow_bg_remote_summary">允许后台运行可以减少申请root弹窗授权的次数，部分手机上SuperSU全局默认允许AppOpsX时也会经常出现授权提示。\r\n此功能可能不太稳定。</string>
+
+    <string name="auto_ignore_premission_title">自动关闭权限模板</string>
+    <string name="auto_ignore_premission_temp_summary">开启自动关闭权限后，只有选中的权限会默认关闭。</string>
+
+    <string name="allow_bg_remote">允许后台运行</string>
+    <string name="allow_bg_remote_summary">允许后台运行可以减少申请root弹窗授权的次数，部分手机上SuperSU全局默认允许AppOpsX时也会经常出现授权提示。</string>
 
     <string name="show_sys_apps">显示系统应用</string>
     <string name="show_sys_apps_summary">在应用列表中显示系统应用</string>
@@ -20,5 +24,34 @@
 
     <string name="accessibility_description">此辅助服务仅用于保持进程存活，</string>
 
-    <string name="disable_toast">已忽略[ %s ]的所有权限</string>
+    <string name="disable_toast">已忽略[ %1$s ]的 %2$d 权限</string>
+    <string name="premission_count">已授权 %1$d 个应用 (共 %2$d 个)</string>
+
+    <string name="acknowledgments_list">致谢名单</string>
+
+
+
+    <string name="permlab_POST_NOTIFICATION">允许使用通知栏</string>
+    <string name="permlab_PLAY_AUDIO">允许播放声音</string>
+    <string name="permlab_READ_CLIPBOARD">读取剪贴板内容</string>
+    <string name="permlab_WRITE_CLIPBOARD">添加或修改剪贴板内容</string>
+    <string name="permlab_TURN_ON_SCREEN">允许点亮屏幕</string>
+    <string name="permlab_RUN_IN_BACKGROUND">允许应用在后台运行</string>
+    <string name="permlab_MONITOR_LOCATION">允许应用监听位置数据</string>
+    <string name="permlab_MONITOR_HIGH_POWER_LOCATION">允许应用使用高精确度模式监听位置数据</string>
+    <string name="permlab_NEIGHBORING_CELLS">允许使用基站的粗略位置</string>
+    <string name="permlab_AUDIO_MASTER_VOLUME">允许修改音量</string>
+    <string name="permlab_AUDIO_VOICE_VOLUME">允许修改通话音量</string>
+    <string name="permlab_AUDIO_RING_VOLUME">允许修改电话铃声音量</string>
+    <string name="permlab_AUDIO_MEDIA_VOLUME">允许修改多媒体音量</string>
+    <string name="permlab_AUDIO_ALARM_VOLUME">允许修改闹钟音量</string>
+    <string name="permlab_AUDIO_NOTIFICATION_VOLUME">允许修改通知音量</string>
+    <string name="permlab_AUDIO_BLUETOOTH_VOLUME">允许修改蓝牙音量</string>
+    <string name="permlab_TOAST_WINDOW">允许弹出Toast</string>
+    <string name="permlab_ACTIVATE_VPN">允许自动激活VPN</string>
+    <string name="permlab_TAKE_AUDIO_FOCUS">允许获取使用音频焦点</string>
+    
+
+
+    <string name="default_ignored">4,5,6,7,8,9,13,14,15,16,17,18,19,20,21,22,23,27,43,51,54,57,62,64,66</string>
 </resources>

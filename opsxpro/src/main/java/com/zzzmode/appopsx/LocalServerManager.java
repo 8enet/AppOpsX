@@ -48,6 +48,11 @@ class LocalServerManager {
         mConfig=config;
     }
 
+    public void updateConfig(OpsxManager.Config config){
+        if(config != null){
+            mConfig=config;
+        }
+    }
 
     public void start() throws Exception {
 

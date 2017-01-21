@@ -7,8 +7,9 @@ android {
         applicationId "com.zzzmode.appopsx"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode 105
+        versionName "1.0.5"
+        resConfigs "en","zh"
     }
 
     aaptOptions {
@@ -18,6 +19,7 @@ android {
 
     buildTypes {
         release {
+            shrinkResources false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -32,5 +34,9 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.1.0'
     compile 'io.reactivex.rxjava2:rxjava:2.0.1'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'com.umeng.analytics:analytics:latest.integration'
+    compile ('com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.10.2@aar'){
+        transitive=true
+    }
 //    compile 'com.android.support.constraint:constraint-layout:+'
 }

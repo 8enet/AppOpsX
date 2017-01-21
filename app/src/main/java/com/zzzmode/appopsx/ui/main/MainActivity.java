@@ -2,14 +2,9 @@ package com.zzzmode.appopsx.ui.main;
 
 import android.app.AppOpsManager;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.text.BidiFormatter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,6 +14,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.OpsxManager;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpEntry;
@@ -26,18 +22,13 @@ import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.ui.BaseActivity;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
-import com.zzzmode.appopsx.ui.decoration.SimpleListDividerDecorator;
+import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.AppOpEntry;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
@@ -69,32 +60,8 @@ public class MainActivity extends BaseActivity {
         adapter=new MainListAdapter();
         recyclerView.setAdapter(adapter);
 
-        Observable.create(new ObservableOnSubscribe<List<AppInfo>>() {
-            @Override
-            public void subscribe(ObservableEmitter<List<AppInfo>> e) throws Exception {
-                PackageManager packageManager = getPackageManager();
-                List<PackageInfo> installedPackages = packageManager.getInstalledPackages(0);
-                List<AppInfo> appInfos=new ArrayList<AppInfo>();
-                boolean showSysApp= PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("show_sysapp",false);
-                for (PackageInfo installedPackage : installedPackages) {
-                    if(showSysApp || (installedPackage.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-                        AppInfo info = new AppInfo();
-                        info.packageName = installedPackage.packageName;
-                        info.appName = BidiFormatter.getInstance().unicodeWrap(installedPackage.applicationInfo.loadLabel(packageManager)).toString();
-                        info.icon = installedPackage.applicationInfo.loadIcon(packageManager);
-                        appInfos.add(info);
-                    }
-                }
-                Collections.sort(appInfos, new Comparator<AppInfo>() {
-                    @Override
-                    public int compare(AppInfo o1, AppInfo o2) {
-                        return o1.appName.compareTo(o2.appName);
-                    }
-                });
-                e.onNext(appInfos);
-                e.onComplete();
-            }
-        }).subscribeOn(Schedulers.io())
+        boolean showSysApp= PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("show_sysapp",false);
+        Helper.getInstalledApps(getApplicationContext(),showSysApp).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<List<AppInfo>>() {
             @Override
             public void onNext(List<AppInfo> value) {
@@ -113,7 +80,6 @@ public class MainActivity extends BaseActivity {
                 recyclerView.setVisibility(View.VISIBLE);
             }
         });
-
     }
 
 
@@ -122,6 +88,9 @@ public class MainActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.action_setting:
                 openSetting();
+                return true;
+            case R.id.action_premission_sort:
+                openSortPremission();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -136,6 +105,10 @@ public class MainActivity extends BaseActivity {
 
     private void openSetting(){
         startActivity(new Intent(this,SettingsActivity.class));
+    }
+
+    private void openSortPremission(){
+        startActivity(new Intent(this,PremissionGroupActivity.class));
     }
 
     private void resetAll(){

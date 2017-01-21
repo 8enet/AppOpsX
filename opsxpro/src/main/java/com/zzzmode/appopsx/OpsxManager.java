@@ -35,6 +35,10 @@ public class OpsxManager {
         checkFile();
     }
 
+    public void updateConfig(Config config){
+        mLocalServerManager.updateConfig(config);
+    }
+
     private void checkFile(){
         //AssetsUtils.copyFile(mContext,"appopsx",new File(mContext.getDir(DIR_NAME,Context.MODE_PRIVATE),"appopsx"),false);
         AssetsUtils.copyFile(mContext,SConfig.JAR_NAME,SConfig.getDestJarFile(), true);

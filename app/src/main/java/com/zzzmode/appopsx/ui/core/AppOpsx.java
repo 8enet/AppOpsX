@@ -27,4 +27,11 @@ public class AppOpsx {
         }
         return sManager;
     }
+
+    public static void updateConfig(Context context){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        OpsxManager.Config config=new OpsxManager.Config();
+        config.allowBgRunning=sp.getBoolean("allow_bg_remote",false);
+        getInstance(context).updateConfig(config);
+    }
 }

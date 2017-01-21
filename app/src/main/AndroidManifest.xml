@@ -3,6 +3,10 @@
     package="com.zzzmode.appopsx">
 
     <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -12,15 +16,16 @@
         android:name=".ui.core.AppGlobal"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.main.MainActivity">
+        <activity android:name=".ui.main.MainActivity" android:configChanges="keyboardHidden|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.permission.AppPermissionActivity" />
-        <activity android:name=".ui.main.SettingsActivity"/>
+        <activity android:name=".ui.permission.AppPermissionActivity" android:configChanges="keyboardHidden|orientation" />
+        <activity android:name=".ui.main.SettingsActivity" android:configChanges="keyboardHidden|orientation"/>
+        <activity android:name=".ui.main.PremissionGroupActivity" android:configChanges="keyboardHidden|orientation"/>
 
         <receiver android:name=".ui.core.AppInstalledRevicer" android:enabled="true">
             <intent-filter>
@@ -41,6 +46,7 @@
                 android:resource="@xml/accessibilityservice" />
         </service>
 
+        <meta-data android:value="test" android:name="UMENG_CHANNEL"/>
     </application>
 
 </manifest>
