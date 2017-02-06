@@ -1,12 +1,18 @@
 package com.zzzmode.appopsx.ui.main;
 
 import android.app.AppOpsManager;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +20,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.OpsxManager;
 import com.zzzmode.appopsx.R;
@@ -26,6 +33,7 @@ import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.AppOpEntry;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -37,7 +45,7 @@ import io.reactivex.observers.ResourceObserver;
 import io.reactivex.schedulers.Schedulers;
 
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements SearchView.OnQueryTextListener{
 
     private static final String TAG = "MainActivity";
 
@@ -46,42 +54,78 @@ public class MainActivity extends BaseActivity {
     private ProgressBar mProgressBar;
     private RecyclerView recyclerView;
 
+    private RecyclerView mSearchResult;
+
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    private SearchHandler mSearchHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mProgressBar= (ProgressBar) findViewById(R.id.progressBar);
+        mSearchHandler=new SearchHandler();
 
-        recyclerView= (RecyclerView) findViewById(R.id.recyclerView);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        mSearchResult= (RecyclerView) findViewById(R.id.search_result_recyclerView);
+
+
+        mSearchHandler.initView(mSearchResult);
+
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefreshlayout);
+        mSwipeRefreshLayout.setRefreshing(false);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
+        mSwipeRefreshLayout.setEnabled(false);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(getApplicationContext(),R.drawable.list_divider_h),true));
+        recyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(getApplicationContext(), R.drawable.list_divider_h), true));
+        recyclerView.setItemAnimator(new RefactoredDefaultItemAnimator());
 
-        adapter=new MainListAdapter();
+        adapter = new MainListAdapter();
         recyclerView.setAdapter(adapter);
 
-        boolean showSysApp= PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("show_sysapp",false);
-        Helper.getInstalledApps(getApplicationContext(),showSysApp).subscribeOn(Schedulers.io())
+        loadData(true);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadData(false);
+            }
+        });
+    }
+
+
+    private void loadData(final boolean isFirst) {
+        boolean showSysApp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("show_sysapp", false);
+        Helper.getInstalledApps(getApplicationContext(), showSysApp).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<List<AppInfo>>() {
             @Override
             public void onNext(List<AppInfo> value) {
                 adapter.showItems(value);
+                mSearchHandler.setBaseData(new ArrayList<AppInfo>(value));
             }
 
             @Override
             public void onError(Throwable e) {
                 e.printStackTrace();
-                Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+                mSwipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onComplete() {
                 mProgressBar.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
+                mSwipeRefreshLayout.setRefreshing(false);
+
+                if(isFirst){
+                    mSwipeRefreshLayout.setEnabled(true);
+                }
             }
         });
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -100,19 +144,55 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.ops_menu, menu);
+
+        final MenuItem searchMenu=menu.findItem(R.id.action_search);
+        final MenuItem settingsMenu=menu.findItem(R.id.action_setting);
+        final MenuItem premsMenu=menu.findItem(R.id.action_premission_sort);
+
+        MenuItemCompat.setOnActionExpandListener(searchMenu, new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                recyclerView.setVisibility(View.GONE);
+                mSearchResult.setVisibility(View.VISIBLE);
+
+                settingsMenu.setVisible(false);
+                premsMenu.setVisible(false);
+
+                ActivityCompat.invalidateOptionsMenu(MainActivity.this);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                recyclerView.setVisibility(View.VISIBLE);
+                mSearchResult.setVisibility(View.GONE);
+
+                settingsMenu.setVisible(true);
+                premsMenu.setVisible(true);
+                ActivityCompat.invalidateOptionsMenu(MainActivity.this);
+
+                return true;
+            }
+        });
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) searchMenu.getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(this);
+
         return true;
     }
 
-    private void openSetting(){
-        startActivity(new Intent(this,SettingsActivity.class));
+    private void openSetting() {
+        startActivity(new Intent(this, SettingsActivity.class));
     }
 
-    private void openSortPremission(){
-        startActivity(new Intent(this,PremissionGroupActivity.class));
+    private void openSortPremission() {
+        startActivity(new Intent(this, PremissionGroupActivity.class));
     }
 
-    private void resetAll(){
-        if(adapter!= null && adapter.appInfos!=null){
+    private void resetAll() {
+        if (adapter != null && adapter.appInfos != null) {
             final List<AppInfo> appInfos = adapter.appInfos;
             Observable.fromIterable(appInfos).concatMap(new Function<AppInfo, ObservableSource<AppOpEntry>>() {
                 @Override
@@ -122,14 +202,14 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public AppOpEntry apply(AppInfo info) throws Exception {
                             OpsResult opsForPackage = AppOpsx.getInstance(getApplicationContext()).getOpsForPackage(info.packageName);
-                            if(opsForPackage != null ){
-                                if(opsForPackage.getException() == null){
-                                    return new AppOpEntry(info,opsForPackage);
-                                }else {
+                            if (opsForPackage != null) {
+                                if (opsForPackage.getException() == null) {
+                                    return new AppOpEntry(info, opsForPackage);
+                                } else {
                                     throw new Exception(opsForPackage.getException());
                                 }
                             }
-                            throw new RuntimeException("getOpsForPackage fail: "+info);
+                            throw new RuntimeException("getOpsForPackage fail: " + info);
                         }
                     });
                 }
@@ -138,13 +218,13 @@ public class MainActivity extends BaseActivity {
                 public boolean test(AppOpEntry appOpEntry) throws Exception {
 
                     List<PackageOps> list = appOpEntry.opsResult.getList();
-                    if(list != null){
+                    if (list != null) {
                         for (PackageOps packageOps : list) {
                             List<OpEntry> ops = packageOps.getOps();
-                            if(ops !=null){
+                            if (ops != null) {
                                 for (OpEntry op : ops) {
 
-                                    if(op.getMode() == AppOpsManager.MODE_ERRORED){
+                                    if (op.getMode() == AppOpsManager.MODE_ERRORED) {
                                         //Log.e(TAG, "test --> "+op);
                                         return true;
                                     }
@@ -161,16 +241,16 @@ public class MainActivity extends BaseActivity {
                         @Override
                         public AppOpEntry apply(AppOpEntry appOpEntry) throws Exception {
                             List<PackageOps> list = appOpEntry.opsResult.getList();
-                            if(list != null){
+                            if (list != null) {
                                 OpsxManager opsxManager = AppOpsx.getInstance(getApplicationContext());
                                 for (PackageOps packageOps : list) {
                                     List<OpEntry> ops = packageOps.getOps();
-                                    if(ops !=null){
+                                    if (ops != null) {
                                         for (OpEntry op : ops) {
 
-                                            if(op.getMode() == AppOpsManager.MODE_ERRORED){
+                                            if (op.getMode() == AppOpsManager.MODE_ERRORED) {
                                                 //Log.e(TAG, "test --> "+op);
-                                                appOpEntry.modifyResult=opsxManager.setOpsMode(appOpEntry.appInfo.packageName,op.getOp(),AppOpsManager.MODE_IGNORED);
+                                                appOpEntry.modifyResult = opsxManager.setOpsMode(appOpEntry.appInfo.packageName, op.getOp(), AppOpsManager.MODE_IGNORED);
                                             }
                                         }
                                     }
@@ -186,7 +266,7 @@ public class MainActivity extends BaseActivity {
                     .subscribe(new ResourceObserver<AppOpEntry>() {
                         @Override
                         public void onNext(AppOpEntry value) {
-                            Log.e(TAG, "onNext --> "+value);
+                            Log.e(TAG, "onNext --> " + value);
 
                         }
 
@@ -210,5 +290,14 @@ public class MainActivity extends BaseActivity {
     }
 
 
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return true;
+    }
 
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        mSearchHandler.handleWord(newText);
+        return true;
+    }
 }

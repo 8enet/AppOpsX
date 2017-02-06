@@ -8,14 +8,17 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandableItemManager;
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils;
+import com.zzzmode.appopsx.BuildConfig;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.ui.BaseActivity;
@@ -49,17 +52,24 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
     private RecyclerViewExpandableItemManager mRecyclerViewExpandableItemManager;
     private PremissionGroupAdapter myItemAdapter;
 
+    private TextView tvError;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_prems_group);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         setTitle(R.string.menu_premission_sort);
 
         mProgressBar= (ProgressBar) findViewById(R.id.progressBar);
         recyclerView= (RecyclerView) findViewById(R.id.recyclerView);
+
+        tvError = (TextView) findViewById(R.id.tv_error);
+
+        findViewById(R.id.swiperefreshlayout).setEnabled(false);
 
         mLayoutManager = new LinearLayoutManager(this);
 
@@ -173,19 +183,23 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
                 myItemAdapter.setData(value);
 
                 mWrappedAdapter = mRecyclerViewExpandableItemManager.createWrappedAdapter(myItemAdapter);
-                recyclerView.setAdapter(mWrappedAdapter);  // requires *wrapped* adapter
+                recyclerView.setAdapter(mWrappedAdapter);
 
                 myItemAdapter.notifyDataSetChanged();
 
-
-                for (PremissionGroup group : value) {
-                    Log.e(TAG, "onSuccess --> "+group);
+                if(BuildConfig.DEBUG) {
+                    for (PremissionGroup group : value) {
+                        Log.e(TAG, "onSuccess --> " + group);
+                    }
                 }
             }
 
             @Override
             public void onError(Throwable e) {
                 mProgressBar.setVisibility(View.GONE);
+
+                tvError.setVisibility(View.VISIBLE);
+                tvError.setText(getString(R.string.error_msg,Log.getStackTraceString(e)));
             }
 
         });
@@ -208,8 +222,8 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
     private void adjustScrollPositionOnGroupExpanded(int groupPosition) {
         int pad=(int) (getResources().getDisplayMetrics().density * 10);
         int childItemHeight = getResources().getDimensionPixelSize(android.R.dimen.app_icon_size)+pad*2;
-        int topMargin = (int) (getResources().getDisplayMetrics().density * 16); // top-spacing: 16dp
-        int bottomMargin = topMargin; // bottom-spacing: 16dp
+        int topMargin = (int) (getResources().getDisplayMetrics().density * 16);
+        int bottomMargin = topMargin;
 
         mRecyclerViewExpandableItemManager.scrollToGroup(groupPosition, childItemHeight, topMargin, bottomMargin);
     }

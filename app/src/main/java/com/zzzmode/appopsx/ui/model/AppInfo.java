@@ -13,6 +13,9 @@ public class AppInfo implements Parcelable {
     public Drawable icon;
     public String packageName;
     public long time;
+    public long installTime;
+    public long updateTime;
+    public String pinyin;
 
     @Override
     public boolean equals(Object o) {

@@ -74,6 +74,10 @@ public class OpsxManager {
         }
     }
 
+    public boolean isRunning(){
+        return mLocalServerManager!=null&& mLocalServerManager.isRunning();
+    }
+
     public OpsResult disableAllPermission(final String packageName)throws Exception{
         OpsResult opsForPackage = getOpsForPackage(packageName);
         if(opsForPackage != null ){
@@ -101,5 +105,6 @@ public class OpsxManager {
 
     public static class Config{
         public boolean allowBgRunning=false;
+        public String logFile;
     }
 }

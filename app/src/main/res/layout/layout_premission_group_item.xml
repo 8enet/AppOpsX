@@ -18,11 +18,22 @@
         android:layout_centerVertical="true"
         />
 
+    <ImageView
+        android:id="@+id/img_group"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="8dp"
+        android:src="@drawable/ic_perm_device_info"
+        />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_toLeftOf="@id/indicator"
+        android:layout_toRightOf="@id/img_group"
         android:layout_marginLeft="8dp"
         >
         <TextView

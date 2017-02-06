@@ -21,7 +21,7 @@ import java.util.List;
 
 class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> implements View.OnClickListener{
 
-    List<AppInfo> appInfos=new ArrayList<>();
+    protected List<AppInfo> appInfos=new ArrayList<>();
 
     void addItem(AppInfo info){
         appInfos.add(info);
@@ -44,7 +44,7 @@ class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> i
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         AppInfo appInfo = appInfos.get(position);
-        holder.tvName.setText(appInfo.appName);
+        holder.tvName.setText(processText(appInfo.appName));
         if(appInfo.icon != null){
             holder.imgIcon.setImageDrawable(appInfo.icon);
         }else {
@@ -52,6 +52,10 @@ class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> i
         }
         holder.itemView.setTag(appInfo);
         holder.itemView.setOnClickListener(this);
+    }
+
+    protected CharSequence processText(String name){
+        return name;
     }
 
     @Override

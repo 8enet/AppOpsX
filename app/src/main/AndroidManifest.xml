@@ -19,13 +19,13 @@
         <activity android:name=".ui.main.MainActivity" android:configChanges="keyboardHidden|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".ui.permission.AppPermissionActivity" android:configChanges="keyboardHidden|orientation" />
         <activity android:name=".ui.main.SettingsActivity" android:configChanges="keyboardHidden|orientation"/>
         <activity android:name=".ui.main.PremissionGroupActivity" android:configChanges="keyboardHidden|orientation"/>
+
 
         <receiver android:name=".ui.core.AppInstalledRevicer" android:enabled="true">
             <intent-filter>

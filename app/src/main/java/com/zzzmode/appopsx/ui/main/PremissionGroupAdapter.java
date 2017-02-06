@@ -85,7 +85,7 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
         }else {
             holder.tvPermName.setText(premissionGroup.opPermsLab);
         }
-
+        holder.groupIcon.setImageResource(premissionGroup.icon);
         holder.tvCount.setText(holder.itemView.getResources().getString(R.string.premission_count,premissionGroup.grants,premissionGroup.count));
 
 
@@ -146,6 +146,7 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
 
         TextView tvPermName;
         TextView tvCount;
+        ImageView groupIcon;
         ExpandableItemIndicator indicator;
 
         public GroupViewHolder(View itemView) {
@@ -153,6 +154,7 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
             tvPermName= (TextView) itemView.findViewById(R.id.tv_permission_name);
             tvCount= (TextView) itemView.findViewById(R.id.tv_permission_count);
             indicator= (ExpandableItemIndicator) itemView.findViewById(R.id.indicator);
+            groupIcon= (ImageView) itemView.findViewById(R.id.img_group);
         }
     }
 

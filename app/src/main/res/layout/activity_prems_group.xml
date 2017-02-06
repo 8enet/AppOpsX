@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -23,34 +22,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:clickable="true"
-        android:enabled="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:longClickable="true"
         android:scrollbars="vertical"
-        android:text=""
+        android:visibility="gone"
         android:textIsSelectable="true"
-        android:visibility="gone" />
+        android:clickable="true"
+        android:longClickable="true"
+        android:focusable="true"
+        android:enabled="true"
+        android:focusableInTouchMode="true"
+        android:text=""
+        />
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swiperefreshlayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:splitMotionEvents="false"
-            android:visibility="gone" />
+            android:visibility="gone"
+            />
     </android.support.v4.widget.SwipeRefreshLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/search_result_recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:splitMotionEvents="false"
-        android:visibility="gone" />
-
 </RelativeLayout>

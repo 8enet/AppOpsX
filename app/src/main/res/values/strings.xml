@@ -3,6 +3,8 @@
     <string name="reset_all">恢复默认设置</string>
     <string name="menu_setting">设置</string>
     <string name="menu_premission_sort">应用权限</string>
+    <string name="menu_show_hide_premission">显示默认权限</string>
+    <string name="no_perms">此应用暂时没有使用任何权限</string>
 
     <string name="about">关于</string>
     <string name="version">版本</string>
@@ -18,9 +20,14 @@
     <string name="allow_bg_remote">允许后台运行</string>
     <string name="allow_bg_remote_summary">允许后台运行可以减少申请root弹窗授权的次数，部分手机上SuperSU全局默认允许AppOpsX时也会经常出现授权提示。</string>
 
+    <string name="show_log">显示日志</string>
+
     <string name="show_sys_apps">显示系统应用</string>
     <string name="show_sys_apps_summary">在应用列表中显示系统应用</string>
 
+    <string name="app_sort_type">应用排序方式</string>
+    <string name="app_sort_type_summary">当前排序方式：%1$s</string>
+    <string name="app_sort_type_title">选择应用排序方式</string>
 
     <string name="accessibility_description">此辅助服务仅用于保持进程存活，</string>
 
@@ -29,7 +36,7 @@
 
     <string name="acknowledgments_list">致谢名单</string>
 
-
+    <string name="error_msg">长按复制:\n%1$s</string>
 
     <string name="permlab_POST_NOTIFICATION">允许使用通知栏</string>
     <string name="permlab_PLAY_AUDIO">允许播放声音</string>

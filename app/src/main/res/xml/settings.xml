@@ -15,6 +15,11 @@
             android:title="@string/show_sys_apps"
             android:summary="@string/show_sys_apps_summary" />
 
+        <Preference
+            android:key="pref_app_sort_type"
+            android:title="@string/app_sort_type"
+            android:summary="@string/app_sort_type_summary" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:key="experience" android:title="@string/experience">
@@ -42,5 +47,7 @@
         </Preference>
 
         <Preference android:key="acknowledgments" android:summary="感谢大家提出的反馈意见和帮助" android:title="特别鸣谢"/>
+
+        <Preference android:key="show_log" android:title="显示日志"/>
     </PreferenceCategory>
 </PreferenceScreen>

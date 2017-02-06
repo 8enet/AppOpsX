@@ -1,15 +1,20 @@
 package com.zzzmode.appopsx.ui.permission;
 
 import android.app.AppOpsManager;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
@@ -44,8 +49,13 @@ public class AppPermissionActivity extends BaseActivity {
     public static final String EXTRA_APP_PKGNAME="extra.app.packagename";
     public static final String EXTRA_APP_NAME="extra.app.name";
 
+
+    private ProgressBar mProgressBar;
+
     private AppPermissionAdapter adapter;
     private AppInfo appInfo;
+
+    private TextView tvError;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,6 +81,14 @@ public class AppPermissionActivity extends BaseActivity {
 
         setTitle(appInfo.appName);
 
+        tvError = (TextView) findViewById(R.id.tv_error);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        if(AppOpsx.getInstance(getApplicationContext()).isRunning()){
+            mProgressBar.setVisibility(View.GONE);
+        }else {
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(getApplicationContext(), R.drawable.list_divider_h), true));
@@ -95,14 +113,18 @@ public class AppPermissionActivity extends BaseActivity {
 
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 return true;
-            case R.id.action_reset:
-                resetMode();
+//            case R.id.action_reset:
+//                resetMode();
+//                return true;
+            case R.id.action_hide_perm:
+                showHidePerms();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -110,15 +132,38 @@ public class AppPermissionActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //getMenuInflater().inflate(R.menu.app_menu, menu);
+    public boolean onCreateOptionsMenu(final Menu menu) {
+
+
+        getMenuInflater().inflate(R.menu.app_menu, menu);
+
+        MenuItem item = menu.findItem(R.id.action_hide_perm);
+        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        item.setChecked(sp.getBoolean("key_show_no_prems",false));
+
+        item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                item.setChecked(!item.isChecked());
+
+                sp.edit().putBoolean("key_show_no_prems",item.isChecked()).apply();
+
+                ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
+
+                initData(appInfo.packageName);
+
+                return true;
+            }
+        });
+
         return true;
     }
 
 
 
     private void initData(String packageName){
-        Helper.getAppPermission(getApplicationContext(),packageName)
+        Helper.getAppPermission(getApplicationContext(),packageName,PreferenceManager.getDefaultSharedPreferences(this).getBoolean("key_show_no_prems",false))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new ResourceObserver<List<OpEntryInfo>>() {
@@ -130,15 +175,24 @@ public class AppPermissionActivity extends BaseActivity {
 
                     @Override
                     public void onNext(List<OpEntryInfo> opEntryInfos) {
-                        if (opEntryInfos != null) {
+                        mProgressBar.setVisibility(View.GONE);
+
+                        if (opEntryInfos != null && !opEntryInfos.isEmpty()) {
                             adapter.setDatas(opEntryInfos);
                             adapter.notifyDataSetChanged();
+                        } else {
+                            tvError.setVisibility(View.VISIBLE);
+                            tvError.setText(R.string.no_perms);
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "onError --> ", e);
+
+                        tvError.setVisibility(View.VISIBLE);
+                        tvError.setText(getString(R.string.error_msg,Log.getStackTraceString(e)));
+
+                        mProgressBar.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -216,4 +270,11 @@ public class AppPermissionActivity extends BaseActivity {
             }
         });
     }
+
+    private void showHidePerms(){
+
+
+    }
+
+
 }

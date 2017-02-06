@@ -11,4 +11,11 @@
         <item>qqw011202</item>
     </string-array>
 
+    <string-array name="app_sort_type">
+        <item>按名称排序(字母在前)</item>
+        <item>按名称排序(字母在后)</item>
+        <item>按安装时间排序</item>
+        <item>按最后更新时间排序</item>
+    </string-array>
+
 </resources>

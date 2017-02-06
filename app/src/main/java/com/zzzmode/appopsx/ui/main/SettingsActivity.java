@@ -16,10 +16,20 @@ import android.view.MenuItem;
 import com.zzzmode.appopsx.BuildConfig;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.BaseActivity;
+import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleObserver;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.internal.operators.single.SingleJust;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by zl on 2017/1/16.
@@ -48,6 +58,9 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public static class MyPreferenceFragment extends PreferenceFragment {
+
+        private Preference mPrefAppSort;
+
         @Override
         public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -77,6 +90,24 @@ public class SettingsActivity extends BaseActivity {
                 }
             });
 
+            mPrefAppSort=findPreference("pref_app_sort_type");
+            mPrefAppSort.setSummary(getString(R.string.app_sort_type_summary,getResources().getStringArray(R.array.app_sort_type)[PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(mPrefAppSort.getKey(),0)]));
+            mPrefAppSort.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    showAppSortDialog(preference);
+                    return true;
+                }
+            });
+
+
+            findPreference("show_log").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    showLog();
+                    return true;
+                }
+            });
         }
 
         private void showPremissionTemplete(){
@@ -155,9 +186,61 @@ public class SettingsActivity extends BaseActivity {
                     new AlertDialog.Builder(getActivity());
             builder.setTitle(title);
             builder.setMessage(text);
-
             builder.setPositiveButton(android.R.string.ok, null);
             builder.show();
+        }
+
+        private void showAppSortDialog(final Preference preference){
+            AlertDialog.Builder builder =
+                    new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.app_sort_type_title);
+
+            final int[] selected=new int[1];
+            selected[0]=PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt(preference.getKey(),0);
+            builder.setSingleChoiceItems(R.array.app_sort_type, selected[0], new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    selected[0]=which;
+                }
+            });
+
+            builder.setNegativeButton(android.R.string.cancel,null);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putInt(preference.getKey(),selected[0]).apply();
+                    mPrefAppSort.setSummary(getString(R.string.app_sort_type_summary,getResources().getStringArray(R.array.app_sort_type)[selected[0]]));
+                }
+            });
+            builder.show();
+        }
+
+
+        private void showLog(){
+            SingleJust.create(new SingleOnSubscribe<String>() {
+                @Override
+                public void subscribe(SingleEmitter<String> e) throws Exception {
+                    e.onSuccess(AppOpsx.readLogs(getActivity()));
+                }
+            }).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<String>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+
+                        }
+
+                        @Override
+                        public void onSuccess(String value) {
+                            showTextDialog(R.string.show_log, value);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+                    });
+
         }
     }
 }
