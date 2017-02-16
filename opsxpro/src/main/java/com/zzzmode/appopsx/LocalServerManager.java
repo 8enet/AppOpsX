@@ -172,6 +172,8 @@ class LocalServerManager {
                 }).start();
             }
 
+            SystemClock.sleep(3000);
+
             Log.e(TAG, "startServer --> server start ----- ");
 
             return true;

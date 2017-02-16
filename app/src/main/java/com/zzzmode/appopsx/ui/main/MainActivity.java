@@ -60,6 +60,8 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
 
     private SearchHandler mSearchHandler;
 
+    private View containerApp,containerSearch;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +73,8 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
 
         mSearchResult= (RecyclerView) findViewById(R.id.search_result_recyclerView);
 
+        containerApp=findViewById(R.id.container_app);
+        containerSearch=findViewById(R.id.container_search);
 
         mSearchHandler.initView(mSearchResult);
 
@@ -152,8 +156,8 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
         MenuItemCompat.setOnActionExpandListener(searchMenu, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                recyclerView.setVisibility(View.GONE);
-                mSearchResult.setVisibility(View.VISIBLE);
+                containerApp.setVisibility(View.GONE);
+                containerSearch.setVisibility(View.VISIBLE);
 
                 settingsMenu.setVisible(false);
                 premsMenu.setVisible(false);
@@ -164,8 +168,9 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                recyclerView.setVisibility(View.VISIBLE);
-                mSearchResult.setVisibility(View.GONE);
+                containerApp.setVisibility(View.VISIBLE);
+                containerSearch.setVisibility(View.GONE);
+
 
                 settingsMenu.setVisible(true);
                 premsMenu.setVisible(true);
