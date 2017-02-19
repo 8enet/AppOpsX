@@ -25,6 +25,9 @@
     <string name="show_sys_apps">显示系统应用</string>
     <string name="show_sys_apps_summary">在应用列表中显示系统应用</string>
 
+    <string name="use_adb_mode">使用ADB模式</string>
+    <string name="use_adb_mode_summary">使用ADB模式只需要在开发者选择中开启[网络ADB调试]即可，无需Root权限</string>
+
     <string name="app_sort_type">应用排序方式</string>
     <string name="app_sort_type_summary">当前排序方式：%1$s</string>
     <string name="app_sort_type_title">选择应用排序方式</string>

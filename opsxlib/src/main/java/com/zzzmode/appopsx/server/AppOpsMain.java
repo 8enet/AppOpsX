@@ -24,6 +24,8 @@ import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.common.ParcelableUtil;
 import com.zzzmode.appopsx.common.ReflectUtils;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,15 +37,42 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private static final int DEFAULT_TIME_OUT_TIME = 1000 * 60 * 1; //1min
     private static final int BG_TIME_OUT=DEFAULT_TIME_OUT_TIME*10; //10min
 
-    public static void main(String[] args) {
+    private static FileOutputStream fos;
+    private static boolean writeLog=false;
 
+    public static void main(String[] args) {
+        try {
+            fos=new FileOutputStream("/data/local/tmp/opsx.txt");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         try {
             new AppOpsMain(args);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log(Log.getStackTraceString(e));
+        }finally {
+            try {
+                fos.flush();
+                if(fos != null){
+                    fos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void log(String log){
+        try {
+            if(writeLog) {
+                fos.write(log.getBytes());
+                fos.write("\n".getBytes());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
     private OpsXServer server;
     private Handler handler;
@@ -52,14 +81,22 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private volatile boolean allowBg=false;
 
     private AppOpsMain(String[] args) throws IOException {
+        System.out.println("start ops server args:"+ Arrays.toString(args));
+        log("start ops server args:"+ Arrays.toString(args));
         if(args == null || args.length < 1){
             return;
         }
 
+//        List<Class> paramsType=new ArrayList<>(1);
+//        paramsType.add(String.class);
+//        List<Object> params=new ArrayList<>(1);
+//        params.add("appopsx_local_server");
+//        ReflectUtils.invokMethod(Process.class,"setArgV0",paramsType,params);
+
         String socketName=args[0]; //"com.zzzmode.appopsx.socket"
         String allowBgArg=args.length>1?args[1]:null;
 
-        System.out.println("start ops server args:"+ Arrays.toString(args));
+
         server = new OpsXServer(socketName,null,this);
         server.allowBackgroundRun=this.allowBg="-D".equalsIgnoreCase(allowBgArg);
         try {
@@ -81,6 +118,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             server.run();
         } catch (Exception e) {
             e.printStackTrace();
+            log(Log.getStackTraceString(e));
             destory();
         }
 
@@ -108,6 +146,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
@@ -128,6 +167,9 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
 
         try {
             System.out.println("runGet sdk:"+Build.VERSION.SDK_INT);
+
+            log("runGet sdk:"+Build.VERSION.SDK_INT);
+
             final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
                     ServiceManager.getService(Context.APP_OPS_SERVICE));
             String packageName = getBuilder.getPackageName();
@@ -237,6 +279,8 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
 
             OpsCommands.Builder unmarshall = ParcelableUtil.unmarshall(bytes, OpsCommands.Builder.CREATOR);
             System.out.println("onMessage ---> !!!! " + unmarshall);
+
+            log("onMessage ---> !!!! " + unmarshall);
             handleCommand(unmarshall);
         }
     }

@@ -6,6 +6,10 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.cgutman.adblib.AdbConnection;
+import com.cgutman.adblib.AdbStream;
+import com.zzzmode.adblib.AdbConnector;
+import com.zzzmode.adblib.LineReader;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
 import com.zzzmode.appopsx.common.OpsResult;
@@ -17,9 +21,13 @@ import java.io.EOFException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -89,8 +97,144 @@ class LocalServerManager {
         return mClientThread.exec(builder);
     }
 
+    private String[] getCommonds(){
+        String arch = AssetsUtils.is64Bit() ? "64" : "";
 
-    private boolean startServer() throws Exception {
+        String args = "";
+        if (mConfig.allowBgRunning) {
+            args += " -D ";
+        }else {
+            args += " -T ";
+        }
+
+        return new String[] {"export LD_LIBRARY_PATH=" + String.format("/vendor/lib%1$s:/system/lib%2$s", arch, arch),
+                "export CLASSPATH=" + SConfig.getClassPath(),
+                "echo start",
+                "exec  app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ " + (mConfig.useAdb?SConfig.getPort():SConfig.generateDomainName()) + " " + args,
+                };
+
+    }
+    private AdbConnection connection;
+    private AdbStream adbStream;
+    private boolean useAdbStartServer() throws Exception{
+        if(adbStream != null && !adbStream.isClosed()){
+            return true;
+        }
+        if(connection != null){
+            connection.close();
+        }
+
+        final AtomicBoolean connResult=new AtomicBoolean(false);
+        connection=AdbConnector.buildConnect(mConfig.context, mConfig.adbHost, mConfig.adbPort);
+
+        Thread thread=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    connection.connect();
+                    connResult.set(true);
+                } catch (Exception e) {
+                    connResult.set(false);
+                    e.printStackTrace();
+                    if (connection != null){
+                        try {
+                            connection.close();
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+
+        try {
+            Log.e(TAG, "useAdbStartServer --> start");
+            thread.start();
+            thread.join(10000);
+            Log.e(TAG, "useAdbStartServer --> jion 10000");
+
+            if(!connResult.get()){
+                connection.close();
+            }
+        } catch (InterruptedException e) {
+            connResult.set(false);
+            e.printStackTrace();
+            if(connection != null){
+                connection.close();
+            }
+        }
+
+
+        if(!connResult.get()){
+            throw new RuntimeException("please grant adb premission!");
+        }
+
+        adbStream = connection.open("shell:");
+
+        if(!TextUtils.isEmpty(mConfig.logFile)) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    BufferedWriter bw=null;
+                    LineReader reader;
+                    try {
+                        bw=new BufferedWriter(new FileWriter(mConfig.logFile,false));
+                        bw.write(new Date().toString());
+                        bw.newLine();
+                        bw.write("adb start log");
+                        bw.newLine();
+
+                        reader=new LineReader(adbStream);
+                        int line=0;
+                        String s = reader.readLine();
+                        while (!adbStream.isClosed()) {
+                            Log.e(TAG, "log run --> " + s);
+                            s = reader.readLine();
+                            bw.write(s);
+                            bw.newLine();
+                            line++;
+                            if(line >= 20 || (s !=null && s.startsWith("runGet"))){
+                                break;
+                            }
+                        }
+                        bw.flush();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }finally {
+                        try {
+                            if(bw != null){
+                                bw.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }).start();
+        }
+
+        adbStream.write("\n\n".getBytes());
+        SystemClock.sleep(100);
+        adbStream.write("id\n".getBytes());
+        SystemClock.sleep(100);
+        String[] cmds = getCommonds();
+
+        StringBuilder sb=new StringBuilder();
+        for (String cmd : cmds) {
+            sb.append(cmd).append(';');
+        }
+        sb.deleteCharAt(sb.length()-1);
+        sb.append("\n");
+        Log.e(TAG, "useAdbStartServer --> "+sb);
+        adbStream.write(sb.toString().getBytes());
+        SystemClock.sleep(3000);
+
+        Log.e(TAG, "startServer -->ADB server start ----- ");
+
+        return true;
+    }
+
+    private boolean useRootStartServer() throws Exception{
         BufferedWriter writer = null;
         RootChecker checker = null;
         try {
@@ -111,18 +255,7 @@ class LocalServerManager {
 
             writer = new BufferedWriter(new OutputStreamWriter(exec.getOutputStream()));
 
-            String arch = AssetsUtils.is64Bit() ? "64" : "";
-
-            String args = "";
-            if (mConfig.allowBgRunning) {
-                args += " -D ";
-            }
-
-            String[] cmds = {"export LD_LIBRARY_PATH=" + String.format("/vendor/lib%1$s:/system/lib%2$s", arch, arch),
-                    "export CLASSPATH=" + SConfig.getClassPath(),
-                    "echo start",
-                    "exec  app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ " + SConfig.generateDomainName() + " " + args,
-                    "echo end"};
+            String[] cmds = getCommonds();
 
             for (String cmd : cmds) {
                 writer.write(cmd);
@@ -142,6 +275,8 @@ class LocalServerManager {
                         try {
                             bw=new BufferedWriter(new FileWriter(mConfig.logFile,false));
                             bw.write(new Date().toString());
+                            bw.newLine();
+                            bw.write("root start log");
                             bw.newLine();
 
                             int line=0;
@@ -174,7 +309,7 @@ class LocalServerManager {
 
             SystemClock.sleep(3000);
 
-            Log.e(TAG, "startServer --> server start ----- ");
+            Log.e(TAG, "startServer -->ROOT server start ----- ");
 
             return true;
         } catch (Exception e) {
@@ -193,6 +328,14 @@ class LocalServerManager {
 //            }
         }
 
+    }
+
+    private boolean startServer() throws Exception {
+        if(mConfig.useAdb){
+            return useAdbStartServer();
+        }else {
+            return useRootStartServer();
+        }
     }
 
 
@@ -250,12 +393,25 @@ class LocalServerManager {
         private void connect(int retryCount) throws Exception {
             if (!isRunning && retryCount >= 0) {
                 try {
-                    LocalSocket localSocket = new LocalSocket();
-                    localSocket.connect(new LocalSocketAddress(SConfig.getLocalServerPath()));
-                    transfer = new OpsDataTransfer(localSocket.getOutputStream(), localSocket.getInputStream(), false);
+                    OutputStream os=null;
+                    InputStream is=null;
+                    if(mConfig.useAdb){
+                        Socket socket=new Socket("127.0.0.1",SConfig.getPort());
+                        os=socket.getOutputStream();
+                        is=socket.getInputStream();
+                    }else {
+                        LocalSocket localSocket = new LocalSocket();
+                        localSocket.connect(new LocalSocketAddress(SConfig.getLocalServerPath()));
+                        os=localSocket.getOutputStream();
+                        is=localSocket.getInputStream();
+                    }
+
+
+                    transfer = new OpsDataTransfer(os, is, false);
                     transfer.shakehands(null, false);
                     isRunning = true;
                 } catch (IOException e) {
+                    e.printStackTrace();
                     if (retryCount >= 0) {
                         try {
                             startServer();

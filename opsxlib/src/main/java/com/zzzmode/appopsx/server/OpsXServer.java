@@ -2,10 +2,19 @@ package com.zzzmode.appopsx.server;
 
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
+import android.net.LocalSocketAddress;
+import android.os.MemoryFile;
+import android.os.ParcelFileDescriptor;
+import android.system.Os;
 
 import com.zzzmode.appopsx.common.OpsDataTransfer;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * Created by zl on 2016/11/6.
@@ -14,7 +23,7 @@ import java.io.IOException;
 class OpsXServer{
 
     private boolean running=true;
-    private LocalServerSocket serverSocket;
+    private IServer server;
     private OpsDataTransfer opsDataTransfer;
     private OpsDataTransfer.OnRecvCallback callback;
 
@@ -22,7 +31,15 @@ class OpsXServer{
     boolean allowBackgroundRun=false;
 
     OpsXServer(String name,String token,OpsDataTransfer.OnRecvCallback callback) throws IOException {
-        serverSocket = new LocalServerSocket(name);
+
+        try{
+            int port = Integer.parseInt(name);
+            server=new NetSocketServerImpl(port);
+        }catch (Exception e){
+            e.printStackTrace();
+            server=new LocalServerImpl(name);
+        }
+
         this.callback=callback;
         this.token=token;
     }
@@ -32,9 +49,9 @@ class OpsXServer{
 
             try {
 
-                LocalSocket socket = serverSocket.accept(); //only one connect
+                server.accept(); //only one connect
 
-                opsDataTransfer = new OpsDataTransfer(socket.getOutputStream(), socket.getInputStream(), callback);
+                opsDataTransfer = new OpsDataTransfer(server.getOutputStream(), server.getInputStream(), callback);
                 opsDataTransfer.shakehands(token,true);
                 opsDataTransfer.handleRecv();
             } catch (IOException e) {
@@ -64,11 +81,86 @@ class OpsXServer{
             opsDataTransfer.stop();
         }
         try {
-            if(serverSocket != null){
-                serverSocket.close();
+            if(server != null){
+                server.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
+    private interface IServer{
+
+        InputStream getInputStream()throws IOException;
+
+        OutputStream getOutputStream()throws IOException;
+
+        void accept()throws IOException;
+
+        void close()throws IOException;
+    }
+
+    private static class LocalServerImpl implements IServer{
+
+        private LocalServerSocket serverSocket;
+        private LocalSocket socket;
+
+        public LocalServerImpl(String name) throws IOException {
+            this.serverSocket = new LocalServerSocket(name);
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException{
+            return socket.getInputStream();
+        }
+
+        @Override
+        public OutputStream getOutputStream() throws IOException{
+            return socket.getOutputStream();
+        }
+
+        @Override
+        public void accept() throws IOException{
+            socket=serverSocket.accept();
+        }
+
+        @Override
+        public void close() throws IOException {
+            socket.close();
+            serverSocket.close();
+        }
+    }
+
+    private static class NetSocketServerImpl implements IServer{
+
+        private ServerSocket serverSocket;
+        private Socket socket;
+
+        public NetSocketServerImpl(int port) throws IOException {
+            this.serverSocket = new ServerSocket(port);
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return socket.getInputStream();
+        }
+
+        @Override
+        public OutputStream getOutputStream() throws IOException {
+            return socket.getOutputStream();
+        }
+
+        @Override
+        public void accept() throws IOException {
+            socket=serverSocket.accept();
+        }
+
+        @Override
+        public void close() throws IOException {
+            socket.close();
+            serverSocket.close();
+        }
+    }
+
 }

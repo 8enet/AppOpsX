@@ -7,8 +7,8 @@ android {
         applicationId "com.zzzmode.appopsx"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 106
-        versionName "1.0.6"
+        versionCode 108
+        versionName "1.0.8"
         resConfigs "en","zh"
     }
 

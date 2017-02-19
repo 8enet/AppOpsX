@@ -2,6 +2,7 @@ package com.zzzmode.appopsx.ui.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -44,7 +45,7 @@ public class AppOpsx {
         OpsxManager.Config config=new OpsxManager.Config();
         config.allowBgRunning=sp.getBoolean("allow_bg_remote",false);
         config.logFile=context.getFileStreamPath(LOG_FILE).getAbsolutePath();
-
+        config.useAdb=sp.getBoolean("use_adb", false);
         Log.e("test", "buildConfig --> "+context.getFileStreamPath(LOG_FILE).getAbsolutePath());
 
         return config;

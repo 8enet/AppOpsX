@@ -30,6 +30,7 @@ public class OpsxManager {
 
     public OpsxManager(Context context,Config config){
         mContext=context;
+        config.context=mContext;
         mLocalServerManager=LocalServerManager.getInstance(config);
         SConfig.init(context);
         checkFile();
@@ -106,5 +107,9 @@ public class OpsxManager {
     public static class Config{
         public boolean allowBgRunning=false;
         public String logFile;
+        public boolean useAdb=false;
+        public String adbHost="127.0.0.1";
+        public int adbPort=5555;
+        Context context;
     }
 }

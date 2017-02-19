@@ -19,22 +19,19 @@ class SConfig {
     static final String DIR_NAME="opsx";
     static final String JAR_NAME="appopsx.jar";
 
-    private static String sExecPrefix=null;
     private static File destJarFile;
     private static String sClassPath=null;
     private static SharedPreferences sPreferences;
 
 
     static void init(Context context){
-        sExecPrefix=context.getDir(DIR_NAME,Context.MODE_PRIVATE).getAbsolutePath();
-        destJarFile=new File(context.getDir(DIR_NAME,Context.MODE_PRIVATE),JAR_NAME);
+        //sExecPrefix=context.getDir(DIR_NAME,Context.MODE_PRIVATE).getAbsolutePath();
+        //destJarFile=new File(context.getDir(DIR_NAME,Context.MODE_PRIVATE),JAR_NAME);
+        destJarFile=new File(context.getExternalFilesDir(DIR_NAME),JAR_NAME);
         sClassPath=destJarFile.getAbsolutePath();
         sPreferences = context.getSharedPreferences("sp_app_opsx", Context.MODE_PRIVATE);
     }
 
-    static String getExecPrefix(){
-        return sExecPrefix;
-    }
 
     static File getDestJarFile(){
         return destJarFile;
@@ -58,6 +55,10 @@ class SConfig {
             path= generateDomainName();
         }
         return path;
+    }
+
+    static int getPort(){
+        return 52053;
     }
 
 }
