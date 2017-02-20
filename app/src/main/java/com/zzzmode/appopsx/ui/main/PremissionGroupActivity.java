@@ -2,13 +2,11 @@ package com.zzzmode.appopsx.ui.main;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,10 +21,10 @@ import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.ui.BaseActivity;
 import com.zzzmode.appopsx.ui.core.Helper;
-import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 import com.zzzmode.appopsx.ui.model.PremissionChildItem;
 import com.zzzmode.appopsx.ui.model.PremissionGroup;
 
+import java.lang.ref.SoftReference;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -53,6 +51,7 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
     private PremissionGroupAdapter myItemAdapter;
 
     private TextView tvError;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -101,7 +100,9 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
 
     private void changeMode(final int groupPosition,final int childPosition,final PremissionChildItem info){
 
+
         info.opEntryInfo.changeStatus();
+
         Helper.setMode(getApplicationContext(),info.appInfo.packageName,info.opEntryInfo)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<OpsResult>() {
             @Override
@@ -172,39 +173,61 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
 
     private void init(){
         boolean showSysApp= PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("show_sysapp",false);
+
+        final SoftReference<PremissionGroupActivity> actRef=new SoftReference<PremissionGroupActivity>(this);
         Helper.getPremissionGroup(getApplicationContext(),showSysApp).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceSingleObserver<List<PremissionGroup>>() {
             @Override
             public void onSuccess(List<PremissionGroup> value) {
-                mProgressBar.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
 
-
-                myItemAdapter.setData(value);
-
-                mWrappedAdapter = mRecyclerViewExpandableItemManager.createWrappedAdapter(myItemAdapter);
-                recyclerView.setAdapter(mWrappedAdapter);
-
-                myItemAdapter.notifyDataSetChanged();
-
-                if(BuildConfig.DEBUG) {
-                    for (PremissionGroup group : value) {
-                        Log.e(TAG, "onSuccess --> " + group);
+                try {
+                    PremissionGroupActivity act=null;
+                    if(actRef != null && (act=actRef.get()) != null){
+                        act.showList(value);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
             }
 
             @Override
             public void onError(Throwable e) {
-                mProgressBar.setVisibility(View.GONE);
 
-                tvError.setVisibility(View.VISIBLE);
-                tvError.setText(getString(R.string.error_msg,Log.getStackTraceString(e)));
+                try {
+                    mProgressBar.setVisibility(View.GONE);
+                    tvError.setVisibility(View.VISIBLE);
+                    tvError.setText(getString(R.string.error_msg,Log.getStackTraceString(e)));
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
             }
 
         });
     }
 
+
+    private void showList(List<PremissionGroup> value){
+        if(isFinishing()){
+            return;
+        }
+        mProgressBar.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+
+
+        myItemAdapter.setData(value);
+
+        mWrappedAdapter = mRecyclerViewExpandableItemManager.createWrappedAdapter(myItemAdapter);
+        recyclerView.setAdapter(mWrappedAdapter);
+
+        myItemAdapter.notifyDataSetChanged();
+
+        if(BuildConfig.DEBUG) {
+            for (PremissionGroup group : value) {
+                Log.e(TAG, "onSuccess --> " + group);
+            }
+        }
+    }
 
     @Override
     public void onGroupCollapse(int groupPosition, boolean fromUser) {
