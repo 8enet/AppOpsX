@@ -102,7 +102,7 @@ class LocalServerManager {
 
         String args = "";
         if (mConfig.allowBgRunning) {
-            args += " -D ";
+            args += " -D &";
         }else {
             args += " -T ";
         }
@@ -405,10 +405,9 @@ class LocalServerManager {
                         os=localSocket.getOutputStream();
                         is=localSocket.getInputStream();
                     }
-
-
+                    String token=mConfig.useAdb?String.valueOf(SConfig.getPort()):SConfig.getLocalServerPath();
                     transfer = new OpsDataTransfer(os, is, false);
-                    transfer.shakehands(null, false);
+                    transfer.shakehands(token, false);
                     isRunning = true;
                 } catch (IOException e) {
                     e.printStackTrace();

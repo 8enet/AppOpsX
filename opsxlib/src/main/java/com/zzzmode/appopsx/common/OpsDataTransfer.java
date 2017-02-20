@@ -14,6 +14,8 @@ import java.io.OutputStream;
  */
 
 public class OpsDataTransfer {
+    public static final String PROTOCOL_VERSION="1.0.8";
+
     private DataOutputStream outputStream;
     private DataInputStream inputStream;
     private OnRecvCallback callback;
@@ -81,21 +83,26 @@ public class OpsDataTransfer {
             return;
         }
         if(isServer) {
-            System.out.println("shakehands --> start: token " + token + "  " + isServer);
+            System.out.println("shakehands --> start: token " + token + "  " + isServer+"  server protocol :"+PROTOCOL_VERSION);
         }else {
-            Log.e("test", "shakehands --> start: token " + token + "  " + isServer);
+            Log.e("test", "shakehands --> start: token " + token + "  " + isServer+"  client protocol:"+PROTOCOL_VERSION);
         }
         if(isServer){
+            String ver=new String(readMsg());
             String recv=new String(readMsg());
+            if(!TextUtils.equals(ver,PROTOCOL_VERSION)){
+                throw new RuntimeException("client protocol version:"+ver+"  ,server protocol version:"+PROTOCOL_VERSION);
+            }
             if(TextUtils.equals(token,recv)){
                 //auth success,pass
                 System.out.println("shakehands --> hands success ");
             }else {
                 System.out.println("shakehands --> unknow token ");
-                throw new IOException("Unauthorized client, token:"+token);
+                throw new RuntimeException("Unauthorized client, token:"+token);
             }
         } else {
             //client
+            sendMsg(PROTOCOL_VERSION);
             sendMsg(token);
         }
     }

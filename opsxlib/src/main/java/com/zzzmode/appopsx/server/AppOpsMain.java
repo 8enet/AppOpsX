@@ -97,7 +97,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
         String allowBgArg=args.length>1?args[1]:null;
 
 
-        server = new OpsXServer(socketName,null,this);
+        server = new OpsXServer(socketName,socketName,this);
         server.allowBackgroundRun=this.allowBg="-D".equalsIgnoreCase(allowBgArg);
         try {
 
