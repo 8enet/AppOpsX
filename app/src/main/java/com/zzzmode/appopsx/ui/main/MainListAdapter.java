@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zzzmode.appopsx.R;
+import com.zzzmode.appopsx.ui.analytics.AEvent;
+import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.permission.AppPermissionActivity;
 
@@ -70,7 +72,13 @@ class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> i
             Intent intent = new Intent(v.getContext(), AppPermissionActivity.class);
             intent.putExtra(AppPermissionActivity.EXTRA_APP, ((AppInfo) v.getTag()));
             v.getContext().startActivity(intent);
+            ATracker.send(getAEventId());
         }
+    }
+
+
+    protected String getAEventId(){
+        return AEvent.C_APP;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{

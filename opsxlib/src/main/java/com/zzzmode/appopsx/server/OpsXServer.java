@@ -2,14 +2,10 @@ package com.zzzmode.appopsx.server;
 
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
-import android.net.LocalSocketAddress;
-import android.os.MemoryFile;
-import android.os.ParcelFileDescriptor;
-import android.system.Os;
 
+import com.zzzmode.appopsx.common.FLog;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,7 +32,7 @@ class OpsXServer{
             int port = Integer.parseInt(name);
             server=new NetSocketServerImpl(port);
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
             server=new LocalServerImpl(name);
         }
 
@@ -44,7 +40,7 @@ class OpsXServer{
         this.token=token;
     }
 
-    public void run() throws IOException {
+    public void run() throws Exception {
         while (running) {
 
             try {
@@ -55,10 +51,17 @@ class OpsXServer{
                 opsDataTransfer.shakehands(token,true);
                 opsDataTransfer.handleRecv();
             } catch (IOException e) {
+                FLog.log(e);
+                FLog.log("------- allowBackgroundRun: "+allowBackgroundRun);
                 if(!allowBackgroundRun){
+                    running=false;
                     throw e;
                 }
-                e.printStackTrace();
+            } catch (RuntimeException e){
+                FLog.log(e);
+                allowBackgroundRun=false;
+                running=false;
+                throw e;
             }
         }
     }

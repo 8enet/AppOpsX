@@ -9,11 +9,7 @@
 
         <Preference android:key="ignore_premission_templete" android:title="@string/auto_ignore_premission_title" android:summary="@string/auto_ignore_premission_temp_summary" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="show_sysapp"
-            android:title="@string/show_sys_apps"
-            android:summary="@string/show_sys_apps_summary" />
+
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -21,20 +17,41 @@
             android:title="@string/use_adb_mode"
             android:summary="@string/use_adb_mode_summary" />
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="allow_bg_remote"
+            android:title="@string/allow_bg_remote"
+            android:summary="@string/allow_bg_remote_summary" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:key="app_ui" android:title="@string/app_ui">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_sysapp"
+            android:title="@string/show_sys_apps"
+            android:summary="@string/show_sys_apps_summary" />
         <Preference
             android:key="pref_app_sort_type"
             android:title="@string/app_sort_type"
             android:summary="@string/app_sort_type_summary" />
-
+        <!--<Preference-->
+            <!--android:key="app_perm_detail"-->
+            <!--android:title="@string/app_perm_detail_summary"-->
+            <!--android:summary="@string/app_perm_detail_title" />-->
     </PreferenceCategory>
 
-    <PreferenceCategory android:key="experience" android:title="@string/experience">
+    <!--<PreferenceCategory android:key="experience" android:title="@string/experience">-->
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="allow_bg_remote"
-            android:title="@string/allow_bg_remote"
-            android:summary="@string/allow_bg_remote_summary" />
+
+    <!--</PreferenceCategory>-->
+
+    <PreferenceCategory android:key="other" android:title="@string/others">
+
+        <Preference
+            android:key="close_server"
+            android:title="@string/close_bg_server_summary"
+            android:summary="@string/close_bg_server_title" />
     </PreferenceCategory>
 
     <PreferenceCategory

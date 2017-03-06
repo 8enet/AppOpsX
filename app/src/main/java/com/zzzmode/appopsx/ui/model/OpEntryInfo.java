@@ -20,6 +20,8 @@ public class OpEntryInfo{
     public String opPermsLab;
     public String opPermsDesc;
     public int mode;
+    public int icon;
+    public String groupName;
 
     public OpEntryInfo(OpEntry opEntry){
         if(opEntry != null) {

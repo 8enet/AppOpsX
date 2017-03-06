@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.umeng.analytics.MobclickAgent;
 import com.zzzmode.android.opsxpro.BuildConfig;
+import com.zzzmode.appopsx.ui.analytics.ATracker;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,6 +25,7 @@ public class AppGlobal extends Application implements Application.ActivityLifecy
         MobclickAgent.setDebugMode(BuildConfig.DEBUG);
         registerActivityLifecycleCallbacks(this);
         Helper.updataShortcuts(this);
+        ATracker.init(getApplicationContext());
     }
 
 

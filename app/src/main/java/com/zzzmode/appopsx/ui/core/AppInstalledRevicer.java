@@ -13,6 +13,8 @@ import android.util.SparseIntArray;
 import android.widget.Toast;
 
 import com.zzzmode.appopsx.R;
+import com.zzzmode.appopsx.ui.analytics.AEvent;
+import com.zzzmode.appopsx.ui.analytics.ATracker;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -64,6 +66,7 @@ public class AppInstalledRevicer extends BroadcastReceiver {
                     String label = BidiFormatter.getInstance().unicodeWrap(packageInfo.applicationInfo.loadLabel(context.getPackageManager())).toString();
 
                     Toast.makeText(context,context.getString(R.string.disable_toast,label,value.size()),Toast.LENGTH_LONG).show();
+                    ATracker.send(context.getApplicationContext(),AEvent.U_AUTO_IGNORE,null);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

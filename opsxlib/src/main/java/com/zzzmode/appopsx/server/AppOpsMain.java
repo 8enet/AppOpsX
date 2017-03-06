@@ -1,7 +1,6 @@
 package com.zzzmode.appopsx.server;
 
 
-import android.Manifest;
 import android.app.ActivityThread;
 import android.app.AppOpsManager;
 import android.content.Context;
@@ -13,23 +12,27 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.os.Process;
 import android.os.ServiceManager;
+import android.system.Os;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.internal.app.IAppOpsService;
+import com.zzzmode.appopsx.common.FLog;
 import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
 import com.zzzmode.appopsx.common.OpsResult;
+import com.zzzmode.appopsx.common.OtherOp;
 import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.common.ParcelableUtil;
 import com.zzzmode.appopsx.common.ReflectUtils;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
 
@@ -37,42 +40,30 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private static final int DEFAULT_TIME_OUT_TIME = 1000 * 60 * 1; //1min
     private static final int BG_TIME_OUT=DEFAULT_TIME_OUT_TIME*10; //10min
 
-    private static FileOutputStream fos;
-    private static boolean writeLog=false;
-
     public static void main(String[] args) {
+
         try {
-            fos=new FileOutputStream("/data/local/tmp/opsx.txt");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            new AppOpsMain(args);
+            FLog.writeLog= false;
+            FLog.log("start ops server args:"+ Arrays.toString(args));
+            if(args == null){
+                return;
+            }
+            String[] split = args[0].split(",");
+            Map<String,String> params=new HashMap<>();
+            for (String s : split) {
+                String[] param = s.split(":");
+                params.put(param[0],param[1]);
+            }
+            new AppOpsMain(params);
         } catch (Exception e) {
             e.printStackTrace();
-            log(Log.getStackTraceString(e));
+            FLog.log(e);
         }finally {
-            try {
-                fos.flush();
-                if(fos != null){
-                    fos.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            FLog.close();
         }
     }
 
-    private static void log(String log){
-        try {
-            if(writeLog) {
-                fos.write(log.getBytes());
-                fos.write("\n".getBytes());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     private OpsXServer server;
     private Handler handler;
@@ -80,25 +71,48 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private int timeOut = DEFAULT_TIME_OUT_TIME;
     private volatile boolean allowBg=false;
 
-    private AppOpsMain(String[] args) throws IOException {
-        System.out.println("start ops server args:"+ Arrays.toString(args));
-        log("start ops server args:"+ Arrays.toString(args));
-        if(args == null || args.length < 1){
-            return;
+    private Shell mShell;
+    private IptablesController mIptablesController;
+    private PersistenceConfig mPersistenceConfig;
+
+
+    private AppOpsMain(Map<String,String> params) throws IOException {
+        System.out.println("params --> "+params);
+        boolean isRoot= TextUtils.equals(params.get("type"),"root");
+        String path=params.get("path");
+        String token=params.get("token");
+        boolean allowBg=TextUtils.equals(params.get("bgrun"),"1");
+        boolean debug=TextUtils.equals(params.get("debug"),"1");
+
+        if(isRoot) {
+            List<Class> paramsType = new ArrayList<>(1);
+            paramsType.add(String.class);
+            List<Object> v0params = new ArrayList<>(1);
+            v0params.add("appopsx_local_server");
+            ReflectUtils.invokMethod(Process.class, "setArgV0", paramsType, v0params);
         }
 
-//        List<Class> paramsType=new ArrayList<>(1);
-//        paramsType.add(String.class);
-//        List<Object> params=new ArrayList<>(1);
-//        params.add("appopsx_local_server");
-//        ReflectUtils.invokMethod(Process.class,"setArgV0",paramsType,params);
+        server = new OpsXServer(path,token,this);
+        server.allowBackgroundRun=this.allowBg=allowBg;
 
-        String socketName=args[0]; //"com.zzzmode.appopsx.socket"
-        String allowBgArg=args.length>1?args[1]:null;
+        try {
+            //mPersistenceConfig=new PersistenceConfig();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+
+            if(isRoot){
+                mShell = Shell.getShell();
+                mIptablesController = new IptablesController(mShell);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            mIptablesController=null;
+        }
 
 
-        server = new OpsXServer(socketName,socketName,this);
-        server.allowBackgroundRun=this.allowBg="-D".equalsIgnoreCase(allowBgArg);
         try {
 
             HandlerThread thread1 = new HandlerThread("watcher-ups");
@@ -118,11 +132,11 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             server.run();
         } catch (Exception e) {
             e.printStackTrace();
-            log(Log.getStackTraceString(e));
+            FLog.log("eeeeeeeend  ---   --dfs pid "+Process.myPid());
+            FLog.log(e);
             destory();
         }
-
-        System.out.println("end ---- ");
+        FLog.log("end ----");
     }
 
     private void destory(){
@@ -136,16 +150,33 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             e.printStackTrace();
         }
         try {
+            if(mPersistenceConfig != null){
+                mPersistenceConfig.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(mShell != null){
+            try {
+                mShell.close();
+                mShell.destroyShell();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        try {
             isDeath = true;
             server.setStop();
 
-            System.out.println("timeout stop----- "+Process.myPid());
-
-            Runtime.getRuntime().exec("kill -9 "+Process.myPid()); //kill self
-
-            System.exit(0);
+            FLog.log("timeout stop----- "+Process.myPid());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Os.execve("kill",new String[]{"-9",String.valueOf(Process.myPid())},null);
+            }else {
+                Runtime.getRuntime().exec("kill -9 " + Process.myPid()); //kill self
+            }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
             System.exit(0);
         }
     }
@@ -166,9 +197,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private void runGet(OpsCommands.Builder getBuilder) {
 
         try {
-            System.out.println("runGet sdk:"+Build.VERSION.SDK_INT);
-
-            log("runGet sdk:"+Build.VERSION.SDK_INT);
+            FLog.log("runGet sdk:"+Build.VERSION.SDK_INT);
 
             final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
                     ServiceManager.getService(Context.APP_OPS_SERVICE));
@@ -181,13 +210,18 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             if (opsForPackage != null) {
                 for (Object o : opsForPackage) {
                     PackageOps packageOps = ReflectUtils.opsConvert(o);
-                    addSuport(appOpsService,packageOps);
+                    addSupport(appOpsService,packageOps);
                     packageOpses.add(packageOps);
                 }
             }else {
                 PackageOps packageOps=new PackageOps(packageName,uid,new ArrayList<OpEntry>());
-                addSuport(appOpsService,packageOps);
+                addSupport(appOpsService,packageOps);
                 packageOpses.add(packageOps);
+            }
+            if(mPersistenceConfig != null) {
+                for (PackageOps packageOpse : packageOpses) {
+                    mPersistenceConfig.sync(packageOpse);
+                }
             }
 
             server.sendResult(ParcelableUtil.marshall(new OpsResult(packageOpses, null)));
@@ -203,7 +237,22 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     }
 
 
-    private void addSuport(IAppOpsService appOpsService,PackageOps ops){
+    private void addSupport(IAppOpsService appOpsService, PackageOps ops){
+        try {
+            FLog.log("addSupport  "+mIptablesController);
+            if(mIptablesController != null){
+                int mode=mIptablesController.isMobileDataEnable(ops.getUid())?AppOpsManager.MODE_ALLOWED:AppOpsManager.MODE_IGNORED;
+                OpEntry opEntry=new OpEntry(OtherOp.OP_ACCESS_PHONE_DATA,mode,0,0,0,0,null);
+                ops.getOps().add(opEntry);
+
+                mode=mIptablesController.isWifiDataEnable(ops.getUid())?AppOpsManager.MODE_ALLOWED:AppOpsManager.MODE_IGNORED;
+                opEntry=new OpEntry(OtherOp.OP_ACCESS_WIFI_NETWORK,mode,0,0,0,0,null);
+                ops.getOps().add(opEntry);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println(Log.getStackTraceString(e));
+        }
         try {
             PackageInfo packageInfo = ActivityThread.getPackageManager().getPackageInfo(ops.getPackageName(), PackageManager.GET_PERMISSIONS, 0);
             if (packageInfo != null && packageInfo.requestedPermissions != null) {
@@ -219,6 +268,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
                     }
                 }
             }
+
         }catch (Throwable e){
             e.printStackTrace();
         }
@@ -227,12 +277,18 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     private void runSet(OpsCommands.Builder builder) {
 
         try {
-            final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-                    ServiceManager.getService(Context.APP_OPS_SERVICE));
+
             final int uid = Helper.getPackageUid(builder.getPackageName(), 0);
-
-
-            appOpsService.setMode(builder.getOpInt(), uid, builder.getPackageName(), builder.getModeInt());
+            if(OtherOp.isOtherOp(builder.getOpInt())){
+                setOther(builder,uid);
+            }else {
+                final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
+                        ServiceManager.getService(Context.APP_OPS_SERVICE));
+                appOpsService.setMode(builder.getOpInt(), uid, builder.getPackageName(), builder.getModeInt());
+            }
+            if(mPersistenceConfig != null){
+                mPersistenceConfig.setPerm(uid,builder.getOpInt(),builder.getModeInt() != AppOpsManager.MODE_ALLOWED);
+            }
             server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));
         } catch (Exception e) {
             e.printStackTrace();
@@ -244,9 +300,25 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
         }
     }
 
+    private void setOther(OpsCommands.Builder builder,int uid){
+        if(mIptablesController != null){
+            boolean enable=builder.getModeInt()==AppOpsManager.MODE_ALLOWED;
+            switch (builder.getOpInt()){
+                case OtherOp.OP_ACCESS_PHONE_DATA:
+                    mIptablesController.setMobileData(uid,enable);
+                    break;
+                case OtherOp.OP_ACCESS_WIFI_NETWORK:
+                    mIptablesController.setWifiData(uid,enable);
+                    break;
+            }
+        }
+    }
+
     private void runOther(OpsCommands.Builder builder){
-
-
+        String packageName = builder.getPackageName();
+        if("close_server".equals(packageName)){
+            destory();
+        }
     }
 
     private void runReset(OpsCommands.Builder builder) {
@@ -278,10 +350,11 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             }
 
             OpsCommands.Builder unmarshall = ParcelableUtil.unmarshall(bytes, OpsCommands.Builder.CREATOR);
-            System.out.println("onMessage ---> !!!! " + unmarshall);
 
-            log("onMessage ---> !!!! " + unmarshall);
+            FLog.log("onMessage ---> !!!! " + unmarshall);
+
             handleCommand(unmarshall);
+
         }
     }
 

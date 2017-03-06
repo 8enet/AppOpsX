@@ -28,6 +28,8 @@ import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.ui.BaseActivity;
+import com.zzzmode.appopsx.ui.analytics.AEvent;
+import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.AppInfo;
@@ -54,8 +56,6 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
     private ProgressBar mProgressBar;
     private RecyclerView recyclerView;
 
-    private RecyclerView mSearchResult;
-
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private SearchHandler mSearchHandler;
@@ -71,12 +71,10 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        mSearchResult= (RecyclerView) findViewById(R.id.search_result_recyclerView);
-
         containerApp=findViewById(R.id.container_app);
         containerSearch=findViewById(R.id.container_search);
 
-        mSearchHandler.initView(mSearchResult);
+        mSearchHandler.initView(containerSearch);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefreshlayout);
@@ -135,9 +133,11 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_setting:
+                ATracker.send(AEvent.C_SETTINGS);
                 openSetting();
                 return true;
             case R.id.action_premission_sort:
+                ATracker.send(AEvent.C_PERMISSION_LIST);
                 openSortPremission();
                 return true;
             default:
@@ -161,6 +161,8 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
 
                 settingsMenu.setVisible(false);
                 premsMenu.setVisible(false);
+
+                ATracker.send(AEvent.C_SEARCH);
 
                 ActivityCompat.invalidateOptionsMenu(MainActivity.this);
                 return true;

@@ -3,10 +3,12 @@ package com.zzzmode.appopsx.ui.permission;
 import android.app.AppOpsManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zzzmode.appopsx.R;
@@ -18,18 +20,27 @@ import java.util.List;
 /**
  * Created by zl on 2016/11/18.
  */
-
-public class AppPermissionAdapter extends RecyclerView.Adapter<AppPermissionAdapter.ViewHolder> implements View.OnClickListener,CompoundButton.OnCheckedChangeListener{
+ class AppPermissionAdapter extends RecyclerView.Adapter<AppPermissionAdapter.ViewHolder> implements View.OnClickListener,CompoundButton.OnCheckedChangeListener{
 
     private List<OpEntryInfo> datas=new ArrayList<>();
 
     private OnSwitchItemClickListener listener;
 
-    public void setDatas(List<OpEntryInfo> datas) {
+    private boolean showPermDesc;
+    private boolean showOpName;
+    private boolean showPermTime;
+
+    void setShowConfig(boolean showPermDesc,boolean showOpName,boolean showPermTime){
+        this.showPermDesc=showPermDesc;
+        this.showOpName=showOpName;
+        this.showPermTime=showPermTime;
+    }
+
+    void setDatas(List<OpEntryInfo> datas) {
         this.datas = datas;
     }
 
-    public void updateItem(OpEntryInfo info){
+    void updateItem(OpEntryInfo info){
         if(datas != null && info != null){
             int i = datas.indexOf(info);
             if(i != -1 && i < datas.size()){
@@ -57,24 +68,36 @@ public class AppPermissionAdapter extends RecyclerView.Adapter<AppPermissionAdap
 
         holder.switchCompat.setTag(opEntryInfo);
         if(opEntryInfo != null){
+            holder.icon.setImageResource(opEntryInfo.icon);
             if(opEntryInfo.opPermsLab != null){
                 holder.title.setText(opEntryInfo.opPermsLab);
             }else {
                 holder.title.setText(opEntryInfo.opName);
             }
-            if(opEntryInfo.opPermsDesc != null){
+
+            if (showOpName && opEntryInfo.opName != null) {
                 holder.summary.setVisibility(View.VISIBLE);
-                holder.summary.setText(opEntryInfo.opPermsDesc);
-            }else {
+                holder.summary.setText(opEntryInfo.opName);
+            } else {
                 holder.summary.setVisibility(View.GONE);
             }
-            if(opEntryInfo.opEntry.getTime() != 0) {
+
+            if (showPermDesc && opEntryInfo.opPermsDesc != null) {
+                holder.summary.setVisibility(View.VISIBLE);
+                holder.summary.setText(opEntryInfo.opPermsDesc);
+            } else {
+                if(!showOpName){
+                    holder.summary.setVisibility(View.GONE);
+                }
+            }
+
+            if (showPermTime && opEntryInfo.opEntry.getTime() != 0) {
                 StringBuilder sb = new StringBuilder("time:");
-                TimeUtils.formatDuration(System.currentTimeMillis() - opEntryInfo.opEntry.getTime(),sb);
+                TimeUtils.formatDuration(System.currentTimeMillis() - opEntryInfo.opEntry.getTime(), sb);
                 sb.append(" ago");
                 holder.lastTime.setVisibility(View.VISIBLE);
                 holder.lastTime.setText(sb.toString());
-            }else {
+            } else {
                 holder.lastTime.setVisibility(View.GONE);
             }
 
@@ -104,14 +127,15 @@ public class AppPermissionAdapter extends RecyclerView.Adapter<AppPermissionAdap
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{
-
+        ImageView icon;
         TextView title;
         TextView summary;
         TextView lastTime;
         SwitchCompat switchCompat;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
+            icon= (ImageView) itemView.findViewById(R.id.img_group);
             title= (TextView) itemView.findViewById(android.R.id.title);
             summary= (TextView) itemView.findViewById(android.R.id.summary);
             lastTime= (TextView) itemView.findViewById(R.id.last_time);

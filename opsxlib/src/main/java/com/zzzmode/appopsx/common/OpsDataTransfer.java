@@ -1,5 +1,6 @@
 package com.zzzmode.appopsx.common;
 
+import android.app.usage.NetworkStatsManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -14,7 +15,7 @@ import java.io.OutputStream;
  */
 
 public class OpsDataTransfer {
-    public static final String PROTOCOL_VERSION="1.0.8";
+    public static final String PROTOCOL_VERSION="1.1.1";
 
     private DataOutputStream outputStream;
     private DataInputStream inputStream;
@@ -22,7 +23,6 @@ public class OpsDataTransfer {
 
     private boolean running = true;
     private boolean async = true;
-    private String token;
 
     public OpsDataTransfer(OutputStream outputStream, InputStream inputStream, OnRecvCallback callback) {
         this.outputStream = new DataOutputStream(outputStream);
@@ -83,27 +83,33 @@ public class OpsDataTransfer {
             return;
         }
         if(isServer) {
-            System.out.println("shakehands --> start: token " + token + "  " + isServer+"  server protocol :"+PROTOCOL_VERSION);
+            FLog.log("shakehands --> start: token " + token + "  " + isServer+"  server protocol :"+PROTOCOL_VERSION);
         }else {
             Log.e("test", "shakehands --> start: token " + token + "  " + isServer+"  client protocol:"+PROTOCOL_VERSION);
         }
         if(isServer){
-            String ver=new String(readMsg());
-            String recv=new String(readMsg());
+            String auth=new String(readMsg());
+
+            FLog.log("recv auth "+auth);
+
+
+            String[] split = auth.split(",");
+
+            String ver=split[0];
+            String recvToken=split[1];
             if(!TextUtils.equals(ver,PROTOCOL_VERSION)){
                 throw new RuntimeException("client protocol version:"+ver+"  ,server protocol version:"+PROTOCOL_VERSION);
             }
-            if(TextUtils.equals(token,recv)){
+            if(TextUtils.equals(token,recvToken)){
                 //auth success,pass
-                System.out.println("shakehands --> hands success ");
+                FLog.log("shakehands --> hands success ");
             }else {
-                System.out.println("shakehands --> unknow token ");
+                FLog.log("shakehands --> unknow token ");
                 throw new RuntimeException("Unauthorized client, token:"+token);
             }
         } else {
             //client
-            sendMsg(PROTOCOL_VERSION);
-            sendMsg(token);
+            sendMsg(PROTOCOL_VERSION+","+token);
         }
     }
 

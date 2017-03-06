@@ -21,13 +21,18 @@ import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDec
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.ui.BaseActivity;
+import com.zzzmode.appopsx.ui.analytics.AEvent;
+import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -104,6 +109,10 @@ public class AppPermissionActivity extends BaseActivity {
                 }else {
                     info.mode=AppOpsManager.MODE_IGNORED;
                 }
+                Map<String,String> map=new HashMap<String, String>(2);
+                map.put("new_mode",String.valueOf(info.mode));
+                map.put("op_name",info.opName);
+                ATracker.send(AEvent.C_PERM_ITEM,map);
 
                 setMode(info);
             }
@@ -137,25 +146,39 @@ public class AppPermissionActivity extends BaseActivity {
 
         getMenuInflater().inflate(R.menu.app_menu, menu);
 
-        MenuItem item = menu.findItem(R.id.action_hide_perm);
-        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        item.setChecked(sp.getBoolean("key_show_no_prems",false));
+        MenuItem menuShowAllPerm = menu.findItem(R.id.action_hide_perm);
+        MenuItem menuShowOpDesc = menu.findItem(R.id.action_show_op_perm);
+        MenuItem menuShowOpName = menu.findItem(R.id.action_show_op_name);
+        MenuItem menuShowPremTime = menu.findItem(R.id.action_show_perm_time);
 
-        item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+
+        final Map<MenuItem,String> menus=new HashMap<>();
+        menus.put(menuShowAllPerm,"key_show_no_prems");
+        menus.put(menuShowOpDesc,"key_show_op_desc");
+        menus.put(menuShowOpName,"key_show_op_name");
+        menus.put(menuShowPremTime,"key_show_perm_time");
+
+        MenuItem.OnMenuItemClickListener itemClickListener = new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-
-                item.setChecked(!item.isChecked());
-
-                sp.edit().putBoolean("key_show_no_prems",item.isChecked()).apply();
-
-                ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
-
-                initData(appInfo.packageName);
-
+                String s = menus.get(item);
+                if(s != null) {
+                    item.setChecked(!item.isChecked());
+                    sp.edit().putBoolean(s, item.isChecked()).apply();
+                    ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
+                    initData(appInfo.packageName);
+                }
                 return true;
             }
-        });
+        };
+
+
+        Set<Map.Entry<MenuItem, String>> entries = menus.entrySet();
+        for (Map.Entry<MenuItem, String> entry : entries) {
+            entry.getKey().setChecked(sp.getBoolean(entry.getValue(),false));
+            entry.getKey().setOnMenuItemClickListener(itemClickListener);
+        }
 
         return true;
     }
@@ -178,6 +201,11 @@ public class AppPermissionActivity extends BaseActivity {
                         mProgressBar.setVisibility(View.GONE);
 
                         if (opEntryInfos != null && !opEntryInfos.isEmpty()) {
+
+                            final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                            adapter.setShowConfig(sp.getBoolean("key_show_op_desc",false),
+                                    sp.getBoolean("key_show_op_name",false),
+                                    sp.getBoolean("key_show_perm_time",false));
                             adapter.setDatas(opEntryInfos);
                             adapter.notifyDataSetChanged();
                         } else {
@@ -209,7 +237,8 @@ public class AppPermissionActivity extends BaseActivity {
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<OpsResult>() {
             @Override
             public void onNext(OpsResult value) {
-                if(value.getException() !=null){
+
+                if(value.getException() ==null){
 
                 }
             }

@@ -1,5 +1,6 @@
 package com.zzzmode.appopsx.ui.main;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,10 +13,13 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.zzzmode.appopsx.BuildConfig;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.BaseActivity;
+import com.zzzmode.appopsx.ui.analytics.AEvent;
+import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
@@ -57,7 +61,13 @@ public class SettingsActivity extends BaseActivity {
         }
     }
 
-    public static class MyPreferenceFragment extends PreferenceFragment {
+    @Override
+    protected void onStop() {
+        super.onStop();
+        AppOpsx.updateConfig(getApplicationContext());
+    }
+
+    public static class MyPreferenceFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener{
 
         private Preference mPrefAppSort;
 
@@ -65,11 +75,20 @@ public class SettingsActivity extends BaseActivity {
         public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.settings);
+
+            findPreference("ignore_premission").setOnPreferenceClickListener(this);
+            findPreference("show_sysapp").setOnPreferenceClickListener(this);
+            findPreference("use_adb").setOnPreferenceClickListener(this);
+            findPreference("allow_bg_remote").setOnPreferenceClickListener(this);
+            findPreference("project").setOnPreferenceClickListener(this);
+
             findPreference("version").setSummary(BuildConfig.VERSION_NAME);
+
 
             findPreference("acknowledgments").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
+                    ATracker.send(AEvent.C_SETTING_KNOWLEDGMENTS);
                     StringBuilder sb=new StringBuilder();
                     String[] stringArray = getResources().getStringArray(R.array.acknowledgments_list);
                     for (String s : stringArray) {
@@ -85,6 +104,7 @@ public class SettingsActivity extends BaseActivity {
             findPreference("ignore_premission_templete").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
+                    ATracker.send(AEvent.C_SETTING_IGNORE_TEMPLETE);
                     showPremissionTemplete();
                     return true;
                 }
@@ -95,6 +115,7 @@ public class SettingsActivity extends BaseActivity {
             mPrefAppSort.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
+                    ATracker.send(AEvent.C_SETTING_APP_SORE);
                     showAppSortDialog(preference);
                     return true;
                 }
@@ -104,8 +125,43 @@ public class SettingsActivity extends BaseActivity {
             findPreference("show_log").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
+                    ATracker.send(AEvent.C_SETTING_SHOW_LOG);
                     showLog();
                     return true;
+                }
+            });
+
+
+            findPreference("close_server").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    ATracker.send(AEvent.C_SETTING_CLOSE_SERVER);
+                    closeServer();
+                    return true;
+                }
+            });
+        }
+
+
+        private void closeServer(){
+            Helper.closeBgServer().subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<Boolean>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+
+                }
+
+                @Override
+                public void onSuccess(Boolean value) {
+                    Activity activity = getActivity();
+                    if(activity != null){
+                        Toast.makeText(activity,"已关闭",Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
                 }
             });
         }
@@ -241,6 +297,29 @@ public class SettingsActivity extends BaseActivity {
                         }
                     });
 
+        }
+
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+            String key=preference.getKey();
+            String id=null;
+            if("ignore_premission".equals(key)){
+                id=AEvent.C_SETTING_AUTO_IGNORE;
+            }else if("show_sysapp".equals(key)){
+                id=AEvent.C_SETTING_SHOW_SYS;
+            }else if("use_adb".equals(key)){
+                id=AEvent.C_SETTING_USE_ADB;
+            }else if ("allow_bg_remote".equals(key)){
+                id=AEvent.C_SETTING_ALLOW_BG;
+            }else if("version".equals(key)){
+                id=AEvent.C_SETTING_VERSION;
+            }else if("project".equals(key)){
+                id=AEvent.C_SETTING_GITHUB;
+            }
+            if(id != null){
+                ATracker.send(id);
+            }
+            return false;
         }
     }
 }

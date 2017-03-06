@@ -11,11 +11,14 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.view.View;
+import android.widget.TextView;
 
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator;
 import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.R;
+import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 
 import java.util.ArrayList;
@@ -45,8 +48,8 @@ class SearchHandler {
         this.mBaseData = baseData;
     }
 
-    void initView(RecyclerView recyclerView){
-        this.recyclerView=recyclerView;
+    void initView(View container){
+        this.recyclerView= (RecyclerView) container.findViewById(R.id.search_result_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         recyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(recyclerView.getContext(), R.drawable.list_divider_h), true));
         recyclerView.setItemAnimator(new RefactoredDefaultItemAnimator());
@@ -142,8 +145,12 @@ class SearchHandler {
             return resultHighlight(kw,name,color);
         }
 
+        @Override
+        protected String getAEventId() {
+            return AEvent.C_SEARCH_APP;
+        }
 
-        private CharSequence resultHighlight(String key,String text,int color){
+        private CharSequence resultHighlight(String key, String text, int color){
             String phantom=text.toLowerCase();
             String k=key!=null?key.toLowerCase():null;
 

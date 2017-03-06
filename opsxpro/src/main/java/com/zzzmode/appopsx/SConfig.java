@@ -12,9 +12,8 @@ import java.io.File;
 
 class SConfig {
 
-    //每次动态生成socket path，避免越权访问
-    private static final String SOCKET_PATH_TEMP = "appopsx_socket_";
-    private static final String LOCAL_SERVER_PATH="l_server";
+    static final String SOCKET_PATH = "appopsx_zzzmode_socket";
+    private static final String LOCAL_TOKEN ="l_token";
 
     static final String DIR_NAME="opsx";
     static final String JAR_NAME="appopsx.jar";
@@ -42,17 +41,11 @@ class SConfig {
     }
 
 
-    static String generateDomainName(){
-        String path=SOCKET_PATH_TEMP+AssetsUtils.generateToken(16);
-        sPreferences.edit().putString(LOCAL_SERVER_PATH,path).apply();
-        return path;
-    }
-
-
-    static String getLocalServerPath(){
-        String path= sPreferences.getString(LOCAL_SERVER_PATH,null);
+    static String getLocalToken(){
+        String path= sPreferences.getString(LOCAL_TOKEN,null);
         if(TextUtils.isEmpty(path)){
-            path= generateDomainName();
+            path= AssetsUtils.generateToken(16);
+            sPreferences.edit().putString(LOCAL_TOKEN,path).apply();
         }
         return path;
     }

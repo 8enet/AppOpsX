@@ -37,13 +37,21 @@ public class AppOpsx {
     }
 
     public static void updateConfig(Context context){
-        getInstance(context).updateConfig(buildConfig(context));
+        if(sManager!=null) {
+            OpsxManager.Config config = sManager.getConfig();
+            if(config != null){
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+                config.allowBgRunning=sp.getBoolean("allow_bg_remote",true);
+                config.useAdb=sp.getBoolean("use_adb", false);
+            }
+        }
     }
+
 
     private static OpsxManager.Config buildConfig(Context context){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         OpsxManager.Config config=new OpsxManager.Config();
-        config.allowBgRunning=sp.getBoolean("allow_bg_remote",false);
+        config.allowBgRunning=sp.getBoolean("allow_bg_remote",true);
         config.logFile=context.getFileStreamPath(LOG_FILE).getAbsolutePath();
         config.useAdb=sp.getBoolean("use_adb", false);
         Log.e("test", "buildConfig --> "+context.getFileStreamPath(LOG_FILE).getAbsolutePath());

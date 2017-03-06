@@ -10,6 +10,7 @@ import com.cgutman.adblib.AdbConnection;
 import com.cgutman.adblib.AdbStream;
 import com.zzzmode.adblib.AdbConnector;
 import com.zzzmode.adblib.LineReader;
+import com.zzzmode.android.opsxpro.BuildConfig;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
 import com.zzzmode.appopsx.common.OpsResult;
@@ -18,7 +19,6 @@ import com.zzzmode.appopsx.common.ParcelableUtil;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.EOFException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +28,6 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by zl on 2016/11/13.
@@ -60,22 +59,24 @@ class LocalServerManager {
         mConfig = config;
     }
 
-    public void updateConfig(OpsxManager.Config config) {
+    void updateConfig(OpsxManager.Config config) {
         if (config != null) {
             mConfig = config;
         }
     }
 
-    public void start() throws Exception {
+    OpsxManager.Config getConfig(){
+        return mConfig;
+    }
 
+    void start() throws Exception {
         if (mClientThread == null || !mClientThread.isRunning()) {
             mClientThread = new SyncClient();
-            if (mClientThread.start()) {
+            if (mClientThread.start(1,false)) {
                 Log.e(TAG, "start --> server alread start !!!!!");
-
             } else {
                 startServer();
-                mClientThread.start();
+                mClientThread.start(10,true);
             }
         }
     }
@@ -85,7 +86,7 @@ class LocalServerManager {
     }
 
     public void stop() {
-        if (mClientThread != null && mClientThread.isRunning()) {
+        if (mClientThread != null) {
             mClientThread.exit();
             mClientThread = null;
         }
@@ -100,17 +101,37 @@ class LocalServerManager {
     private String[] getCommonds(){
         String arch = AssetsUtils.is64Bit() ? "64" : "";
 
-        String args = "";
-        if (mConfig.allowBgRunning) {
-            args += " -D &";
+        StringBuilder sb=new StringBuilder();
+
+        sb.append("type:");
+        if(mConfig.useAdb){
+            sb.append("adb");
+            sb.append(",path:"+SConfig.getPort());
         }else {
-            args += " -T ";
+            sb.append("root");
+            sb.append(",path:"+SConfig.SOCKET_PATH);
         }
+        sb.append(",token:"+SConfig.getLocalToken());
+
+        if(mConfig.allowBgRunning){
+            sb.append(",bgrun:1");
+        }
+
+        if(BuildConfig.DEBUG){
+            sb.append(",debug:1");
+        }
+
+        if(mConfig.useAdb){
+            sb.append("   & ");
+        }
+
+        Log.e(TAG, "getCommonds --> "+sb);
 
         return new String[] {"export LD_LIBRARY_PATH=" + String.format("/vendor/lib%1$s:/system/lib%2$s", arch, arch),
                 "export CLASSPATH=" + SConfig.getClassPath(),
                 "echo start",
-                "exec  app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ " + (mConfig.useAdb?SConfig.getPort():SConfig.generateDomainName()) + " " + args,
+                "id",
+                "exec  app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ " + sb.toString(),
                 };
 
     }
@@ -239,6 +260,8 @@ class LocalServerManager {
         RootChecker checker = null;
         try {
 
+            Log.e(TAG, "useRootStartServer --> ");
+
             Process exec = Runtime.getRuntime().exec("su");
             checker = new RootChecker(exec);
             checker.start();
@@ -273,25 +296,33 @@ class LocalServerManager {
                     public void run() {
                         BufferedWriter bw=null;
                         try {
-                            bw=new BufferedWriter(new FileWriter(mConfig.logFile,false));
-                            bw.write(new Date().toString());
-                            bw.newLine();
-                            bw.write("root start log");
-                            bw.newLine();
+                            boolean saveLog=!TextUtils.isEmpty(mConfig.logFile);
+                            if(saveLog) {
+                                bw = new BufferedWriter(new FileWriter(mConfig.logFile, false));
+                                bw.write(new Date().toString());
+                                bw.newLine();
+                                bw.write("root start log");
+                                bw.newLine();
+                            }
 
                             int line=0;
                             String s = inputStream.readLine();
                             while (s != null) {
                                 Log.e(TAG, "log run --> " + s);
                                 s = inputStream.readLine();
-                                bw.write(s);
-                                bw.newLine();
+                                if(saveLog) {
+                                    bw.write(s);
+                                    bw.newLine();
+                                }
                                 line++;
-                                if(line >= 20 || (s !=null && s.startsWith("runGet"))){
+                                if(!mConfig.printLog && (line >= 20 || (s !=null && s.startsWith("runGet")))){
                                     break;
                                 }
+
                             }
-                            bw.flush();
+                            if(bw != null){
+                                bw.flush();
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }finally {
@@ -401,11 +432,14 @@ class LocalServerManager {
                         is=socket.getInputStream();
                     }else {
                         LocalSocket localSocket = new LocalSocket();
-                        localSocket.connect(new LocalSocketAddress(SConfig.getLocalServerPath()));
+                        localSocket.connect(new LocalSocketAddress(SConfig.SOCKET_PATH));
                         os=localSocket.getOutputStream();
                         is=localSocket.getInputStream();
                     }
-                    String token=mConfig.useAdb?String.valueOf(SConfig.getPort()):SConfig.getLocalServerPath();
+                    String token=SConfig.getLocalToken();
+                    if(TextUtils.isEmpty(token)){
+                        throw new RuntimeException("token is null !");
+                    }
                     transfer = new OpsDataTransfer(os, is, false);
                     transfer.shakehands(token, false);
                     isRunning = true;
@@ -431,8 +465,15 @@ class LocalServerManager {
             }
         }
 
-        boolean start() throws Exception {
-            connect(10);
+        boolean start(int retryCount,boolean orThrow) throws Exception {
+            try {
+                connect(retryCount);
+            } catch (Exception e) {
+                if(orThrow){
+                    throw e;
+                }
+                e.printStackTrace();
+            }
             return isRunning;
         }
 
@@ -467,4 +508,51 @@ class LocalServerManager {
 
     }
 
+
+
+
+
+
+    public static void closeBgServer(){
+        OutputStream os=null;
+        InputStream is=null;
+        String token=SConfig.getLocalToken();
+        try{
+            LocalSocket localSocket = new LocalSocket();
+            localSocket.connect(new LocalSocketAddress(SConfig.SOCKET_PATH));
+            os=localSocket.getOutputStream();
+            is=localSocket.getInputStream();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        if(os == null || is == null){
+            try{
+                Socket socket=new Socket("127.0.0.1",SConfig.getPort());
+                os=socket.getOutputStream();
+                is=socket.getInputStream();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        if(os != null && is != null) {
+            OpsDataTransfer transfer=null;
+            try {
+                transfer = new OpsDataTransfer(os, is, false);
+                transfer.shakehands(token,false);
+
+                OpsCommands.Builder builder=new OpsCommands.Builder();
+                builder.setAction(OpsCommands.ACTION_OTHER);
+                builder.setPackageName("close_server");
+                transfer.sendMsg(ParcelableUtil.marshall(builder));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                if(transfer != null){
+                    transfer.stop();
+                }
+            }
+        }
+    }
 }

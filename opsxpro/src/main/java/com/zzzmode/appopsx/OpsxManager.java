@@ -23,7 +23,6 @@ public class OpsxManager {
 
     private LocalServerManager mLocalServerManager;
 
-
     public OpsxManager(Context context){
         this(context,new Config());
     }
@@ -38,6 +37,10 @@ public class OpsxManager {
 
     public void updateConfig(Config config){
         mLocalServerManager.updateConfig(config);
+    }
+
+    public Config getConfig(){
+        return mLocalServerManager.getConfig();
     }
 
     private void checkFile(){
@@ -104,9 +107,15 @@ public class OpsxManager {
     }
 
 
+    public static void closeBgServer(){
+        LocalServerManager.closeBgServer();
+    }
+
+
     public static class Config{
         public boolean allowBgRunning=false;
         public String logFile;
+        public boolean printLog=false;
         public boolean useAdb=false;
         public String adbHost="127.0.0.1";
         public int adbPort=5555;
