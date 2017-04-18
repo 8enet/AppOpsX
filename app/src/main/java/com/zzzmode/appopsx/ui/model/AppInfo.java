@@ -1,5 +1,6 @@
 package com.zzzmode.appopsx.ui.model;
 
+import android.content.pm.ApplicationInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -10,12 +11,12 @@ import android.os.Parcelable;
 
 public class AppInfo implements Parcelable {
     public String appName;
-    public Drawable icon;
     public String packageName;
     public long time;
     public long installTime;
     public long updateTime;
     public String pinyin;
+    public ApplicationInfo applicationInfo;
 
     @Override
     public boolean equals(Object o) {

@@ -284,7 +284,7 @@ public class Helper {
             shortcut.setShortLabel(appInfo.appName);
             shortcut.setLongLabel(appInfo.appName);
 
-            shortcut.setIcon(Icon.createWithBitmap(drawableToBitmap(appInfo.icon)));
+            shortcut.setIcon(Icon.createWithBitmap(drawableToBitmap(LocalImageLoader.getDrawable(context,appInfo))));
 
             Intent intent = new Intent(context, AppPermissionActivity.class);
             intent.putExtra(AppPermissionActivity.EXTRA_APP_PKGNAME, appInfo.packageName);
@@ -333,10 +333,12 @@ public class Helper {
                         AppInfo info = new AppInfo();
                         info.packageName = installedPackage.packageName;
                         info.appName = BidiFormatter.getInstance().unicodeWrap(installedPackage.applicationInfo.loadLabel(packageManager)).toString();
-                        info.icon = installedPackage.applicationInfo.loadIcon(packageManager);
                         info.time = Math.max(installedPackage.lastUpdateTime, installedPackage.firstInstallTime);
                         info.installTime = installedPackage.firstInstallTime;
                         info.updateTime = installedPackage.lastUpdateTime;
+                        info.applicationInfo=installedPackage.applicationInfo;
+
+                        LocalImageLoader.initAdd(context,info);
 
                         final char c = info.appName.charAt(0);
                         if (c >= 48 && c <= 122) {

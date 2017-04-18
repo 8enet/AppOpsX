@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.analytics.ATracker;
+import com.zzzmode.appopsx.ui.core.LocalImageLoader;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.permission.AppPermissionActivity;
 
@@ -47,13 +48,12 @@ class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> i
     public void onBindViewHolder(ViewHolder holder, int position) {
         AppInfo appInfo = appInfos.get(position);
         holder.tvName.setText(processText(appInfo.appName));
-        if(appInfo.icon != null){
-            holder.imgIcon.setImageDrawable(appInfo.icon);
-        }else {
-            holder.imgIcon.setImageResource(R.mipmap.ic_launcher);
-        }
+
         holder.itemView.setTag(appInfo);
         holder.itemView.setOnClickListener(this);
+
+        LocalImageLoader.load(holder.imgIcon,appInfo);
+
     }
 
     protected CharSequence processText(String name){

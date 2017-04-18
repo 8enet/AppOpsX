@@ -15,6 +15,7 @@ import com.h6ah4i.android.widget.advrecyclerview.expandable.ExpandableItemConsta
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemViewHolder;
 import com.zzzmode.appopsx.R;
+import com.zzzmode.appopsx.ui.core.LocalImageLoader;
 import com.zzzmode.appopsx.ui.model.PremissionChildItem;
 import com.zzzmode.appopsx.ui.model.PremissionGroup;
 import com.zzzmode.appopsx.ui.widget.ExpandableItemIndicator;
@@ -102,7 +103,9 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
     @Override
     public void onBindChildViewHolder(ChildViewHolder holder, int groupPosition, int childPosition, @IntRange(from = -8388608L, to = 8388607L) int viewType) {
         PremissionChildItem appPremissions = mData.get(groupPosition).apps.get(childPosition);
-        holder.imgIcon.setImageDrawable(appPremissions.appInfo.icon);
+
+        LocalImageLoader.load(holder.imgIcon,appPremissions.appInfo);
+
         holder.tvName.setText(appPremissions.appInfo.appName);
 
         holder.itemView.setOnClickListener(this);
