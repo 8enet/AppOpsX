@@ -6,5 +6,6 @@
     <item android:id="@+id/action_show_op_perm" app:showAsAction="never" android:checkable="true" android:title="@string/menu_show_op_perm"/>
     <item android:id="@+id/action_show_op_name" app:showAsAction="never" android:checkable="true" android:title="@string/menu_show_op_name"/>
     <item android:id="@+id/action_show_perm_time" app:showAsAction="never" android:checkable="true" android:title="@string/menu_show_perm_time"/>
-
+    <item android:id="@+id/action_open_all" app:showAsAction="never" android:title="@string/menu_open_all"/>
+    <item android:id="@+id/action_close_all" app:showAsAction="never" android:title="@string/menu_close_all"/>
 </menu>

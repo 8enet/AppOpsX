@@ -8,7 +8,9 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="vertical"/>
 
     <TextView
         android:id="@+id/tv_error"

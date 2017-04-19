@@ -6,6 +6,6 @@
 
     <color name="expandable_item_indicator_color">#42000000</color>
 
-    <color name="fullColor">#FF000000</color>
-    <color name="divider">#20000000</color>
+    <color name="fullColor">#f2ffffff</color>
+    <color name="divider">#2bffffff</color>
 </resources>

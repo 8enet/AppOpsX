@@ -7,6 +7,12 @@
     <string name="menu_show_op_perm">显示权限详情</string>
     <string name="menu_show_op_name">显示OpName</string>
     <string name="menu_show_perm_time">显示权限最后使用时间</string>
+    <string name="menu_open_all">允许所有权限</string>
+    <string name="menu_close_all">忽略所有权限</string>
+
+    <string name="open_all_perms">允许所有</string>
+    <string name="close_all_perms">忽略所有</string>
+
     <string name="no_perms">此应用暂时没有使用任何权限</string>
 
     <string name="about">关于</string>
@@ -36,6 +42,9 @@
     <string name="app_sort_type">应用排序方式</string>
     <string name="app_sort_type_summary">当前排序方式：%1$s</string>
     <string name="app_sort_type_title">选择应用排序方式</string>
+    
+    <string name="app_daynight_mode">夜间模式</string>
+    <string name="app_daynight_mode_summary">该设置在下次启动时生效</string>
 
     <string name="app_perm_detail_summary">应用权限显示界面</string>
     <string name="app_perm_detail_title">编辑权限显示界面显示样式</string>

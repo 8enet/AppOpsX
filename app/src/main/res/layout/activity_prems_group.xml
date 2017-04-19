@@ -44,6 +44,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:splitMotionEvents="false"
+            android:overScrollMode="never"
+            android:scrollbars="vertical"
             android:visibility="gone"
             />
     </android.support.v4.widget.SwipeRefreshLayout>

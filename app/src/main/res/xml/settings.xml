@@ -35,6 +35,11 @@
             android:key="pref_app_sort_type"
             android:title="@string/app_sort_type"
             android:summary="@string/app_sort_type_summary" />
+
+        <SwitchPreference android:key="pref_app_daynight_mode"
+            android:title="@string/app_daynight_mode"
+            android:summary="@string/app_daynight_mode_summary"
+            />
         <!--<Preference-->
             <!--android:key="app_perm_detail"-->
             <!--android:title="@string/app_perm_detail_summary"-->

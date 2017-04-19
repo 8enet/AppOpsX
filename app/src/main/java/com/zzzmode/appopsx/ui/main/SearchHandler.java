@@ -1,25 +1,20 @@
 package com.zzzmode.appopsx.ui.main;
 
 import android.graphics.Color;
-import android.os.SystemClock;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
-import android.util.SparseIntArray;
 import android.view.View;
-import android.widget.TextView;
 
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator;
-import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.model.AppInfo;
+import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +46,7 @@ class SearchHandler {
     void initView(View container){
         this.recyclerView= (RecyclerView) container.findViewById(R.id.search_result_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-        recyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(recyclerView.getContext(), R.drawable.list_divider_h), true));
+        recyclerView.addItemDecoration(new CommonDivderDecorator(recyclerView.getContext()));
         recyclerView.setItemAnimator(new RefactoredDefaultItemAnimator());
         mAdapter=new SearchResultAdapter();
         recyclerView.setAdapter(mAdapter);

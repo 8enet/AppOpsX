@@ -47,6 +47,8 @@
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:overScrollMode="never"
+                android:scrollbars="vertical"
                 android:splitMotionEvents="false" />
         </android.support.v4.widget.SwipeRefreshLayout>
     </FrameLayout>
@@ -61,6 +63,8 @@
             android:id="@+id/search_result_recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:overScrollMode="never"
+            android:scrollbars="vertical"
             android:splitMotionEvents="false" />
     </FrameLayout>
 </RelativeLayout>

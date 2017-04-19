@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.util.LruCache;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.zzzmode.appopsx.R;

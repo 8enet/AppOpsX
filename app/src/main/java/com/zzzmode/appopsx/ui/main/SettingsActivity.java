@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -137,6 +138,15 @@ public class SettingsActivity extends BaseActivity {
                 public boolean onPreferenceClick(Preference preference) {
                     ATracker.send(AEvent.C_SETTING_CLOSE_SERVER);
                     closeServer();
+                    return true;
+                }
+            });
+
+            findPreference("pref_app_daynight_mode").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+                    ATracker.send(AEvent.C_SETTING_SWITCH_THEME);
                     return true;
                 }
             });
