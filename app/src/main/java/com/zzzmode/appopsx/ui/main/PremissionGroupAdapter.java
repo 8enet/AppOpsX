@@ -30,6 +30,7 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
 
 
     private PremissionGroupAdapter.OnSwitchItemClickListener listener;
+    private View.OnCreateContextMenuListener mOnCreateContextMenuListener;
 
     private List<PremissionGroup> mData;
 
@@ -37,16 +38,23 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
         this.mData = data;
     }
 
-    public void changeTitle(int groupPosition,boolean allowed){
+    public List<PremissionGroup> getData() {
+        return mData;
+    }
+
+    void changeTitle(int groupPosition, boolean allowed){
         PremissionGroup premissionGroup = mData.get(groupPosition);
         if(premissionGroup != null){
             premissionGroup.grants+=(allowed?1:-1);
         }
     }
 
-    public void setListener(OnSwitchItemClickListener listener) {
+    void setListener(OnSwitchItemClickListener listener,View.OnCreateContextMenuListener onCreateContextMenuListener) {
         this.listener = listener;
+        this.mOnCreateContextMenuListener=onCreateContextMenuListener;
     }
+
+
 
     @Override
     public int getGroupCount() {
@@ -87,6 +95,11 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
             holder.tvPermName.setText(premissionGroup.opPermsLab);
         }
         holder.groupIcon.setImageResource(premissionGroup.icon);
+
+        holder.itemView.setTag(R.id.groupPosition,groupPosition);
+        holder.itemView.setOnCreateContextMenuListener(mOnCreateContextMenuListener);
+
+
         holder.tvCount.setText(holder.itemView.getResources().getString(R.string.premission_count,premissionGroup.grants,premissionGroup.count));
 
 
@@ -144,6 +157,7 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
             listener.onSwitch(groupPosition,childPosition,((PremissionChildItem) buttonView.getTag()),isChecked);
         }
     }
+
 
     static class GroupViewHolder extends AbstractExpandableItemViewHolder {
 

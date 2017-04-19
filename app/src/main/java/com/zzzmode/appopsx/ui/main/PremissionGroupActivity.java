@@ -1,28 +1,32 @@
 package com.zzzmode.appopsx.ui.main;
 
+import android.app.AppOpsManager;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandableItemManager;
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils;
 import com.zzzmode.appopsx.BuildConfig;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.ui.BaseActivity;
+import com.zzzmode.appopsx.ui.analytics.AEvent;
+import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.PremissionChildItem;
 import com.zzzmode.appopsx.ui.model.PremissionGroup;
+import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
 
 import java.lang.ref.SoftReference;
 import java.util.List;
@@ -52,6 +56,7 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
 
     private TextView tvError;
 
+    private int contextGroupPosition=-1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,16 +86,26 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
         myItemAdapter.setHasStableIds(true);
         myItemAdapter.setListener(new PremissionGroupAdapter.OnSwitchItemClickListener() {
             @Override
-            public void onSwitch(int groupPosition, int childPosition,PremissionChildItem info, boolean v) {
-                changeMode(groupPosition,childPosition,info);
+            public void onSwitch(int groupPosition, int childPosition, PremissionChildItem info, boolean v) {
+                changeMode(groupPosition, childPosition, info);
+            }
+        }, new View.OnCreateContextMenuListener() {
+            @Override
+            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                v.setFocusableInTouchMode(false);
+
+                contextGroupPosition= (int) v.getTag(R.id.groupPosition);
+                menu.add(0, R.id.action_open_all, 0, R.string.open_all_perms);
+                menu.add(0, R.id.action_close_all, 1, R.string.close_all_perms);
             }
         });
+
 
         recyclerView.setLayoutManager(mLayoutManager);
 
         recyclerView.setHasFixedSize(false);
 
-        recyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(this, R.drawable.list_divider_h), true));
+        recyclerView.addItemDecoration(new CommonDivderDecorator(getApplicationContext()));
 
         mRecyclerViewExpandableItemManager.attachRecyclerView(recyclerView);
 
@@ -109,6 +124,7 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
             public void onNext(OpsResult value) {
 
                 myItemAdapter.changeTitle(groupPosition,info.opEntryInfo.isAllowed());
+                mRecyclerViewExpandableItemManager.notifyChildItemChanged(groupPosition,childPosition);
                 mRecyclerViewExpandableItemManager.notifyGroupItemChanged(groupPosition);
             }
 
@@ -137,6 +153,27 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
                     SAVED_STATE_EXPANDABLE_ITEM_MANAGER,
                     mRecyclerViewExpandableItemManager.getSavedState());
         }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_close_all:
+                changeAll(AppOpsManager.MODE_IGNORED);
+                ATracker.send(AEvent.C_GROUP_IGNORE_ALL);
+                return true;
+            case R.id.action_open_all:
+                changeAll(AppOpsManager.MODE_ALLOWED);
+                ATracker.send(AEvent.C_GROUP_OPEN_ALL);
+                return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    @Override
+    public void onContextMenuClosed(Menu menu) {
+        super.onContextMenuClosed(menu);
+        contextGroupPosition=-1;
     }
 
     @Override
@@ -249,6 +286,28 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
         int bottomMargin = topMargin;
 
         mRecyclerViewExpandableItemManager.scrollToGroup(groupPosition, childItemHeight, topMargin, bottomMargin);
+    }
+
+
+
+    private void changeAll(int newMode){
+        if(contextGroupPosition >= 0) {
+            try {
+                final int groupPosition=contextGroupPosition;
+                PremissionGroup premissionGroup = myItemAdapter.getData().get(groupPosition);
+                List<PremissionChildItem> apps = premissionGroup.apps;
+                int size=apps.size();
+                for (int i = 0; i < size; i++) {
+                    PremissionChildItem info = apps.get(i);
+                    if(info.opEntryInfo.mode != newMode) {
+                        changeMode(groupPosition, i, info);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
 }

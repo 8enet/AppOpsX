@@ -40,6 +40,10 @@ import java.util.List;
         this.datas = datas;
     }
 
+    List<OpEntryInfo> getDatas(){
+        return datas;
+    }
+
     void updateItem(OpEntryInfo info){
         if(datas != null && info != null){
             int i = datas.indexOf(info);

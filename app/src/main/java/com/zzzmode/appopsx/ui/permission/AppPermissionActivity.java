@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,7 +16,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.h6ah4i.android.widget.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.ui.BaseActivity;
@@ -27,6 +25,7 @@ import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
+import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -62,6 +61,8 @@ public class AppPermissionActivity extends BaseActivity {
 
     private TextView tvError;
 
+    private boolean loadSuccess=false;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,7 +97,7 @@ public class AppPermissionActivity extends BaseActivity {
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        recyclerView.addItemDecoration(new SimpleListDividerDecorator(ContextCompat.getDrawable(getApplicationContext(), R.drawable.list_divider_h), true));
+        recyclerView.addItemDecoration(new CommonDivderDecorator(getApplicationContext()));
 
         adapter = new AppPermissionAdapter();
         recyclerView.setAdapter(adapter);
@@ -135,14 +136,23 @@ public class AppPermissionActivity extends BaseActivity {
             case R.id.action_hide_perm:
                 showHidePerms();
                 return true;
-            default:
-                return super.onOptionsItemSelected(item);
+            case R.id.action_open_all:
+                changeAll(AppOpsManager.MODE_ALLOWED);
+                ATracker.send(AEvent.C_APP_OPEN_ALL);
+                break;
+            case R.id.action_close_all:
+                changeAll(AppOpsManager.MODE_IGNORED);
+                ATracker.send(AEvent.C_APP_IGNOR_ALL);
+                break;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-
+        if(!loadSuccess){
+            return false;
+        }
 
         getMenuInflater().inflate(R.menu.app_menu, menu);
 
@@ -212,6 +222,7 @@ public class AppPermissionActivity extends BaseActivity {
                             tvError.setVisibility(View.VISIBLE);
                             tvError.setText(R.string.no_perms);
                         }
+                        loadSuccess=true;
                     }
 
                     @Override
@@ -221,11 +232,13 @@ public class AppPermissionActivity extends BaseActivity {
                         tvError.setText(getString(R.string.error_msg,Log.getStackTraceString(e)));
 
                         mProgressBar.setVisibility(View.GONE);
+                        loadSuccess=false;
+                        ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
                     }
 
                     @Override
                     public void onComplete() {
-
+                        ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
                     }
                 });
     }
@@ -238,9 +251,6 @@ public class AppPermissionActivity extends BaseActivity {
             @Override
             public void onNext(OpsResult value) {
 
-                if(value.getException() ==null){
-
-                }
             }
 
             @Override
@@ -303,6 +313,17 @@ public class AppPermissionActivity extends BaseActivity {
     private void showHidePerms(){
 
 
+    }
+
+    private void changeAll(int newMode){
+        final List<OpEntryInfo> datas = adapter.getDatas();
+        if(datas != null){
+            for (OpEntryInfo data : datas) {
+                data.mode=newMode;
+                setMode(data);
+                adapter.updateItem(data);
+            }
+        }
     }
 
 

@@ -22,7 +22,13 @@ public class AEvent {
     public static final String C_SETTING_KNOWLEDGMENTS="setting_knowledgments";
     public static final String C_SETTING_SHOW_LOG="setting_show_log";
     public static final String C_SETTING_CLOSE_SERVER="setting_close_server";
+    public static final String C_SETTING_SWITCH_THEME="setting_switch_theme";
 
+    public static final String C_APP_IGNOR_ALL="app_ignore_all";
+    public static final String C_APP_OPEN_ALL="app_open_all";
+
+    public static final String C_GROUP_IGNORE_ALL="group_ignore_all";
+    public static final String C_GROUP_OPEN_ALL="group_open_all";
 
     public static final String U_AUTO_IGNORE="auto_ignore";
 }
