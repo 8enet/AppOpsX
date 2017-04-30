@@ -35,6 +35,11 @@ public class AppInstalledRevicer extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        //忽略更新
+        if(Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)){
+            return;
+        }
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         Helper.updataShortcuts(context.getApplicationContext());
         if(sp.getBoolean("ignore_premission",false)){
