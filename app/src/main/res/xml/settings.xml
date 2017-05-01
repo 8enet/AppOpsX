@@ -10,7 +10,7 @@
             android:title="@string/auto_ignore_premission"
             android:summary="@string/auto_ignore_summary" />
 
-        <android.support.v7.preference.Preference android:key="ignore_premission_templete" android:title="@string/auto_ignore_premission_title" android:summary="@string/auto_ignore_premission_temp_summary" />
+        <android.support.v7.preference.Preference android:key="ignore_premission_templete" android:title="@string/auto_ignore_permission_title" android:summary="@string/auto_ignore_permission_temp_summary" />
 
 
 

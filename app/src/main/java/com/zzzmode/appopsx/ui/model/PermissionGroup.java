@@ -2,7 +2,7 @@ package com.zzzmode.appopsx.ui.model;
 
 import java.util.List;
 
-public class PremissionGroup {
+public class PermissionGroup {
     public String group;
     public String opName;
     public String opPermsName;
@@ -11,11 +11,11 @@ public class PremissionGroup {
     public int grants;
     public int count;
     public int icon;
-    public List<PremissionChildItem> apps;
+    public List<PermissionChildItem> apps;
 
     @Override
     public String toString() {
-        return "PremissionGroup{" +
+        return "PermissionGroup{" +
                 "opName='" + opName + '\'' +
                 ", opPermsName='" + opPermsName + '\'' +
                 ", opPermsLab='" + opPermsLab + '\'' +

@@ -3,7 +3,6 @@ package com.zzzmode.appopsx.ui.main;
 import android.support.annotation.IntRange;
 import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +15,8 @@ import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemAda
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemViewHolder;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.core.LocalImageLoader;
-import com.zzzmode.appopsx.ui.model.PremissionChildItem;
-import com.zzzmode.appopsx.ui.model.PremissionGroup;
+import com.zzzmode.appopsx.ui.model.PermissionChildItem;
+import com.zzzmode.appopsx.ui.model.PermissionGroup;
 import com.zzzmode.appopsx.ui.widget.ExpandableItemIndicator;
 
 import java.util.List;
@@ -26,26 +25,26 @@ import java.util.List;
  * Created by zl on 2017/1/18.
  */
 
-class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGroupAdapter.GroupViewHolder,PremissionGroupAdapter.ChildViewHolder> implements View.OnClickListener,CompoundButton.OnCheckedChangeListener{
+class PermissionGroupAdapter extends AbstractExpandableItemAdapter<PermissionGroupAdapter.GroupViewHolder,PermissionGroupAdapter.ChildViewHolder> implements View.OnClickListener,CompoundButton.OnCheckedChangeListener{
 
 
-    private PremissionGroupAdapter.OnSwitchItemClickListener listener;
+    private PermissionGroupAdapter.OnSwitchItemClickListener listener;
     private View.OnCreateContextMenuListener mOnCreateContextMenuListener;
 
-    private List<PremissionGroup> mData;
+    private List<PermissionGroup> mData;
 
-    public void setData(List<PremissionGroup> data) {
+    public void setData(List<PermissionGroup> data) {
         this.mData = data;
     }
 
-    public List<PremissionGroup> getData() {
+    public List<PermissionGroup> getData() {
         return mData;
     }
 
     void changeTitle(int groupPosition, boolean allowed){
-        PremissionGroup premissionGroup = mData.get(groupPosition);
-        if(premissionGroup != null){
-            premissionGroup.grants+=(allowed?1:-1);
+        PermissionGroup permissionGroup = mData.get(groupPosition);
+        if(permissionGroup != null){
+            permissionGroup.grants+=(allowed?1:-1);
         }
     }
 
@@ -78,29 +77,29 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
 
     @Override
     public GroupViewHolder onCreateGroupViewHolder(ViewGroup parent, @IntRange(from = -8388608L, to = 8388607L) int viewType) {
-        return new GroupViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_premission_group_item,parent,false));
+        return new GroupViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_permission_group_item,parent,false));
     }
 
     @Override
     public ChildViewHolder onCreateChildViewHolder(ViewGroup parent, @IntRange(from = -8388608L, to = 8388607L) int viewType) {
-        return new ChildViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_premission_child_item,parent,false));
+        return new ChildViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_permission_child_item,parent,false));
     }
 
     @Override
     public void onBindGroupViewHolder(GroupViewHolder holder, int groupPosition, @IntRange(from = -8388608L, to = 8388607L) int viewType) {
-        PremissionGroup premissionGroup = mData.get(groupPosition);
-        if(TextUtils.isEmpty(premissionGroup.opPermsLab)){
-            holder.tvPermName.setText(premissionGroup.opName);
+        PermissionGroup permissionGroup = mData.get(groupPosition);
+        if(TextUtils.isEmpty(permissionGroup.opPermsLab)){
+            holder.tvPermName.setText(permissionGroup.opName);
         }else {
-            holder.tvPermName.setText(premissionGroup.opPermsLab);
+            holder.tvPermName.setText(permissionGroup.opPermsLab);
         }
-        holder.groupIcon.setImageResource(premissionGroup.icon);
+        holder.groupIcon.setImageResource(permissionGroup.icon);
 
         holder.itemView.setTag(R.id.groupPosition,groupPosition);
         holder.itemView.setOnCreateContextMenuListener(mOnCreateContextMenuListener);
 
 
-        holder.tvCount.setText(holder.itemView.getResources().getString(R.string.premission_count,premissionGroup.grants,premissionGroup.count));
+        holder.tvCount.setText(holder.itemView.getResources().getString(R.string.permission_count,permissionGroup.grants,permissionGroup.count));
 
 
         final int expandState = holder.getExpandStateFlags();
@@ -115,23 +114,23 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
 
     @Override
     public void onBindChildViewHolder(ChildViewHolder holder, int groupPosition, int childPosition, @IntRange(from = -8388608L, to = 8388607L) int viewType) {
-        PremissionChildItem appPremissions = mData.get(groupPosition).apps.get(childPosition);
+        PermissionChildItem appPermissions = mData.get(groupPosition).apps.get(childPosition);
 
-        LocalImageLoader.load(holder.imgIcon,appPremissions.appInfo);
+        LocalImageLoader.load(holder.imgIcon,appPermissions.appInfo);
 
-        holder.tvName.setText(appPremissions.appInfo.appName);
+        holder.tvName.setText(appPermissions.appInfo.appName);
 
         holder.itemView.setOnClickListener(this);
 
 
         holder.itemView.setTag(holder);
 
-        holder.switchCompat.setTag(appPremissions);
+        holder.switchCompat.setTag(appPermissions);
         holder.switchCompat.setTag(R.id.groupPosition,groupPosition);
         holder.switchCompat.setTag(R.id.childPosition,childPosition);
 
         holder.switchCompat.setOnCheckedChangeListener(null);
-        holder.switchCompat.setChecked(appPremissions.opEntryInfo.isAllowed());
+        holder.switchCompat.setChecked(appPermissions.opEntryInfo.isAllowed());
         holder.switchCompat.setOnCheckedChangeListener(this);
 
 
@@ -151,10 +150,10 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if(buttonView.getTag() instanceof PremissionChildItem && listener != null){
+        if(buttonView.getTag() instanceof PermissionChildItem && listener != null){
             int groupPosition= (int) buttonView.getTag(R.id.groupPosition);
             int childPosition= (int) buttonView.getTag(R.id.childPosition);
-            listener.onSwitch(groupPosition,childPosition,((PremissionChildItem) buttonView.getTag()),isChecked);
+            listener.onSwitch(groupPosition,childPosition,((PermissionChildItem) buttonView.getTag()),isChecked);
         }
     }
 
@@ -190,6 +189,6 @@ class PremissionGroupAdapter extends AbstractExpandableItemAdapter<PremissionGro
     }
 
     public interface OnSwitchItemClickListener{
-        void onSwitch(int groupPosition, int childPosition,PremissionChildItem item, boolean v);
+        void onSwitch(int groupPosition, int childPosition, PermissionChildItem item, boolean v);
     }
 }

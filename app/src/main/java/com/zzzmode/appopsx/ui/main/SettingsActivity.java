@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.text.TextUtils;
@@ -221,7 +220,7 @@ public class SettingsActivity extends BaseActivity {
 
             AlertDialog.Builder builder =
                     new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.auto_ignore_premission_title);
+            builder.setTitle(R.string.auto_ignore_permission_title);
             List<OpEntryInfo> localOpEntryInfos = Helper.getLocalOpEntryInfos(getActivity());
             int size = localOpEntryInfos.size();
             CharSequence[] items=new CharSequence[size];

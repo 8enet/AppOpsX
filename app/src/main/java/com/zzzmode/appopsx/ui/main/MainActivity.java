@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -136,9 +135,9 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
                 ATracker.send(AEvent.C_SETTINGS);
                 openSetting();
                 return true;
-            case R.id.action_premission_sort:
+            case R.id.action_permission_sort:
                 ATracker.send(AEvent.C_PERMISSION_LIST);
-                openSortPremission();
+                openSortPermission();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -151,7 +150,7 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
 
         final MenuItem searchMenu=menu.findItem(R.id.action_search);
         final MenuItem settingsMenu=menu.findItem(R.id.action_setting);
-        final MenuItem premsMenu=menu.findItem(R.id.action_premission_sort);
+        final MenuItem premsMenu=menu.findItem(R.id.action_permission_sort);
 
         MenuItemCompat.setOnActionExpandListener(searchMenu, new MenuItemCompat.OnActionExpandListener() {
             @Override
@@ -194,8 +193,8 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
         startActivity(new Intent(this, SettingsActivity.class));
     }
 
-    private void openSortPremission() {
-        startActivity(new Intent(this, PremissionGroupActivity.class));
+    private void openSortPermission() {
+        startActivity(new Intent(this, PermissionGroupActivity.class));
     }
 
     private void resetAll() {

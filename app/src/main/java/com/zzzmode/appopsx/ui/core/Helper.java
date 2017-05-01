@@ -8,11 +8,9 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PermissionGroupInfo;
 import android.content.pm.PermissionInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -22,11 +20,8 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.text.BidiFormatter;
-import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
-import android.view.View;
 
 import com.zzzmode.appopsx.BuildConfig;
 import com.zzzmode.appopsx.OpsxManager;
@@ -37,10 +32,10 @@ import com.zzzmode.appopsx.common.OtherOp;
 import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.common.ReflectUtils;
 import com.zzzmode.appopsx.ui.model.AppInfo;
-import com.zzzmode.appopsx.ui.model.AppPremissions;
+import com.zzzmode.appopsx.ui.model.AppPermissions;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
-import com.zzzmode.appopsx.ui.model.PremissionChildItem;
-import com.zzzmode.appopsx.ui.model.PremissionGroup;
+import com.zzzmode.appopsx.ui.model.PermissionChildItem;
+import com.zzzmode.appopsx.ui.model.PermissionGroup;
 import com.zzzmode.appopsx.ui.permission.AppPermissionActivity;
 
 import java.io.IOException;
@@ -584,47 +579,47 @@ public class Helper {
         return null;
     }
 
-    public static Single<List<PremissionGroup>> getPremissionGroup(final Context context, final boolean loadSysapp) {
+    public static Single<List<PermissionGroup>> getPermissionGroup(final Context context, final boolean loadSysapp) {
         return getInstalledApps(context, loadSysapp).concatMap(new Function<List<AppInfo>, ObservableSource<AppInfo>>() {
             @Override
             public ObservableSource<AppInfo> apply(List<AppInfo> appInfos) throws Exception {
                 return Observable.fromIterable(appInfos);
             }
-        }).map(new Function<AppInfo, AppPremissions>() {
+        }).map(new Function<AppInfo, AppPermissions>() {
             @Override
-            public AppPremissions apply(AppInfo info) throws Exception {
-                AppPremissions p = new AppPremissions();
+            public AppPermissions apply(AppInfo info) throws Exception {
+                AppPermissions p = new AppPermissions();
                 p.appInfo = info;
                 p.opEntries = getAppPermission(context, info.packageName).blockingFirst();
                 return p;
             }
-        }).collect(new Callable<Map<String, List<AppPremissions>>>() {
+        }).collect(new Callable<Map<String, List<AppPermissions>>>() {
             @Override
-            public Map<String, List<AppPremissions>> call() throws Exception {
-                return new HashMap<String, List<AppPremissions>>();
+            public Map<String, List<AppPermissions>> call() throws Exception {
+                return new HashMap<String, List<AppPermissions>>();
             }
-        }, new BiConsumer<Map<String, List<AppPremissions>>, AppPremissions>() {
+        }, new BiConsumer<Map<String, List<AppPermissions>>, AppPermissions>() {
             @Override
-            public void accept(Map<String, List<AppPremissions>> map, AppPremissions app) throws Exception {
-                if (app.opEntries != null && app.hasPremissions()) {
+            public void accept(Map<String, List<AppPermissions>> map, AppPermissions app) throws Exception {
+                if (app.opEntries != null && app.hasPermissions()) {
                     for (OpEntryInfo opEntry : app.opEntries) {
                         if (opEntry.opName != null) {
-                            List<AppPremissions> appPremissionses = map.get(opEntry.opName);
-                            if (appPremissionses == null) {
-                                appPremissionses = new ArrayList<AppPremissions>();
+                            List<AppPermissions> appPermissionses = map.get(opEntry.opName);
+                            if (appPermissionses == null) {
+                                appPermissionses = new ArrayList<AppPermissions>();
                             }
-                            appPremissionses.add(app);
-                            map.put(opEntry.opName, appPremissionses);
+                            appPermissionses.add(app);
+                            map.put(opEntry.opName, appPermissionses);
                         }
                     }
                 }
             }
-        }).map(new Function<Map<String, List<AppPremissions>>, Map<String, List<AppPremissions>>>() {
+        }).map(new Function<Map<String, List<AppPermissions>>, Map<String, List<AppPermissions>>>() {
             @Override
-            public Map<String, List<AppPremissions>> apply(Map<String, List<AppPremissions>> map) throws Exception {
+            public Map<String, List<AppPermissions>> apply(Map<String, List<AppPermissions>> map) throws Exception {
                 Map<String, Integer> counts = new HashMap<String, Integer>();
-                Set<Map.Entry<String, List<AppPremissions>>> entries = map.entrySet();
-                for (Map.Entry<String, List<AppPremissions>> entry : entries) {
+                Set<Map.Entry<String, List<AppPermissions>>> entries = map.entrySet();
+                for (Map.Entry<String, List<AppPermissions>> entry : entries) {
                     counts.put(entry.getKey(), entry.getValue().size());
                 }
                 List<Map.Entry<String, Integer>> countsSort = new LinkedList<Map.Entry<String, Integer>>(counts.entrySet());
@@ -635,37 +630,37 @@ public class Helper {
                     }
                 });
 
-                Map<String, List<AppPremissions>> ret = new LinkedHashMap<String, List<AppPremissions>>();
+                Map<String, List<AppPermissions>> ret = new LinkedHashMap<String, List<AppPermissions>>();
                 for (Map.Entry<String, Integer> stringIntegerEntry : countsSort) {
                     String key = stringIntegerEntry.getKey();
-                    List<AppPremissions> appPremissionses = map.get(key);
-                    if (appPremissionses != null) {
-                        ret.put(key, appPremissionses);
+                    List<AppPermissions> appPermissionses = map.get(key);
+                    if (appPermissionses != null) {
+                        ret.put(key, appPermissionses);
                     }
                 }
                 return ret;
             }
-        }).map(new Function<Map<String, List<AppPremissions>>, List<PremissionGroup>>() {
+        }).map(new Function<Map<String, List<AppPermissions>>, List<PermissionGroup>>() {
             @Override
-            public List<PremissionGroup> apply(Map<String, List<AppPremissions>> map) throws Exception {
-                List<PremissionGroup> groups = new ArrayList<PremissionGroup>();
-                Set<Map.Entry<String, List<AppPremissions>>> entries = map.entrySet();
-                for (Map.Entry<String, List<AppPremissions>> entry : entries) {
-                    PremissionGroup group = new PremissionGroup();
+            public List<PermissionGroup> apply(Map<String, List<AppPermissions>> map) throws Exception {
+                List<PermissionGroup> groups = new ArrayList<PermissionGroup>();
+                Set<Map.Entry<String, List<AppPermissions>>> entries = map.entrySet();
+                for (Map.Entry<String, List<AppPermissions>> entry : entries) {
+                    PermissionGroup group = new PermissionGroup();
                     group.opName = entry.getKey();
 
-                    List<AppPremissions> value = entry.getValue();
+                    List<AppPermissions> value = entry.getValue();
 
                     group.count = value.size();
-                    group.apps = new ArrayList<PremissionChildItem>();
+                    group.apps = new ArrayList<PermissionChildItem>();
 
-                    for (AppPremissions appPremissions : value) {
-                        PremissionChildItem item = new PremissionChildItem();
-                        item.appInfo = appPremissions.appInfo;
+                    for (AppPermissions appPermissions : value) {
+                        PermissionChildItem item = new PermissionChildItem();
+                        item.appInfo = appPermissions.appInfo;
 
                         group.apps.add(item);
-                        if (appPremissions.opEntries != null) {
-                            for (OpEntryInfo opEntry : appPremissions.opEntries) {
+                        if (appPermissions.opEntries != null) {
+                            for (OpEntryInfo opEntry : appPermissions.opEntries) {
                                 if (group.opName.equals(opEntry.opName)) {
                                     item.opEntryInfo = opEntry;
                                     if (opEntry.opEntry.getMode() == AppOpsManager.MODE_ALLOWED) {
@@ -686,26 +681,26 @@ public class Helper {
 
                 return groups;
             }
-        }).map(new Function<List<PremissionGroup>, List<PremissionGroup>>() {
+        }).map(new Function<List<PermissionGroup>, List<PermissionGroup>>() {
             @Override
-            public List<PremissionGroup> apply(List<PremissionGroup> premissionGroups) throws Exception {
-                Map<String, List<PremissionGroup>> groups = new HashMap<String, List<PremissionGroup>>();
+            public List<PermissionGroup> apply(List<PermissionGroup> permissionGroups) throws Exception {
+                Map<String, List<PermissionGroup>> groups = new HashMap<String, List<PermissionGroup>>();
                 PackageManager pm = context.getPackageManager();
-                for (PremissionGroup premissionGroup : premissionGroups) {
+                for (PermissionGroup permissionGroup : permissionGroups) {
 
                     String groupS = null;
 
-                    if (premissionGroup.opPermsName != null) {
+                    if (permissionGroup.opPermsName != null) {
                         try {
-                            PermissionInfo permissionInfo = pm.getPermissionInfo(premissionGroup.opPermsName, PackageManager.GET_META_DATA);
+                            PermissionInfo permissionInfo = pm.getPermissionInfo(permissionGroup.opPermsName, PackageManager.GET_META_DATA);
                             groupS = permissionInfo.group;
                         } catch (Exception e) {
                             //ignore
                         }
                     }
 
-                    if (groupS == null || OtherOp.isOtherOp(premissionGroup.opName)) {
-                        groupS = FAKE_PERMS_GROUP.get(premissionGroup.opName);
+                    if (groupS == null || OtherOp.isOtherOp(permissionGroup.opName)) {
+                        groupS = FAKE_PERMS_GROUP.get(permissionGroup.opName);
                     }
 
                     PermGroupInfo permGroupInfo = null;
@@ -715,17 +710,17 @@ public class Helper {
                     if (permGroupInfo == null) {
                         permGroupInfo = OTHER_PERM_INFO;
                     }
-                    premissionGroup.icon = permGroupInfo.icon;
-                    premissionGroup.group = permGroupInfo.group;
+                    permissionGroup.icon = permGroupInfo.icon;
+                    permissionGroup.group = permGroupInfo.group;
 
 
-                    List<PremissionGroup> value = groups.get(premissionGroup.group);
+                    List<PermissionGroup> value = groups.get(permissionGroup.group);
                     if (value == null) {
-                        value = new ArrayList<PremissionGroup>();
+                        value = new ArrayList<PermissionGroup>();
                     }
-                    value.add(premissionGroup);
+                    value.add(permissionGroup);
 
-                    groups.put(premissionGroup.group, value);
+                    groups.put(permissionGroup.group, value);
                 }
 
                 return reSort(RE_SORT_GROUPS, groups);
@@ -734,12 +729,12 @@ public class Helper {
     }
 
 
-    private static List<PremissionGroup> reSort(String[] groupNames, Map<String, List<PremissionGroup>> groups) {
-        List<PremissionGroup> ret = new LinkedList<PremissionGroup>();
+    private static List<PermissionGroup> reSort(String[] groupNames, Map<String, List<PermissionGroup>> groups) {
+        List<PermissionGroup> ret = new LinkedList<PermissionGroup>();
         for (String groupName : groupNames) {
-            List<PremissionGroup> premissionGroups = groups.get(groupName);
-            if (premissionGroups != null) {
-                ret.addAll(premissionGroups);
+            List<PermissionGroup> permissionGroups = groups.get(groupName);
+            if (permissionGroups != null) {
+                ret.addAll(permissionGroups);
             }
         }
         return ret;

@@ -187,7 +187,7 @@ class LocalServerManager {
 
 
         if(!connResult.get()){
-            throw new RuntimeException("please grant adb premission!");
+            throw new RuntimeException("please grant adb permission!");
         }
 
         adbStream = connection.open("shell:");

@@ -24,8 +24,8 @@ import com.zzzmode.appopsx.ui.BaseActivity;
 import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.Helper;
-import com.zzzmode.appopsx.ui.model.PremissionChildItem;
-import com.zzzmode.appopsx.ui.model.PremissionGroup;
+import com.zzzmode.appopsx.ui.model.PermissionChildItem;
+import com.zzzmode.appopsx.ui.model.PermissionGroup;
 import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
 
 import java.lang.ref.SoftReference;
@@ -40,11 +40,11 @@ import io.reactivex.schedulers.Schedulers;
  * Created by zl on 2017/1/17.
  */
 
-public class PremissionGroupActivity extends BaseActivity implements RecyclerViewExpandableItemManager.OnGroupCollapseListener,
+public class PermissionGroupActivity extends BaseActivity implements RecyclerViewExpandableItemManager.OnGroupCollapseListener,
         RecyclerViewExpandableItemManager.OnGroupExpandListener{
     private static final String SAVED_STATE_EXPANDABLE_ITEM_MANAGER = "RecyclerViewExpandableItemManager";
 
-    private static final String TAG = "PremissionGroupActivity";
+    private static final String TAG = "PermissionGroupActivity";
 
     private ProgressBar mProgressBar;
     private RecyclerView recyclerView;
@@ -52,7 +52,7 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.Adapter mWrappedAdapter;
     private RecyclerViewExpandableItemManager mRecyclerViewExpandableItemManager;
-    private PremissionGroupAdapter myItemAdapter;
+    private PermissionGroupAdapter myItemAdapter;
 
     private TextView tvError;
 
@@ -66,7 +66,7 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        setTitle(R.string.menu_premission_sort);
+        setTitle(R.string.menu_permission_sort);
 
         mProgressBar= (ProgressBar) findViewById(R.id.progressBar);
         recyclerView= (RecyclerView) findViewById(R.id.recyclerView);
@@ -82,11 +82,11 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
         mRecyclerViewExpandableItemManager.setOnGroupExpandListener(this);
         mRecyclerViewExpandableItemManager.setOnGroupCollapseListener(this);
 
-        myItemAdapter = new PremissionGroupAdapter();
+        myItemAdapter = new PermissionGroupAdapter();
         myItemAdapter.setHasStableIds(true);
-        myItemAdapter.setListener(new PremissionGroupAdapter.OnSwitchItemClickListener() {
+        myItemAdapter.setListener(new PermissionGroupAdapter.OnSwitchItemClickListener() {
             @Override
-            public void onSwitch(int groupPosition, int childPosition, PremissionChildItem info, boolean v) {
+            public void onSwitch(int groupPosition, int childPosition, PermissionChildItem info, boolean v) {
                 changeMode(groupPosition, childPosition, info);
             }
         }, new View.OnCreateContextMenuListener() {
@@ -113,7 +113,7 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
     }
 
 
-    private void changeMode(final int groupPosition,final int childPosition,final PremissionChildItem info){
+    private void changeMode(final int groupPosition,final int childPosition,final PermissionChildItem info){
 
 
         info.opEntryInfo.changeStatus();
@@ -211,14 +211,14 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
     private void init(){
         boolean showSysApp= PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("show_sysapp",false);
 
-        final SoftReference<PremissionGroupActivity> actRef=new SoftReference<PremissionGroupActivity>(this);
-        Helper.getPremissionGroup(getApplicationContext(),showSysApp).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceSingleObserver<List<PremissionGroup>>() {
+        final SoftReference<PermissionGroupActivity> actRef=new SoftReference<PermissionGroupActivity>(this);
+        Helper.getPermissionGroup(getApplicationContext(),showSysApp).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceSingleObserver<List<PermissionGroup>>() {
             @Override
-            public void onSuccess(List<PremissionGroup> value) {
+            public void onSuccess(List<PermissionGroup> value) {
 
                 try {
-                    PremissionGroupActivity act=null;
+                    PermissionGroupActivity act=null;
                     if(actRef != null && (act=actRef.get()) != null){
                         act.showList(value);
                     }
@@ -244,7 +244,7 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
     }
 
 
-    private void showList(List<PremissionGroup> value){
+    private void showList(List<PermissionGroup> value){
         if(isFinishing()){
             return;
         }
@@ -260,7 +260,7 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
         myItemAdapter.notifyDataSetChanged();
 
         if(BuildConfig.DEBUG) {
-            for (PremissionGroup group : value) {
+            for (PermissionGroup group : value) {
                 Log.e(TAG, "onSuccess --> " + group);
             }
         }
@@ -294,11 +294,11 @@ public class PremissionGroupActivity extends BaseActivity implements RecyclerVie
         if(contextGroupPosition >= 0) {
             try {
                 final int groupPosition=contextGroupPosition;
-                PremissionGroup premissionGroup = myItemAdapter.getData().get(groupPosition);
-                List<PremissionChildItem> apps = premissionGroup.apps;
+                PermissionGroup permissionGroup = myItemAdapter.getData().get(groupPosition);
+                List<PermissionChildItem> apps = permissionGroup.apps;
                 int size=apps.size();
                 for (int i = 0; i < size; i++) {
-                    PremissionChildItem info = apps.get(i);
+                    PermissionChildItem info = apps.get(i);
                     if(info.opEntryInfo.mode != newMode) {
                         changeMode(groupPosition, i, info);
                     }
