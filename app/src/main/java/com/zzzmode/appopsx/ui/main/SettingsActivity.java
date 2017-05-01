@@ -4,14 +4,14 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.CheckBoxPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -24,10 +24,10 @@ import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
+import com.zzzmode.appopsx.ui.widget.NumberPickerPreference;
 
 import java.util.List;
 
-import io.reactivex.Observable;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleObserver;
 import io.reactivex.SingleOnSubscribe;
@@ -47,7 +47,7 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setTitle(R.string.menu_setting);
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new MyPreferenceFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new MyPreferenceFragment()).commit();
 
     }
 
@@ -68,18 +68,22 @@ public class SettingsActivity extends BaseActivity {
         AppOpsx.updateConfig(getApplicationContext());
     }
 
-    public static class MyPreferenceFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener{
+
+    public static class MyPreferenceFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceClickListener{
 
         private Preference mPrefAppSort;
+        private Preference mUseAdb;
 
         @Override
-        public void onCreate(final Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.settings);
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            setPreferencesFromResource(R.xml.settings,rootKey);
 
             findPreference("ignore_premission").setOnPreferenceClickListener(this);
             findPreference("show_sysapp").setOnPreferenceClickListener(this);
-            findPreference("use_adb").setOnPreferenceClickListener(this);
+
+            mUseAdb=findPreference("use_adb");
+            mUseAdb.setOnPreferenceClickListener(this);
+
             findPreference("allow_bg_remote").setOnPreferenceClickListener(this);
             findPreference("project").setOnPreferenceClickListener(this);
 
@@ -150,8 +154,45 @@ public class SettingsActivity extends BaseActivity {
                     return true;
                 }
             });
+
+            final NumberPickerPreference adbPortPreference = (NumberPickerPreference) findPreference("use_adb_port");
+            adbPortPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if(newValue instanceof Integer){
+                        mUseAdb.setSummary(getString(R.string.use_adb_mode_summary,(int)newValue));
+                    }
+                    return true;
+                }
+            });
+
+            mUseAdb.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if(newValue instanceof Boolean){
+                        adbPortPreference.setVisible(((Boolean) newValue));
+                    }
+                    return true;
+                }
+            });
+
+            mUseAdb.setSummary(getString(R.string.use_adb_mode_summary,adbPortPreference.getValue()));
+
+            adbPortPreference.setVisible(PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("use_adb",false));
         }
 
+        @Override
+        public void onDisplayPreferenceDialog(Preference preference) {
+            if(preference instanceof NumberPickerPreference){
+                DialogFragment fragment = NumberPickerPreference.
+                        NumberPickerPreferenceDialogFragmentCompat.newInstance(preference.getKey());
+                fragment.setTargetFragment(this, 0);
+                fragment.show(getFragmentManager(),
+                        "NumberPickerPreferenceDialogFragment");
+            } else {
+                super.onDisplayPreferenceDialog(preference);
+            }
+        }
 
         private void closeServer(){
             Helper.closeBgServer().subscribeOn(Schedulers.io())

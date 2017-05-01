@@ -1,42 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:key="normal" android:title="@string/normal">
-        <CheckBoxPreference
+<android.support.v7.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <android.support.v7.preference.PreferenceCategory android:key="normal" android:title="@string/normal">
+        <android.support.v7.preference.CheckBoxPreference
             android:defaultValue="false"
             android:key="ignore_premission"
             android:title="@string/auto_ignore_premission"
             android:summary="@string/auto_ignore_summary" />
 
-        <Preference android:key="ignore_premission_templete" android:title="@string/auto_ignore_premission_title" android:summary="@string/auto_ignore_premission_temp_summary" />
+        <android.support.v7.preference.Preference android:key="ignore_premission_templete" android:title="@string/auto_ignore_premission_title" android:summary="@string/auto_ignore_premission_temp_summary" />
 
 
 
-        <CheckBoxPreference
+        <android.support.v7.preference.CheckBoxPreference
             android:defaultValue="false"
             android:key="use_adb"
             android:title="@string/use_adb_mode"
             android:summary="@string/use_adb_mode_summary" />
 
-        <CheckBoxPreference
+
+        <com.zzzmode.appopsx.ui.widget.NumberPickerPreference
+            android:defaultValue="5555"
+            app:maxValue="65565"
+            app:minValue="1025"
+            android:key="use_adb_port"
+            android:title="@string/use_adb_port"
+            android:summary="@string/use_adb_port_summary" />
+
+
+        <android.support.v7.preference.CheckBoxPreference
             android:defaultValue="true"
             android:key="allow_bg_remote"
             android:title="@string/allow_bg_remote"
             android:summary="@string/allow_bg_remote_summary" />
 
-    </PreferenceCategory>
+    </android.support.v7.preference.PreferenceCategory>
 
-    <PreferenceCategory android:key="app_ui" android:title="@string/app_ui">
-        <CheckBoxPreference
+    <android.support.v7.preference.PreferenceCategory android:key="app_ui" android:title="@string/app_ui">
+        <android.support.v7.preference.CheckBoxPreference
             android:defaultValue="false"
             android:key="show_sysapp"
             android:title="@string/show_sys_apps"
             android:summary="@string/show_sys_apps_summary" />
-        <Preference
+        <android.support.v7.preference.Preference
             android:key="pref_app_sort_type"
             android:title="@string/app_sort_type"
             android:summary="@string/app_sort_type_summary" />
 
-        <SwitchPreference android:key="pref_app_daynight_mode"
+        <android.support.v7.preference.SwitchPreferenceCompat android:key="pref_app_daynight_mode"
             android:title="@string/app_daynight_mode"
             android:summary="@string/app_daynight_mode_summary"
             />
@@ -44,38 +57,38 @@
             <!--android:key="app_perm_detail"-->
             <!--android:title="@string/app_perm_detail_summary"-->
             <!--android:summary="@string/app_perm_detail_title" />-->
-    </PreferenceCategory>
+    </android.support.v7.preference.PreferenceCategory>
 
     <!--<PreferenceCategory android:key="experience" android:title="@string/experience">-->
 
 
     <!--</PreferenceCategory>-->
 
-    <PreferenceCategory android:key="other" android:title="@string/others">
+    <android.support.v7.preference.PreferenceCategory android:key="other" android:title="@string/others">
 
-        <Preference
+        <android.support.v7.preference.Preference
             android:key="close_server"
             android:title="@string/close_bg_server_summary"
             android:summary="@string/close_bg_server_title" />
-    </PreferenceCategory>
+    </android.support.v7.preference.PreferenceCategory>
 
-    <PreferenceCategory
+    <android.support.v7.preference.PreferenceCategory
         android:key="about"
         android:title="@string/about">
 
-        <Preference android:key="version" android:title="@string/version" android:summary="1.0.4">
+        <android.support.v7.preference.Preference android:key="version" android:title="@string/version" android:summary="1.0.4">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="market://details?id=com.zzzmode.appopsx"/>
-        </Preference>
-        <Preference android:key="project" android:summary="https://github.com/8enet/AppOpsX" android:title="Github">
+        </android.support.v7.preference.Preference>
+        <android.support.v7.preference.Preference android:key="project" android:summary="https://github.com/8enet/AppOpsX" android:title="Github">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/8enet/AppOpsX"/>
-        </Preference>
+        </android.support.v7.preference.Preference>
 
-        <Preference android:key="acknowledgments" android:summary="感谢大家提出的反馈意见和帮助" android:title="特别鸣谢"/>
+        <android.support.v7.preference.Preference android:key="acknowledgments" android:summary="感谢大家提出的反馈意见和帮助" android:title="特别鸣谢"/>
 
-        <Preference android:key="show_log" android:title="显示日志"/>
-    </PreferenceCategory>
-</PreferenceScreen>
+        <android.support.v7.preference.Preference android:key="show_log" android:title="显示日志"/>
+    </android.support.v7.preference.PreferenceCategory>
+</android.support.v7.preference.PreferenceScreen>

@@ -29,7 +29,9 @@ public class AppOpsx {
         if(sManager == null){
             synchronized (AppOpsx.class){
                 if(sManager == null){
-                    sManager=new OpsxManager(context.getApplicationContext(),buildConfig(context));
+                    OpsxManager.Config config = new OpsxManager.Config();
+                    updateConfig(context,config);
+                    sManager=new OpsxManager(context.getApplicationContext(),config);
                 }
             }
         }
@@ -40,23 +42,20 @@ public class AppOpsx {
         if(sManager!=null) {
             OpsxManager.Config config = sManager.getConfig();
             if(config != null){
-                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-                config.allowBgRunning=sp.getBoolean("allow_bg_remote",true);
-                config.useAdb=sp.getBoolean("use_adb", false);
+                updateConfig(context,config);
             }
         }
     }
 
 
-    private static OpsxManager.Config buildConfig(Context context){
+    private static void updateConfig(Context context,OpsxManager.Config config){
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        OpsxManager.Config config=new OpsxManager.Config();
+
         config.allowBgRunning=sp.getBoolean("allow_bg_remote",true);
         config.logFile=context.getFileStreamPath(LOG_FILE).getAbsolutePath();
         config.useAdb=sp.getBoolean("use_adb", false);
+        config.adbPort=sp.getInt("use_adb_port",5555);
         Log.e("test", "buildConfig --> "+context.getFileStreamPath(LOG_FILE).getAbsolutePath());
-
-        return config;
     }
 
     public static String readLogs(Context context){

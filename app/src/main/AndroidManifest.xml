@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.permission.AppPermissionActivity" android:configChanges="keyboardHidden|orientation" />
-        <activity android:name=".ui.main.SettingsActivity" android:configChanges="keyboardHidden|orientation"/>
+        <activity android:name=".ui.main.SettingsActivity" android:theme="@style/SettingsTheme" android:configChanges="keyboardHidden|orientation"/>
         <activity android:name=".ui.main.PremissionGroupActivity" android:configChanges="keyboardHidden|orientation"/>
 
 
