@@ -111,6 +111,13 @@ public class AlertInstalledPremActivity extends BaseActivity implements IPermVie
 
             }
         });
+
+        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                finish();
+            }
+        });
     }
 
     private View getTitleView(){
