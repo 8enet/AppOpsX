@@ -20,6 +20,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.text.BidiFormatter;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
@@ -312,6 +313,29 @@ public class Helper {
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
         return bitmap;
+    }
+
+
+    public static Single<AppInfo> getAppInfo(final Context context,String pkgName){
+        return SingleJust.just(pkgName).map(new Function<String, AppInfo>() {
+            @Override
+            public AppInfo apply(String s) throws Exception {
+                PackageManager packageManager = context.getPackageManager();
+                PackageInfo packageInfo = packageManager.getPackageInfo(s, 0);
+
+                AppInfo info = new AppInfo();
+                info.packageName = packageInfo.packageName;
+                info.appName = BidiFormatter.getInstance().unicodeWrap(packageInfo.applicationInfo.loadLabel(packageManager)).toString();
+                info.time = Math.max(packageInfo.lastUpdateTime, packageInfo.firstInstallTime);
+                info.installTime = packageInfo.firstInstallTime;
+                info.updateTime = packageInfo.lastUpdateTime;
+                info.applicationInfo=packageInfo.applicationInfo;
+
+                LocalImageLoader.initAdd(context,info);
+                return info;
+            }
+        });
+
     }
 
     public static Observable<List<AppInfo>> getInstalledApps(final Context context, final boolean loadSysapp) {
@@ -765,12 +789,13 @@ public class Helper {
     }
 
 
-    public static Single<SparseIntArray> autoDisable(final Context context, final String pkg) {
+    public static Single<SparseIntArray> autoDisable(final Context context, String pkg) {
 
-        return SingleJust.create(new SingleOnSubscribe<SparseIntArray>() {
+        return SingleJust.just(pkg).map(new Function<String, SparseIntArray>() {
             @Override
-            public void subscribe(SingleEmitter<SparseIntArray> e) throws Exception {
-                List<OpEntryInfo> opEntryInfos = getAppPermission(context, pkg).blockingFirst();
+            public SparseIntArray apply(String s) throws Exception {
+
+                List<OpEntryInfo> opEntryInfos = getAppPermission(context, s).blockingFirst();
 
                 SparseIntArray canIgnored = new SparseIntArray();//可以忽略的op
                 if (opEntryInfos != null && !opEntryInfos.isEmpty()) {
@@ -797,14 +822,52 @@ public class Helper {
                 for (int i = 0; i < list.size(); i++) {
                     try {
                         int op = list.keyAt(i);
-                        AppOpsx.getInstance(context).setOpsMode(pkg, op, AppOpsManager.MODE_IGNORED);
+                        AppOpsx.getInstance(context).setOpsMode(s, op, AppOpsManager.MODE_IGNORED);
                     } catch (Exception ee) {
                         ee.printStackTrace();
                     }
                 }
-                e.onSuccess(list);
+                return list;
             }
         });
+//        return SingleJust.create(new SingleOnSubscribe<SparseIntArray>() {
+//            @Override
+//            public void subscribe(SingleEmitter<SparseIntArray> e) throws Exception {
+//                List<OpEntryInfo> opEntryInfos = getAppPermission(context, pkg).blockingFirst();
+//
+//                SparseIntArray canIgnored = new SparseIntArray();//可以忽略的op
+//                if (opEntryInfos != null && !opEntryInfos.isEmpty()) {
+//                    for (OpEntryInfo opEntryInfo : opEntryInfos) {
+//                        int op = opEntryInfo.opEntry.getOp();
+//                        canIgnored.put(op, op);
+//                    }
+//                }
+//
+//
+//                SparseIntArray list = new SparseIntArray();
+//                SparseIntArray allowedIgnoreOps = getAllowedIgnoreOps(context);
+//
+//                if (allowedIgnoreOps != null && allowedIgnoreOps.size() > 0) {
+//                    int size = allowedIgnoreOps.size();
+//                    for (int i = 0; i < size; i++) {
+//                        int op = allowedIgnoreOps.keyAt(i);
+//                        if (canIgnored.indexOfKey(op) >= 0 || NO_PERM_OP.indexOfKey(op) >= 0) {
+//                            //
+//                            list.put(op, op);
+//                        }
+//                    }
+//                }
+//                for (int i = 0; i < list.size(); i++) {
+//                    try {
+//                        int op = list.keyAt(i);
+//                        AppOpsx.getInstance(context).setOpsMode(pkg, op, AppOpsManager.MODE_IGNORED);
+//                    } catch (Exception ee) {
+//                        ee.printStackTrace();
+//                    }
+//                }
+//                e.onSuccess(list);
+//            }
+//        });
     }
 
 

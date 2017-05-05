@@ -25,27 +25,27 @@
         <activity android:name=".ui.permission.AppPermissionActivity" android:configChanges="keyboardHidden|orientation" />
         <activity android:name=".ui.main.SettingsActivity" android:theme="@style/SettingsTheme" android:configChanges="keyboardHidden|orientation"/>
         <activity android:name=".ui.main.PermissionGroupActivity" android:configChanges="keyboardHidden|orientation"/>
-
+        <activity android:name=".ui.permission.AlertInstalledPremActivity" android:theme="@style/alert.perm"/>
 
         <receiver android:name=".ui.core.AppInstalledRevicer" android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_INSTALL"/>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".ui.core.HelpAccessibilityService"
-            android:label="@string/app_name"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/accessibilityservice" />
-        </service>
+        <!--<service android:name=".ui.core.HelpAccessibilityService"-->
+            <!--android:label="@string/app_name"-->
+            <!--android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.accessibilityservice.AccessibilityService" />-->
+            <!--</intent-filter>-->
+            <!--<meta-data-->
+                <!--android:name="android.accessibilityservice"-->
+                <!--android:resource="@xml/accessibilityservice" />-->
+        <!--</service>-->
+
 
         <meta-data android:value="test" android:name="UMENG_CHANNEL"/>
     </application>

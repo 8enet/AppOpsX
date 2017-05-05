@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.support.v4.text.BidiFormatter;
 import android.util.Log;
@@ -15,14 +14,12 @@ import android.widget.Toast;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.analytics.ATracker;
+import com.zzzmode.appopsx.ui.model.AppInfo;
+import com.zzzmode.appopsx.ui.permission.AlertInstalledPremActivity;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.ResourceObserver;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -36,22 +33,48 @@ public class AppInstalledRevicer extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
+        Log.e(TAG, "onReceive --> "+action);
         //忽略更新
-        if(Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)){
+        if (intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
             return;
         }
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         Helper.updataShortcuts(context.getApplicationContext());
-        if(sp.getBoolean("ignore_premission",false)){
+        if(sp.getBoolean("ignore_premission",true)){
             try{
                 String pkgName = intent.getData().getEncodedSchemeSpecificPart();
-                disable(context.getApplicationContext(),pkgName);
+                //disable(context.getApplicationContext(),pkgName);
+                showDlg(context.getApplicationContext(),pkgName);
             }catch (Exception e){
                 e.printStackTrace();
             }
         }
     }
 
+    private void showDlg(final Context context,String pkg){
+        Helper.getAppInfo(context,pkg)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<AppInfo>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(AppInfo value) {
+                Intent intent=new Intent(context, AlertInstalledPremActivity.class);
+                intent.putExtra(AlertInstalledPremActivity.EXTRA_APP,value);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+        });
+    }
 
     private void disable(final Context context, final String pkgName){
         Helper.autoDisable(context,pkgName)

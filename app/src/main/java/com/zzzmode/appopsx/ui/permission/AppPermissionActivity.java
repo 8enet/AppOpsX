@@ -8,60 +8,42 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.zzzmode.appopsx.R;
-import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.ui.BaseActivity;
 import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.analytics.ATracker;
-import com.zzzmode.appopsx.ui.core.AppOpsx;
-import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Predicate;
-import io.reactivex.observers.ResourceObserver;
-import io.reactivex.schedulers.Schedulers;
-
 /**
  * Created by zl on 2016/11/18.
  */
 
-public class AppPermissionActivity extends BaseActivity {
+public class AppPermissionActivity extends BaseActivity implements IPermView {
 
     private static final String TAG = "AppPermissionActivity";
 
     public static final String EXTRA_APP = "extra.app";
-    public static final String EXTRA_APP_PKGNAME="extra.app.packagename";
-    public static final String EXTRA_APP_NAME="extra.app.name";
+    public static final String EXTRA_APP_PKGNAME = "extra.app.packagename";
+    public static final String EXTRA_APP_NAME = "extra.app.name";
 
 
     private ProgressBar mProgressBar;
-
-    private AppPermissionAdapter adapter;
-    private AppInfo appInfo;
-
     private TextView tvError;
-
-    private boolean loadSuccess=false;
+    private PermPresenter mPresenter;
+    private AppPermissionAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,15 +52,15 @@ public class AppPermissionActivity extends BaseActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        appInfo = getIntent().getParcelableExtra(EXTRA_APP);
-        if(appInfo == null){
-            String pkgName=getIntent().getStringExtra(EXTRA_APP_PKGNAME);
-            String name=getIntent().getStringExtra(EXTRA_APP_NAME);
-            if(pkgName != null && name != null){
-                appInfo=new AppInfo();
-                appInfo.packageName=pkgName;
-                appInfo.appName=name;
-            }else {
+        AppInfo appInfo = getIntent().getParcelableExtra(EXTRA_APP);
+        if (appInfo == null) {
+            String pkgName = getIntent().getStringExtra(EXTRA_APP_PKGNAME);
+            String name = getIntent().getStringExtra(EXTRA_APP_NAME);
+            if (pkgName != null && name != null) {
+                appInfo = new AppInfo();
+                appInfo.packageName = pkgName;
+                appInfo.appName = name;
+            } else {
                 finish();
                 return;
             }
@@ -87,13 +69,9 @@ public class AppPermissionActivity extends BaseActivity {
 
         setTitle(appInfo.appName);
 
+
         tvError = (TextView) findViewById(R.id.tv_error);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        if(AppOpsx.getInstance(getApplicationContext()).isRunning()){
-            mProgressBar.setVisibility(View.GONE);
-        }else {
-            mProgressBar.setVisibility(View.VISIBLE);
-        }
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -105,24 +83,21 @@ public class AppPermissionActivity extends BaseActivity {
         adapter.setListener(new AppPermissionAdapter.OnSwitchItemClickListener() {
             @Override
             public void onSwitch(OpEntryInfo info, boolean v) {
-                if(v){
-                    info.mode=AppOpsManager.MODE_ALLOWED;
-                }else {
-                    info.mode=AppOpsManager.MODE_IGNORED;
-                }
-                Map<String,String> map=new HashMap<String, String>(2);
-                map.put("new_mode",String.valueOf(info.mode));
-                map.put("op_name",info.opName);
-                ATracker.send(AEvent.C_PERM_ITEM,map);
 
-                setMode(info);
+                mPresenter.switchMode(info, v);
             }
         });
 
-        initData(appInfo.packageName);
 
+        mPresenter = new PermPresenter(this, appInfo, getApplicationContext());
+        mPresenter.setUp();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mPresenter.destory();
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -150,7 +125,7 @@ public class AppPermissionActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
-        if(!loadSuccess){
+        if (!mPresenter.isLoadSuccess()) {
             return false;
         }
 
@@ -163,21 +138,21 @@ public class AppPermissionActivity extends BaseActivity {
 
         final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 
-        final Map<MenuItem,String> menus=new HashMap<>();
-        menus.put(menuShowAllPerm,"key_show_no_prems");
-        menus.put(menuShowOpDesc,"key_show_op_desc");
-        menus.put(menuShowOpName,"key_show_op_name");
-        menus.put(menuShowPremTime,"key_show_perm_time");
+        final Map<MenuItem, String> menus = new HashMap<>();
+        menus.put(menuShowAllPerm, "key_show_no_prems");
+        menus.put(menuShowOpDesc, "key_show_op_desc");
+        menus.put(menuShowOpName, "key_show_op_name");
+        menus.put(menuShowPremTime, "key_show_perm_time");
 
         MenuItem.OnMenuItemClickListener itemClickListener = new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 String s = menus.get(item);
-                if(s != null) {
+                if (s != null) {
                     item.setChecked(!item.isChecked());
                     sp.edit().putBoolean(s, item.isChecked()).apply();
                     ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
-                    initData(appInfo.packageName);
+                    mPresenter.load();
                 }
                 return true;
             }
@@ -186,7 +161,7 @@ public class AppPermissionActivity extends BaseActivity {
 
         Set<Map.Entry<MenuItem, String>> entries = menus.entrySet();
         for (Map.Entry<MenuItem, String> entry : entries) {
-            entry.getKey().setChecked(sp.getBoolean(entry.getValue(),false));
+            entry.getKey().setChecked(sp.getBoolean(entry.getValue(), false));
             entry.getKey().setOnMenuItemClickListener(itemClickListener);
         }
 
@@ -194,137 +169,58 @@ public class AppPermissionActivity extends BaseActivity {
     }
 
 
-
-    private void initData(String packageName){
-        Helper.getAppPermission(getApplicationContext(),packageName,PreferenceManager.getDefaultSharedPreferences(this).getBoolean("key_show_no_prems",false))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new ResourceObserver<List<OpEntryInfo>>() {
-
-                    @Override
-                    protected void onStart() {
-                        super.onStart();
-                    }
-
-                    @Override
-                    public void onNext(List<OpEntryInfo> opEntryInfos) {
-                        mProgressBar.setVisibility(View.GONE);
-
-                        if (opEntryInfos != null && !opEntryInfos.isEmpty()) {
-
-                            final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                            adapter.setShowConfig(sp.getBoolean("key_show_op_desc",false),
-                                    sp.getBoolean("key_show_op_name",false),
-                                    sp.getBoolean("key_show_perm_time",false));
-                            adapter.setDatas(opEntryInfos);
-                            adapter.notifyDataSetChanged();
-                        } else {
-                            tvError.setVisibility(View.VISIBLE);
-                            tvError.setText(R.string.no_perms);
-                        }
-                        loadSuccess=true;
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                        tvError.setVisibility(View.VISIBLE);
-                        tvError.setText(getString(R.string.error_msg,Log.getStackTraceString(e)));
-
-                        mProgressBar.setVisibility(View.GONE);
-                        loadSuccess=false;
-                        ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
-                    }
-                });
-    }
-
-
-
-    private void setMode(final OpEntryInfo info){
-        Helper.setMode(getApplicationContext(),appInfo.packageName,info)
-                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<OpsResult>() {
-            @Override
-            public void onNext(OpsResult value) {
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-                info.mode=info.opEntry.getMode();
-                adapter.updateItem(info);
-
-                Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
-    }
-
-    private void resetMode(){
-        Observable.create(new ObservableOnSubscribe<OpsResult>() {
-            @Override
-            public void subscribe(ObservableEmitter<OpsResult> e) throws Exception {
-
-                OpsResult opsForPackage = AppOpsx.getInstance(getApplicationContext()).resetAllModes(appInfo.packageName);
-                if(opsForPackage != null ){
-                    if(opsForPackage.getException() == null){
-                        e.onNext(opsForPackage);
-                    }else {
-                        throw new Exception(opsForPackage.getException());
-                    }
-                }
-                e.onComplete();
-
-            }
-        }).retry(5, new Predicate<Throwable>() {
-            @Override
-            public boolean test(Throwable throwable) throws Exception {
-                return throwable instanceof IOException || throwable instanceof NullPointerException;
-            }
-        })
-                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<OpsResult>() {
-            @Override
-            public void onNext(OpsResult value) {
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-                Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onComplete() {
-                initData(appInfo.packageName);
-            }
-        });
-    }
-
-    private void showHidePerms(){
+    private void showHidePerms() {
 
 
     }
 
-    private void changeAll(int newMode){
+    private void changeAll(int newMode) {
         final List<OpEntryInfo> datas = adapter.getDatas();
-        if(datas != null){
+        if (datas != null) {
             for (OpEntryInfo data : datas) {
-                data.mode=newMode;
-                setMode(data);
+                data.mode = newMode;
+                mPresenter.setMode(data);
                 adapter.updateItem(data);
             }
         }
     }
 
 
+    @Override
+    public void showProgress(boolean show) {
+        tvError.setVisibility(View.GONE);
+        mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+
+
+        ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
+    }
+
+    @Override
+    public void showError(CharSequence text) {
+        mProgressBar.setVisibility(View.GONE);
+        tvError.setVisibility(View.VISIBLE);
+        tvError.setText(text);
+
+        ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
+    }
+
+    @Override
+    public void showPerms(List<OpEntryInfo> opEntryInfos) {
+        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        adapter.setShowConfig(sp.getBoolean("key_show_op_desc", false),
+                sp.getBoolean("key_show_op_name", false),
+                sp.getBoolean("key_show_perm_time", false));
+        adapter.setDatas(opEntryInfos);
+        adapter.notifyDataSetChanged();
+
+        ActivityCompat.invalidateOptionsMenu(AppPermissionActivity.this);
+    }
+
+    @Override
+    public void updateItem(OpEntryInfo info) {
+        info.mode = info.opEntry.getMode();
+        adapter.updateItem(info);
+
+        //Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+    }
 }
