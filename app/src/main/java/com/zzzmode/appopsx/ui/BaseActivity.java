@@ -17,10 +17,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int themeMode = SpHelper.getThemeMode(this);
-        if(themeMode != AppCompatDelegate.MODE_NIGHT_AUTO) {
-            AppCompatDelegate.setDefaultNightMode(themeMode);
-        }
+        AppCompatDelegate.setDefaultNightMode(SpHelper.getThemeMode(this));
     }
 
     @Override

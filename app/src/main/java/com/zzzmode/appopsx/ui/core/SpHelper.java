@@ -19,7 +19,7 @@ public class SpHelper {
          if(getSharedPreferences(context).getBoolean("pref_app_daynight_mode", false)){
              return AppCompatDelegate.MODE_NIGHT_YES;
          }
-         return AppCompatDelegate.MODE_NIGHT_AUTO;
+         return AppCompatDelegate.MODE_NIGHT_NO;
     }
 
 }
