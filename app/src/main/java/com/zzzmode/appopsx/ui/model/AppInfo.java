@@ -66,7 +66,6 @@ public class AppInfo implements Parcelable {
         return "AppInfo{" +
                 "appName='" + appName + '\'' +
                 ", packageName='" + packageName + '\'' +
-                ", time=" + time +
                 '}';
     }
 }

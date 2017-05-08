@@ -3,6 +3,7 @@
     <string name="reset_all">恢复默认设置</string>
     <string name="menu_setting">设置</string>
     <string name="menu_permission_sort">应用权限</string>
+    <string name="menu_backup">导出/恢复权限</string>
     <string name="menu_show_hide_premission">显示默认权限</string>
     <string name="menu_show_op_perm">显示权限详情</string>
     <string name="menu_show_op_name">显示OpName</string>
@@ -90,4 +91,19 @@
 
 
     <string name="default_ignored">4,5,6,7,8,9,13,14,15,16,17,18,19,20,21,22,23,27,43,51,54,57,62,64,66</string>
+
+
+
+    <string name="perm_export">导出</string>
+    <string name="perm_import">导入</string>
+    <string name="perm_restore">恢复</string>
+    <string name="dlg_title">提示</string>
+    <string name="backup_success">备份保存成功：%1$s</string>
+    <string name="backup_file_lack">备份文件已损坏</string>
+    <string name="backup_count">备份应用条数：%1$d</string>
+    <string name="backup_file_size">文件大小：%1$s</string>
+    <string name="dlg_delete_msg">确定删除此备份文件吗?\n %1$s </string>
+    <string name="dlg_restore_msg">确定使用此备份文件恢复吗?\n %1$s </string>
+    <string name="delete">删除</string>
+
 </resources>

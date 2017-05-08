@@ -5,6 +5,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -30,6 +31,7 @@ import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
+import com.zzzmode.appopsx.ui.main.backup.BackupActivity;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.AppOpEntry;
 import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
@@ -100,12 +102,15 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
 
     private void loadData(final boolean isFirst) {
         boolean showSysApp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("show_sysapp", false);
-        Helper.getInstalledApps(getApplicationContext(), showSysApp).subscribeOn(Schedulers.io())
+        Helper.getInstalledApps(getApplicationContext(), showSysApp).map(Helper.getSortComparator(getApplicationContext())).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<List<AppInfo>>() {
             @Override
             public void onNext(List<AppInfo> value) {
                 adapter.showItems(value);
                 mSearchHandler.setBaseData(new ArrayList<AppInfo>(value));
+
+                ActivityCompat.invalidateOptionsMenu(MainActivity.this);
+
             }
 
             @Override
@@ -113,6 +118,8 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
                 e.printStackTrace();
                 mSwipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+
+                ActivityCompat.invalidateOptionsMenu(MainActivity.this);
             }
 
             @Override
@@ -124,6 +131,8 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
                 if(isFirst){
                     mSwipeRefreshLayout.setEnabled(true);
                 }
+
+                ActivityCompat.invalidateOptionsMenu(MainActivity.this);
             }
         });
     }
@@ -139,6 +148,10 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
                 ATracker.send(AEvent.C_PERMISSION_LIST);
                 openSortPermission();
                 return true;
+            case R.id.action_backup:
+                ATracker.send(AEvent.C_BACKUP);
+                openConfigPerms();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -151,6 +164,8 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
         final MenuItem searchMenu=menu.findItem(R.id.action_search);
         final MenuItem settingsMenu=menu.findItem(R.id.action_setting);
         final MenuItem premsMenu=menu.findItem(R.id.action_permission_sort);
+
+        menu.findItem(R.id.action_backup).setVisible(adapter != null && adapter.getItemCount()>0);
 
         MenuItemCompat.setOnActionExpandListener(searchMenu, new MenuItemCompat.OnActionExpandListener() {
             @Override
@@ -195,6 +210,12 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
 
     private void openSortPermission() {
         startActivity(new Intent(this, PermissionGroupActivity.class));
+    }
+
+    private void openConfigPerms(){
+        Intent intent = new Intent(this, BackupActivity.class);
+        intent.putParcelableArrayListExtra(BackupActivity.EXTRA_APPS,new ArrayList<AppInfo>(adapter.getAppInfos()));
+        startActivity(intent);
     }
 
     private void resetAll() {

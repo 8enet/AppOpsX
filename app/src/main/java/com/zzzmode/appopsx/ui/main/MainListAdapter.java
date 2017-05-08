@@ -22,7 +22,7 @@ import java.util.List;
  * Created by zl on 2016/11/18.
  */
 
-class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> implements View.OnClickListener{
+class MainListAdapter extends RecyclerView.Adapter<AppItemViewHolder> implements View.OnClickListener{
 
     protected List<AppInfo> appInfos=new ArrayList<>();
 
@@ -39,20 +39,23 @@ class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> i
         notifyDataSetChanged();
     }
 
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_main_app,parent,false));
+    List<AppInfo> getAppInfos(){
+        return appInfos;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        AppInfo appInfo = appInfos.get(position);
-        holder.tvName.setText(processText(appInfo.appName));
+    public AppItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return new AppItemViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_main_app,parent,false));
+    }
 
+    @Override
+    public void onBindViewHolder(AppItemViewHolder holder, int position) {
+        AppInfo appInfo = appInfos.get(position);
+        holder.bindData(appInfo);
+
+        holder.tvName.setText(processText(appInfo.appName));
         holder.itemView.setTag(appInfo);
         holder.itemView.setOnClickListener(this);
-
-        LocalImageLoader.load(holder.imgIcon,appInfo);
 
     }
 
@@ -81,15 +84,4 @@ class MainListAdapter extends RecyclerView.Adapter<MainListAdapter.ViewHolder> i
         return AEvent.C_APP;
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder{
-
-        ImageView imgIcon;
-        TextView tvName;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-            imgIcon= (ImageView) itemView.findViewById(R.id.app_icon);
-            tvName= (TextView) itemView.findViewById(R.id.app_name);
-        }
-    }
 }

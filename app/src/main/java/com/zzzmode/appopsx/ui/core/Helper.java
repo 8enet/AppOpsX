@@ -37,13 +37,16 @@ import com.zzzmode.appopsx.ui.model.AppPermissions;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 import com.zzzmode.appopsx.ui.model.PermissionChildItem;
 import com.zzzmode.appopsx.ui.model.PermissionGroup;
+import com.zzzmode.appopsx.ui.model.PreAppInfo;
 import com.zzzmode.appopsx.ui.permission.AppPermissionActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,8 +62,10 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Function3;
 import io.reactivex.functions.Predicate;
 import io.reactivex.internal.operators.single.SingleJust;
 import io.reactivex.observers.ResourceSingleObserver;
@@ -339,6 +344,7 @@ public class Helper {
     }
 
     public static Observable<List<AppInfo>> getInstalledApps(final Context context, final boolean loadSysapp) {
+
         return Observable.create(new ObservableOnSubscribe<List<AppInfo>>() {
             @Override
             public void subscribe(final ObservableEmitter<List<AppInfo>> e) throws Exception {
@@ -400,47 +406,61 @@ public class Helper {
                 e.onNext(ret);
                 e.onComplete();
             }
-        }).map(new Function<List<AppInfo>, List<AppInfo>>() {
-            @Override
-            public List<AppInfo> apply(List<AppInfo> appInfos) throws Exception {
-                int type = PreferenceManager.getDefaultSharedPreferences(context).getInt("pref_app_sort_type", 0);
-                Comparator<AppInfo> comparator = null;
-                if (type == 0) {
-                    //按名称排序
-                } else if (type == 2) {
-                    //按安装时间排序
-                    comparator = new Comparator<AppInfo>() {
-                        @Override
-                        public int compare(AppInfo o1, AppInfo o2) {
-                            if (o2.installTime == o1.installTime) {
-                                return 0;
-                            }
-                            return o2.installTime > o1.installTime ? 1 : -1;
-                        }
-                    };
-                } else if (type == 3) {
-                    //按最后更新时间排序
-                    comparator = new Comparator<AppInfo>() {
-                        @Override
-                        public int compare(AppInfo o1, AppInfo o2) {
-                            return Math.max(o2.installTime, o2.updateTime) > Math.max(o1.installTime, o1.updateTime) ? 1 : -1;
-                        }
-                    };
-                }
-
-                if (comparator != null) {
-                    Collections.sort(appInfos, comparator);
-                }
-
-
-                return appInfos;
-            }
         });
+    }
+
+
+    public static Observable<PreAppInfo> getAppsPermission(final Context context, AppInfo[] appInfos){
+        return Observable.fromArray(appInfos).map(new Function<AppInfo, PreAppInfo>() {
+            @Override
+            public PreAppInfo apply(@NonNull AppInfo s) throws Exception {
+                OpsResult opsForPackage = AppOpsx.getInstance(context).getOpsForPackage(s.packageName);
+                if (opsForPackage != null) {
+                    if (opsForPackage.getException() != null) {
+                        throw new Exception(opsForPackage.getException());
+                    }
+                }else {
+                    throw new NullPointerException("getOpsForPackage:"+s+" return null !");
+                }
+                PreAppInfo appInfo=new PreAppInfo(s.packageName);
+                List<PackageOps> opses = opsForPackage.getList();
+                if (opses != null) {
+                    StringBuilder sb=new StringBuilder();
+                    for (PackageOps opse : opses) {
+                        List<OpEntry> ops = opse.getOps();
+
+                        if (ops != null) {
+                            for (OpEntry op : ops) {
+                                if(op.getMode() == AppOpsManager.MODE_IGNORED){
+                                    sb.append(op.getOp()).append(',');
+                                }
+                            }
+                        }
+                    }
+                    int len=sb.length();
+                    if(len > 0 && sb.charAt(len-1) == ','){
+                        sb.deleteCharAt(len-1);
+                    }
+                    appInfo.setIgnoredOps(sb.toString());
+                    return appInfo;
+                }else {
+                    throw new NullPointerException("");
+                }
+            }
+        })
+                .retry(5, new Predicate<Throwable>() {
+                    @Override
+                    public boolean test(Throwable throwable) throws Exception {
+                        return throwable instanceof IOException || throwable instanceof NullPointerException;
+                    }
+                })
+                .subscribeOn(Schedulers.io());
     }
 
     public static Observable<List<OpEntryInfo>> getAppPermission(final Context context, final String packageName) {
         return getAppPermission(context, packageName, false);
     }
+
 
     public static Observable<List<OpEntryInfo>> getAppPermission(final Context context, final String packageName, final boolean needNoPermsOp) {
         return Observable.create(new ObservableOnSubscribe<OpsResult>() {
@@ -604,7 +624,7 @@ public class Helper {
     }
 
     public static Single<List<PermissionGroup>> getPermissionGroup(final Context context, final boolean loadSysapp) {
-        return getInstalledApps(context, loadSysapp).concatMap(new Function<List<AppInfo>, ObservableSource<AppInfo>>() {
+        return getInstalledApps(context, loadSysapp).map(getSortComparator(context)).concatMap(new Function<List<AppInfo>, ObservableSource<AppInfo>>() {
             @Override
             public ObservableSource<AppInfo> apply(List<AppInfo> appInfos) throws Exception {
                 return Observable.fromIterable(appInfos);
@@ -765,6 +785,7 @@ public class Helper {
     }
 
     public static Observable<OpsResult> setMode(final Context context, final String pkgName, final OpEntryInfo opEntryInfo) {
+
         return Observable.create(new ObservableOnSubscribe<OpsResult>() {
             @Override
             public void subscribe(ObservableEmitter<OpsResult> e) throws Exception {
@@ -784,6 +805,34 @@ public class Helper {
             @Override
             public boolean test(Throwable throwable) throws Exception {
                 return throwable instanceof IOException || throwable instanceof NullPointerException;
+            }
+        });
+    }
+
+
+    public static Observable<OpsResult> setModes(final Context context, final String pkgName,final int opMode,List<Integer> ops){
+        return Observable.fromIterable(ops).flatMap(new Function<Integer, ObservableSource<OpsResult>>() {
+            @Override
+            public ObservableSource<OpsResult> apply(@NonNull Integer integer) throws Exception {
+                return Observable.just(integer).map(new Function<Integer, OpsResult>() {
+                    @Override
+                    public OpsResult apply(@NonNull Integer integer) throws Exception {
+                        OpsResult opsForPackage = AppOpsx.getInstance(context).setOpsMode(pkgName, integer, opMode);
+                        if (opsForPackage != null) {
+                            if (opsForPackage.getException() == null) {
+                                return opsForPackage;
+                            } else {
+                                throw new Exception(opsForPackage.getException());
+                            }
+                        }
+                        return null;
+                    }
+                }).retry(5, new Predicate<Throwable>() {
+                    @Override
+                    public boolean test(Throwable throwable) throws Exception {
+                        return throwable instanceof IOException || throwable instanceof NullPointerException;
+                    }
+                });
             }
         });
     }
@@ -984,6 +1033,45 @@ public class Helper {
                 e.onSuccess(true);
             }
         });
+    }
+
+    public static Function<List<AppInfo>, List<AppInfo>> getSortComparator(final Context context){
+        return new Function<List<AppInfo>, List<AppInfo>>() {
+            @Override
+            public List<AppInfo> apply(List<AppInfo> appInfos) throws Exception {
+                int type = PreferenceManager.getDefaultSharedPreferences(context).getInt("pref_app_sort_type", 0);
+                Comparator<AppInfo> comparator = null;
+                if (type == 0) {
+                    //按名称排序
+                } else if (type == 2) {
+                    //按安装时间排序
+                    comparator = new Comparator<AppInfo>() {
+                        @Override
+                        public int compare(AppInfo o1, AppInfo o2) {
+                            if (o2.installTime == o1.installTime) {
+                                return 0;
+                            }
+                            return o2.installTime > o1.installTime ? 1 : -1;
+                        }
+                    };
+                } else if (type == 3) {
+                    //按最后更新时间排序
+                    comparator = new Comparator<AppInfo>() {
+                        @Override
+                        public int compare(AppInfo o1, AppInfo o2) {
+                            return Math.max(o2.installTime, o2.updateTime) > Math.max(o1.installTime, o1.updateTime) ? 1 : -1;
+                        }
+                    };
+                }
+
+                if (comparator != null) {
+                    Collections.sort(appInfos, comparator);
+                }
+
+
+                return appInfos;
+            }
+        };
     }
 
 }
