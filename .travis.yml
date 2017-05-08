@@ -2,6 +2,10 @@ language: android
 jdk: oraclejdk8
 android:
   components:
+    #Bug! https://github.com/travis-ci/docs-travis-ci-com/issues/779
+    - tools
+    - platform-tools
+    - tools
     - build-tools-25.0.3
     - android-25
     - extra-android-m2repository
