@@ -5,8 +5,8 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion 19
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
     }
@@ -32,8 +32,11 @@ def creatJar(){
     def MyJarName="appopsx-orig.jar"
     def relatPath='build/intermediates/classes/debug'
     def pkgPath=["com/zzzmode/appopsx/server/","com/zzzmode/appopsx/common/"]
-    def buildArgs=['cvf',project.buildDir.absolutePath+File.separator+MyJarName]
+    def buildArgs=['-cvf',project.buildDir.absolutePath+File.separator+MyJarName]
     buildArgs.addAll(get_args(relatPath,pkgPath))
+    println('--------- ')
+    println(relatPath)
+    println(buildArgs)
     exec{
         workingDir=relatPath
         executable='jar'
