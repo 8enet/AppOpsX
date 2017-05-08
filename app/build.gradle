@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.zzzmode.appopsx"
-        minSdkVersion 19
-        targetSdkVersion 25
-        versionCode 115
-        versionName "1.1.5"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
         signingConfig signingConfigs.debug
         resConfigs "en","zh"
         vectorDrawables.useSupportLibrary = true
@@ -22,13 +22,13 @@ android {
     buildTypes {
         release {
             shrinkResources false
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            proguardFiles 'proguard-default.pro', 'proguard-rules.pro'
         }
     }
 }
 
-def supportVersion="25.3.1"
+def supportVersion=rootProject.ext.supportLibVersion
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')

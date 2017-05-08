@@ -24,6 +24,15 @@
 public static final int *;
 }
 
+-keep class com.zzzmode.** { *; }
+
+-keep class io.reactivex.** { *; }
+-keep class com.cgutman.** { *; }
+
+-keep class com.umeng.** { *; }
+-keep class a.a.a.** { *; }
+
+
 -keepclassmembers enum * {
     public static **[] values();
     public static ** valueOf(java.lang.String);

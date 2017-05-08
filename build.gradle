@@ -13,6 +13,16 @@ buildscript {
     }
 }
 
+project.ext {
+    buildToolsVersion = "${BUILD_TOOLS_VERSION}"
+    compileSdkVersion = COMPILE_SDK_VERSION.toInteger()
+    minSdkVersion = MIN_SDK_VERSION.toInteger();
+    targetSdkVersion = TARGET_SDK_VERSION.toInteger();
+    versionCode = APP_VERSION_CODE.toInteger();
+    versionName = "${VERSION_NAME}"
+    supportLibVersion = "${SUPPORT_LIB_VERSION}"
+}
+
 allprojects {
     repositories {
         jcenter()
