@@ -18,6 +18,13 @@ android {
         noCompress 'jar'
     }
 
+    lintOptions {
+        abortOnError false
+    }
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
 
     buildTypes {
         release {
