@@ -1,5 +1,5 @@
 # AppOpsX
-[![Software License](https://img.shields.io/github/license/8enet/AppOpsX.svg)](License)  [![Release Version](https://img.shields.io/github/release/8enet/AppOpsX.svg)](Release) [![Issues](https://img.shields.io/github/issues/8enet/AppOpsX.svg)](Issues)
+[![Build Status](https://img.shields.io/travis/8enet/AppOpsX.svg)](https://travis-ci.org/8enet/AppOpsX) [![Software License](https://img.shields.io/github/license/8enet/AppOpsX.svg)](LICENSE)  [![Release Version](https://img.shields.io/github/release/8enet/AppOpsX.svg)](https://github.com/8enet/AppOpsX/releases) [![Issues](https://img.shields.io/github/issues/8enet/AppOpsX.svg)](https://github.com/8enet/AppOpsX/issues)
 
 <a href='https://play.google.com/store/apps/details?id=com.zzzmode.appopsx&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width='150'/></a>
 
