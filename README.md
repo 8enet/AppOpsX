@@ -25,3 +25,6 @@ gradle assembleDebug
 > 所有的设置关闭权限使用了`MODE_IGNORED`，不要使用`MODE_ERRORED`，否则会导致应用设置->应用->配置应用->应用权限崩溃。
 
 如有问题请提issue。
+
+# License
+[MIT License](https://github.com/8enet/AppOpsX/blob/master/LICENSE)
