@@ -30,7 +30,7 @@ dependencies {
 
 def creatJar(){
     def MyJarName="appopsx-orig.jar"
-    def relatPath='build/intermediates/classes/debug'
+    def relatPath=project.buildDir.absolutePath+File.separator+'intermediates/classes/debug'
     def pkgPath=["com/zzzmode/appopsx/server/","com/zzzmode/appopsx/common/"]
     def buildArgs=['-cvf',project.buildDir.absolutePath+File.separator+MyJarName]
     buildArgs.addAll(get_args(relatPath,pkgPath))
@@ -81,7 +81,7 @@ build.doLast {
 
 def creatCommonJar(){
     def MyJarName="appopsx-common.jar"
-    def relatPath='build/intermediates/classes/debug'
+    def relatPath=project.buildDir.absolutePath+File.separator+'intermediates/classes/debug'
     def pkgPath=["com/zzzmode/appopsx/common/"]
     def buildArgs=['cvf',project.buildDir.absolutePath+File.separator+MyJarName]
     buildArgs.addAll(get_args(relatPath,pkgPath))
