@@ -24,3 +24,5 @@ dependencies {
     compile project(":AdbLib")
 
 }
+
+preBuild.dependsOn ":opsxlib:build"
