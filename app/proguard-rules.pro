@@ -16,6 +16,8 @@
 #   public *;
 #}
 
+-keepattributes SourceFile,LineNumberTable
+
 -keepclassmembers class * {
    public <init> (org.json.JSONObject);
 }
