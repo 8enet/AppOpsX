@@ -32,9 +32,6 @@ class ExportAdapter extends RecyclerView.Adapter<ExportAdapter.ExportViewHolder>
             for (AppInfo appInfo : appInfos) {
                 mCheckedApps.append(i,appInfo);
                 i++;
-                if(i > 10){
-                    break;
-                }
             }
         }
     }
