@@ -25,9 +25,9 @@
 > 所有的设置关闭权限使用了`MODE_IGNORED`，不要使用`MODE_ERRORED`，否则会导致应用设置->应用->配置应用->应用权限崩溃。
 如有问题请提issue。
 
-# 翻译 
+## 翻译 
 您可以通过 [Crowdin](https://crowdin.com/project/appopsx) 帮助此项目翻译多语言。
 
 
-# License
+## License
 [MIT License](https://github.com/8enet/AppOpsX/blob/master/LICENSE)
