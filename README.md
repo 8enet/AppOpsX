@@ -1,5 +1,7 @@
 # AppOpsX
-[![Build Status](https://img.shields.io/travis/8enet/AppOpsX.svg)](https://travis-ci.org/8enet/AppOpsX) [![Software License](https://img.shields.io/github/license/8enet/AppOpsX.svg)](LICENSE)  [![Release Version](https://img.shields.io/github/release/8enet/AppOpsX.svg)](https://github.com/8enet/AppOpsX/releases) [![Issues](https://img.shields.io/github/issues/8enet/AppOpsX.svg)](https://github.com/8enet/AppOpsX/issues)
+[![Build Status](https://img.shields.io/travis/8enet/AppOpsX.svg)](https://travis-ci.org/8enet/AppOpsX)   [![Release Version](https://img.shields.io/github/release/8enet/AppOpsX.svg)](https://github.com/8enet/AppOpsX/releases) [![Issues](https://img.shields.io/github/issues/8enet/AppOpsX.svg)](https://github.com/8enet/AppOpsX/issues)
+[![Software License](https://img.shields.io/github/license/8enet/AppOpsX.svg)](LICENSE)
+[![Crowdin](https://d322cqt584bo4o.cloudfront.net/appopsx/localized.svg)](https://crowdin.com/project/appopsx)
 
 <a href='https://play.google.com/store/apps/details?id=com.zzzmode.appopsx&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width='150'/></a>
 
@@ -21,8 +23,11 @@
 前端连接到`LocalSocks` 后即可发送命令去类似代理执行一样执行`IAppOpsService`中的方法。
 
 > 所有的设置关闭权限使用了`MODE_IGNORED`，不要使用`MODE_ERRORED`，否则会导致应用设置->应用->配置应用->应用权限崩溃。
-
 如有问题请提issue。
+
+# 翻译 
+您可以通过 [Crowdin](https://crowdin.com/project/appopsx) 帮助此项目翻译多语言。
+
 
 # License
 [MIT License](https://github.com/8enet/AppOpsX/blob/master/LICENSE)
