@@ -2,10 +2,10 @@
 [![Build Status](https://img.shields.io/travis/8enet/AppOpsX.svg)](https://travis-ci.org/8enet/AppOpsX)   [![Release Version](https://img.shields.io/github/release/8enet/AppOpsX.svg)](https://github.com/8enet/AppOpsX/releases) [![Issues](https://img.shields.io/github/issues/8enet/AppOpsX.svg)](https://github.com/8enet/AppOpsX/issues)
 [![Software License](https://img.shields.io/github/license/8enet/AppOpsX.svg)](LICENSE)
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/appopsx/localized.svg)](https://crowdin.com/project/appopsx)
+[![coolapk](https://img.shields.io/badge/coolapk-download-blue.svg)](http://www.coolapk.com/apk/com.zzzmode.appopsx)
 
-<a href='https://play.google.com/store/apps/details?id=com.zzzmode.appopsx&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width='150'/></a>
+<a href='https://play.google.com/store/apps/details?id=com.zzzmode.appopsx'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width='150'/></a>
 
-[酷安](http://www.coolapk.com/apk/com.zzzmode.appopsx)
 
 主要是解决防止国内流氓应用在Android6.0上不给权限就不让用的问题。   
 也可以不root通过`adb shell appops set [--user <USER_ID>] <PACKAGE> <OP> <MODE>` 忽略授予的权限。
