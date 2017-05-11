@@ -23,6 +23,7 @@ public class OpsCommands {
     public static class Builder implements Parcelable {
         private String action=ACTION_GET;
         private String packageName;
+        private int userHandleId;
         private int opInt;
         private int modeInt;
 
@@ -64,11 +65,21 @@ public class OpsCommands {
             return this;
         }
 
+        public int getUserHandleId() {
+            return userHandleId;
+        }
+
+        public Builder setUserHandleId(int uid) {
+            this.userHandleId = uid;
+            return this;
+        }
+
         @Override
         public String toString() {
             return "Builder{" +
                     "action='" + action + '\'' +
                     ", packageName='" + packageName + '\'' +
+                    ", userHandleId=" + userHandleId +
                     ", opInt=" + opInt +
                     ", modeInt=" + modeInt +
                     '}';
@@ -85,6 +96,7 @@ public class OpsCommands {
             dest.writeString(this.packageName);
             dest.writeInt(this.opInt);
             dest.writeInt(this.modeInt);
+            dest.writeInt(this.userHandleId);
         }
 
         public Builder() {
@@ -95,6 +107,7 @@ public class OpsCommands {
             this.packageName = in.readString();
             this.opInt = in.readInt();
             this.modeInt = in.readInt();
+            this.userHandleId = in.readInt();
         }
 
         public static final Creator<Builder> CREATOR = new Creator<Builder>() {

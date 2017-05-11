@@ -15,7 +15,7 @@ import java.io.OutputStream;
  */
 
 public class OpsDataTransfer {
-    public static final String PROTOCOL_VERSION="1.1.1";
+    public static final String PROTOCOL_VERSION="1.1.6";
 
     private DataOutputStream outputStream;
     private DataInputStream inputStream;

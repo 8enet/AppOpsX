@@ -214,7 +214,7 @@ class LocalServerManager {
                             bw.write(s);
                             bw.newLine();
                             line++;
-                            if(line >= 20 || (s !=null && s.startsWith("runGet"))){
+                            if(!mConfig.printLog && (line >= 20 || (s !=null && s.startsWith("runGet")))){
                                 break;
                             }
                         }

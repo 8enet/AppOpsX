@@ -203,19 +203,19 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
                     ServiceManager.getService(Context.APP_OPS_SERVICE));
             String packageName = getBuilder.getPackageName();
 
-            int uid = Helper.getPackageUid(packageName,0);
+            int uid = Helper.getPackageUid(packageName,getBuilder.getUserHandleId());
 
             List opsForPackage = appOpsService.getOpsForPackage(uid, packageName, null);
             List<PackageOps> packageOpses = new ArrayList<>();
             if (opsForPackage != null) {
                 for (Object o : opsForPackage) {
                     PackageOps packageOps = ReflectUtils.opsConvert(o);
-                    addSupport(appOpsService,packageOps);
+                    addSupport(appOpsService,packageOps,getBuilder.getUserHandleId());
                     packageOpses.add(packageOps);
                 }
             }else {
                 PackageOps packageOps=new PackageOps(packageName,uid,new ArrayList<OpEntry>());
-                addSupport(appOpsService,packageOps);
+                addSupport(appOpsService,packageOps,getBuilder.getUserHandleId());
                 packageOpses.add(packageOps);
             }
             if(mPersistenceConfig != null) {
@@ -237,7 +237,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
     }
 
 
-    private void addSupport(IAppOpsService appOpsService, PackageOps ops){
+    private void addSupport(IAppOpsService appOpsService, PackageOps ops,int userHandleId){
         try {
             FLog.log("addSupport  "+mIptablesController);
             if(mIptablesController != null){
@@ -254,7 +254,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
             System.out.println(Log.getStackTraceString(e));
         }
         try {
-            PackageInfo packageInfo = ActivityThread.getPackageManager().getPackageInfo(ops.getPackageName(), PackageManager.GET_PERMISSIONS, 0);
+            PackageInfo packageInfo = ActivityThread.getPackageManager().getPackageInfo(ops.getPackageName(), PackageManager.GET_PERMISSIONS, userHandleId);
             if (packageInfo != null && packageInfo.requestedPermissions != null) {
                 for (String permission : packageInfo.requestedPermissions) {
                     int code = Helper.permissionToCode(permission);
@@ -278,7 +278,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
 
         try {
 
-            final int uid = Helper.getPackageUid(builder.getPackageName(), 0);
+            final int uid = Helper.getPackageUid(builder.getPackageName(), builder.getUserHandleId());
             if(OtherOp.isOtherOp(builder.getOpInt())){
                 setOther(builder,uid);
             }else {
@@ -325,7 +325,7 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
         try {
             final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
                     ServiceManager.getService(Context.APP_OPS_SERVICE));
-            final int uid =  Helper.getPackageUid(builder.getPackageName(), 0);
+            final int uid =  Helper.getPackageUid(builder.getPackageName(), builder.getUserHandleId());
 
             appOpsService.resetAllModes(uid,builder.getPackageName());
             server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));

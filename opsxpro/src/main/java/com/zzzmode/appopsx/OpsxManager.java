@@ -2,15 +2,13 @@ package com.zzzmode.appopsx;
 
 import android.app.AppOpsManager;
 import android.content.Context;
-import android.os.RemoteException;
+import android.os.Process;
 
-import com.zzzmode.android.opsxpro.BuildConfig;
 import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -19,9 +17,13 @@ import java.util.List;
 
 public class OpsxManager {
 
+    private static final String TAG = "OpsxManager";
+
     private Context mContext;
 
     private LocalServerManager mLocalServerManager;
+
+    private int mUserHandleId;
 
     public OpsxManager(Context context){
         this(context,new Config());
@@ -30,8 +32,9 @@ public class OpsxManager {
     public OpsxManager(Context context,Config config){
         mContext=context;
         config.context=mContext;
+        mUserHandleId =Process.myUid() / 100000; //android.os.UserHandle.myUserId()
+        SConfig.init(context, mUserHandleId);
         mLocalServerManager=LocalServerManager.getInstance(config);
-        SConfig.init(context);
         checkFile();
     }
 
@@ -53,6 +56,7 @@ public class OpsxManager {
         OpsCommands.Builder builder=new OpsCommands.Builder();
         builder.setAction(OpsCommands.ACTION_GET);
         builder.setPackageName(packageName);
+        builder.setUserHandleId(mUserHandleId);
         return mLocalServerManager.exec(builder);
     }
 
@@ -62,6 +66,7 @@ public class OpsxManager {
         builder.setPackageName(packageName);
         builder.setOpInt(opInt);
         builder.setModeInt(modeInt);
+        builder.setUserHandleId(mUserHandleId);
         return mLocalServerManager.exec(builder);
     }
 
@@ -69,6 +74,7 @@ public class OpsxManager {
         OpsCommands.Builder builder=new OpsCommands.Builder();
         builder.setAction(OpsCommands.ACTION_RESET);
         builder.setPackageName(packageName);
+        builder.setUserHandleId(mUserHandleId);
         return mLocalServerManager.exec(builder);
     }
 

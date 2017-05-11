@@ -12,7 +12,8 @@ import java.io.File;
 
 class SConfig {
 
-    static final String SOCKET_PATH = "appopsx_zzzmode_socket";
+    static String SOCKET_PATH = "appopsx_zzzmode_socket";
+    static int DEFAULT_ADB_PORT=52053;
     private static final String LOCAL_TOKEN ="l_token";
 
     static final String DIR_NAME="opsx";
@@ -23,12 +24,16 @@ class SConfig {
     private static SharedPreferences sPreferences;
 
 
-    static void init(Context context){
+    static void init(Context context,int userHandleId){
         //sExecPrefix=context.getDir(DIR_NAME,Context.MODE_PRIVATE).getAbsolutePath();
         //destJarFile=new File(context.getDir(DIR_NAME,Context.MODE_PRIVATE),JAR_NAME);
         destJarFile=new File(context.getExternalFilesDir(DIR_NAME),JAR_NAME);
         sClassPath=destJarFile.getAbsolutePath();
         sPreferences = context.getSharedPreferences("sp_app_opsx", Context.MODE_PRIVATE);
+        if(userHandleId != 0) {
+            SOCKET_PATH += userHandleId;
+            DEFAULT_ADB_PORT += userHandleId;
+        }
     }
 
 
@@ -51,7 +56,7 @@ class SConfig {
     }
 
     static int getPort(){
-        return 52053;
+        return DEFAULT_ADB_PORT;
     }
 
 }
