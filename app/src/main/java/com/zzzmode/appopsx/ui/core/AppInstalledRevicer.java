@@ -66,6 +66,7 @@ public class AppInstalledRevicer extends BroadcastReceiver {
                 Intent intent=new Intent(context, AlertInstalledPremActivity.class);
                 intent.putExtra(AlertInstalledPremActivity.EXTRA_APP,value);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 context.startActivity(intent);
             }
 
