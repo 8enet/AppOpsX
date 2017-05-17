@@ -75,12 +75,7 @@
     <android.support.v7.preference.PreferenceCategory
         android:key="about"
         android:title="@string/about">
-
-        <android.support.v7.preference.Preference android:key="version" android:title="@string/version" android:summary="1.0.4">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="market://details?id=com.zzzmode.appopsx"/>
-        </android.support.v7.preference.Preference>
+        <android.support.v7.preference.Preference android:key="version" android:title="@string/version" />
         <android.support.v7.preference.Preference android:key="project" android:summary="https://github.com/8enet/AppOpsX" android:title="Github">
             <intent
                 android:action="android.intent.action.VIEW"

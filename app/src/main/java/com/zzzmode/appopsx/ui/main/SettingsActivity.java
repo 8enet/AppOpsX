@@ -2,7 +2,9 @@ package com.zzzmode.appopsx.ui.main;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -86,7 +88,9 @@ public class SettingsActivity extends BaseActivity {
             findPreference("allow_bg_remote").setOnPreferenceClickListener(this);
             findPreference("project").setOnPreferenceClickListener(this);
 
-            findPreference("version").setSummary(BuildConfig.VERSION_NAME);
+            Preference version = findPreference("version");
+            version.setSummary(BuildConfig.VERSION_NAME);
+            version.setOnPreferenceClickListener(this);
 
 
             findPreference("acknowledgments").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -349,6 +353,18 @@ public class SettingsActivity extends BaseActivity {
 
         }
 
+        private void showVersion(){
+            Intent intent=new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("market://details?id=com.zzzmode.appopsx"));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (!getContext().getPackageManager().queryIntentActivities(intent, 0).isEmpty()) {
+                startActivity(intent);
+            }else {
+                intent.setData(Uri.parse("https://github.com/8enet/AppOpsX"));
+                startActivity(intent);
+            }
+        }
+
         @Override
         public boolean onPreferenceClick(Preference preference) {
             String key=preference.getKey();
@@ -362,6 +378,7 @@ public class SettingsActivity extends BaseActivity {
             }else if ("allow_bg_remote".equals(key)){
                 id=AEvent.C_SETTING_ALLOW_BG;
             }else if("version".equals(key)){
+                showVersion();
                 id=AEvent.C_SETTING_VERSION;
             }else if("project".equals(key)){
                 id=AEvent.C_SETTING_GITHUB;
