@@ -63,7 +63,7 @@ public class LocalImageLoader {
         Drawable drawable = sLruCache.get(appInfo.packageName);
 
 
-        if (drawable == null ) {
+        if (drawable == null && appInfo.applicationInfo != null) {
             drawable = appInfo.applicationInfo.loadIcon(context.getPackageManager());
             sLruCache.put(appInfo.packageName, drawable);
         }
