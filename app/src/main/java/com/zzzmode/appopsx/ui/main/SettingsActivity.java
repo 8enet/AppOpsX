@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.text.TextUtils;
+import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
+import com.zzzmode.appopsx.ui.core.SpHelper;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 import com.zzzmode.appopsx.ui.widget.NumberPickerPreference;
 
@@ -225,23 +227,23 @@ public class SettingsActivity extends BaseActivity {
             AlertDialog.Builder builder =
                     new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.auto_ignore_permission_title);
-            List<OpEntryInfo> localOpEntryInfos = Helper.getLocalOpEntryInfos(getActivity());
+            SparseArray<OpEntryInfo> localOpEntryInfos = Helper.getLocalOpEntryInfos(getActivity());
             int size = localOpEntryInfos.size();
             CharSequence[] items=new CharSequence[size];
 
             boolean[] selected = new boolean[size];
 
             for (int i = 0; i < size; i++) {
-                OpEntryInfo opEntryInfo = localOpEntryInfos.get(i);
+                OpEntryInfo opEntryInfo = localOpEntryInfos.valueAt(i);
                 items[i]=opEntryInfo.opPermsLab;
                 selected[i]=false; //默认关闭
             }
 
-            initCheckd(selected);
+            initCheckd(selected,localOpEntryInfos);
 
             final SparseBooleanArray choiceResult=new SparseBooleanArray();
             for (int i = 0; i < selected.length; i++) {
-                choiceResult.put(i,selected[i]);
+                choiceResult.put(localOpEntryInfos.keyAt(i),selected[i]);
             }
 
             saveChoice(choiceResult);
@@ -262,14 +264,18 @@ public class SettingsActivity extends BaseActivity {
             builder.show();
         }
 
-        private void initCheckd(boolean[] localChecked) {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String result = sp.getString("auto_perm_templete", getActivity().getString(R.string.default_ignored));
+        private void initCheckd(boolean[] localChecked,SparseArray<OpEntryInfo> localOpEntryInfos) {
+            String result = SpHelper.getPermTemplate(getContext());
             String[] split = result.split(",");
             for (String s : split) {
                 try {
                     int i = Integer.parseInt(s);
-                    localChecked[i] = true;
+                    int indexOfKey = localOpEntryInfos.indexOfKey(i);
+                    //indexOfKey=localOpEntryInfos.keyAt(indexOfKey);
+
+                    if(indexOfKey >=0) {
+                        localChecked[i] = true;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -280,15 +286,11 @@ public class SettingsActivity extends BaseActivity {
             StringBuilder sb=new StringBuilder();
             int size = choiceResult.size();
             for (int i = 0; i < size; i++) {
-                if(choiceResult.get(i)){
-                    sb.append(i).append(',');
+                if(choiceResult.valueAt(i)){
+                    sb.append(choiceResult.keyAt(i)).append(',');
                 }
             }
-            String s=sb.toString();
-            if(!TextUtils.isEmpty(s)){
-                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                sp.edit().putString("auto_perm_templete",s).apply();
-            }
+            SpHelper.savePermTemplate(getContext(),sb.toString());
         }
 
         private void showTextDialog(int title, String text) {

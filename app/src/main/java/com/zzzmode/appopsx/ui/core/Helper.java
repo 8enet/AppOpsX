@@ -921,40 +921,54 @@ public class Helper {
 
 
     private static final SparseArray<OpEntryInfo> sOpEntryInfo = new SparseArray<>();
-    private static final SparseIntArray sAllOps = new SparseIntArray();
-    private static final List<OpEntryInfo> sOpEntryInfoList = new ArrayList<>();
+    //private static final SparseIntArray sAllOps = new SparseIntArray();
+    //private static final List<OpEntryInfo> sOpEntryInfoList = new ArrayList<>();
 
-    public static List<OpEntryInfo> getLocalOpEntryInfos(Context context) {
-        if (sOpEntryInfoList.isEmpty()) {
+    public static SparseArray<OpEntryInfo> getLocalOpEntryInfos(Context context) {
+        if (sOpEntryInfo.size() == 0) {
+
+            PackageManager pm = context.getPackageManager();
+
             int[] sOpToSwitch = (int[]) ReflectUtils.getFieldValue(AppOpsManager.class, "sOpToSwitch");
             String[] sOpNames = (String[]) ReflectUtils.getFieldValue(AppOpsManager.class, "sOpNames");
             String[] sOpPerms = (String[]) ReflectUtils.getFieldValue(AppOpsManager.class, "sOpPerms");
             int len = sOpPerms.length;
-            PackageManager pm = context.getPackageManager();
+
             for (int i = 0; i < len; i++) {
-                OpEntry entry = new OpEntry(sOpToSwitch[i], AppOpsManager.MODE_ALLOWED, 0, 0, 0, 0, null);
-                OpEntryInfo opEntryInfo = new OpEntryInfo(entry);
-                opEntryInfo.opName = sOpNames[i];
-                try {
-                    PermissionInfo permissionInfo = pm.getPermissionInfo(sOpPerms[i], 0);
-                    opEntryInfo.opPermsLab = String.valueOf(permissionInfo.loadLabel(pm));
-                    opEntryInfo.opPermsDesc = String.valueOf(permissionInfo.loadDescription(pm));
-                } catch (PackageManager.NameNotFoundException e) {
-                    //ignore
-                    Integer resId = sPermI18N.get(opEntryInfo.opName);
-                    if (resId != null) {
-                        opEntryInfo.opPermsLab = context.getString(resId);
-                        opEntryInfo.opPermsDesc = opEntryInfo.opName;
-                    } else {
-                        opEntryInfo.opPermsLab = opEntryInfo.opName;
-                    }
-                }
-                sOpEntryInfo.put(entry.getOp(), opEntryInfo);
-                sAllOps.put(entry.getOp(), entry.getOp());
-                sOpEntryInfoList.add(opEntryInfo);
+                OpEntryInfo opEntryInfo = generateOpEntryInfo(sOpToSwitch[i],sOpNames[i],sOpPerms[i],context,pm);
+                sOpEntryInfo.put(opEntryInfo.opEntry.getOp(),opEntryInfo);
+                //sOpEntryInfoList.add(opEntryInfo);
+            }
+
+            int[] otherOps={OtherOp.OP_ACCESS_PHONE_DATA,OtherOp.OP_ACCESS_WIFI_NETWORK};
+            for (int op : otherOps) {
+                OpEntryInfo opEntryInfo = generateOpEntryInfo(op, OtherOp.getOpName(op), null, context, pm);
+                sOpEntryInfo.put(opEntryInfo.opEntry.getOp(),opEntryInfo);
+                //sOpEntryInfoList.add(opEntryInfo);
             }
         }
-        return new ArrayList<OpEntryInfo>(sOpEntryInfoList);
+        return sOpEntryInfo.clone();
+    }
+
+    private static OpEntryInfo generateOpEntryInfo(int opCode,String opName,String permName,Context context,PackageManager pm){
+        OpEntry entry = new OpEntry(opCode, AppOpsManager.MODE_ALLOWED, 0, 0, 0, 0, null);
+        OpEntryInfo opEntryInfo = new OpEntryInfo(entry);
+        opEntryInfo.opName = opName;
+        try {
+            PermissionInfo permissionInfo = pm.getPermissionInfo(permName, 0);
+            opEntryInfo.opPermsLab = String.valueOf(permissionInfo.loadLabel(pm));
+            opEntryInfo.opPermsDesc = String.valueOf(permissionInfo.loadDescription(pm));
+        } catch (PackageManager.NameNotFoundException e) {
+            //ignore
+            Integer resId = sPermI18N.get(opEntryInfo.opName);
+            if (resId != null) {
+                opEntryInfo.opPermsLab = context.getString(resId);
+                opEntryInfo.opPermsDesc = opEntryInfo.opName;
+            } else {
+                opEntryInfo.opPermsLab = opEntryInfo.opName;
+            }
+        }
+        return opEntryInfo;
     }
 
 //    public static SparseIntArray getAllowedIgnoreOps(Context context){
@@ -974,8 +988,7 @@ public class Helper {
 //    }
 
     public static SparseIntArray getAllowedIgnoreOps(Context context) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        String result = sp.getString("auto_perm_templete", context.getString(R.string.default_ignored));
+        String result = SpHelper.getPermTemplate(context);
         SparseIntArray ret = new SparseIntArray();
         String[] split = result.split(",");
         for (String s : split) {
