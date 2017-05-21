@@ -1,33 +1,61 @@
 # AppOpsX
-[![Build Status](https://img.shields.io/travis/8enet/AppOpsX.svg)](https://travis-ci.org/8enet/AppOpsX)   [![Release Version](https://img.shields.io/github/release/8enet/AppOpsX.svg)](https://github.com/8enet/AppOpsX/releases) [![Issues](https://img.shields.io/github/issues/8enet/AppOpsX.svg)](https://github.com/8enet/AppOpsX/issues)
-[![Software License](https://img.shields.io/github/license/8enet/AppOpsX.svg)](LICENSE)
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/appopsx/localized.svg)](https://crowdin.com/project/appopsx)
-[![coolapk](https://img.shields.io/badge/coolapk-download-blue.svg)](http://www.coolapk.com/apk/com.zzzmode.appopsx)
+
+---
+
+一个使用appops的GUI权限管理器，能方便的控制权限，避免权限滥用。
+
+---
+
+[![Build Status](https://img.shields.io/travis/8enet/AppOpsX.svg)][1]   [![Release Version](https://img.shields.io/github/release/8enet/AppOpsX.svg)][2] [![Issues](https://img.shields.io/github/issues/8enet/AppOpsX.svg)][3][![Software License](https://img.shields.io/github/license/8enet/AppOpsX.svg)][4]
+[![Crowdin](https://d322cqt584bo4o.cloudfront.net/appopsx/localized.svg)][5]
+[![coolapk](https://img.shields.io/badge/coolapk-download-blue.svg)][6]
 
 <a href='https://play.google.com/store/apps/details?id=com.zzzmode.appopsx'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width='150'/></a>
 
 
-主要是解决防止国内流氓应用在Android6.0上不给权限就不让用的问题。   
-也可以不root通过`adb shell appops set [--user <USER_ID>] <PACKAGE> <OP> <MODE>` 忽略授予的权限。
 
-支持ADB模式，可以在开发者选项中打开[网络ADB调试]功能或者使用电脑`adb tcpip 5555` (也可以手动指定其他端口)后使用。
+### 特点:
+* 快速应用搜索和排序
+* 按权限分组列表
+* 导出/恢复配置数据
+* 自动忽略权限模板设置
+* 多用户支持
+* WiFi/移动数据联网控制
+* 支持ROOT/ADB两种使用模式
+* Android 4.4+
+* ...
 
-`AppOpsX` 现在没有调用appops命令的方式去设置，用的是以root权限启用jar后开放`LocalSocks`通讯的方式去代理修改权限，
-理论上多条执行的时候要比调用命令快，在应用内使用感觉会比较明显，当然底层和appops命令实现一致。
+### 使用方法:
+#### Build:
+    ./gradlew build
+    
+#### 自动关闭权限:
+ * 开启此选项，当新安装应用后，会自动关闭模板中选择的权限，模板可以手动选择。
 
-用法:
-```
-./gradlew build
-```
-将会启动一个`LocalServerSocket`,供client调用。
-前端连接到`LocalSocks` 后即可发送命令去类似代理执行一样执行`IAppOpsService`中的方法。
+#### 使用ADB模式:
+  * 部分支持网络ADB调试手机，在开发者选项中开启，选择端口为5555即可。
+  * 对于不支持网络ADB调试的手机，将手机连接电脑，然后在终端中使用`adb tcpip 5555` 打开端口，然后在应用内使用。
 
-> 所有的设置关闭权限使用了`MODE_IGNORED`，不要使用`MODE_ERRORED`，否则会导致应用设置->应用->配置应用->应用权限崩溃。
-如有问题请提issue。
-
-## 翻译 
-您可以通过 [Crowdin](https://crowdin.com/project/appopsx) 帮助此项目翻译多语言。
+> 默认使用Root，如果没有Root可以选择此模式。出于安全考虑，使用网络ADB时连接成功后应关闭此功能。PC调试模式则最好选择一个非5555端口。
 
 
-## License
-[MIT License](https://github.com/8enet/AppOpsX/blob/master/LICENSE)
+### 翻译
+可以通过 [Crowdin][5] 帮助此项目提供更多语言的翻译。
+
+#### BUG反馈与建议
+请提交 [issues][3] 或者发送邮件To: 
+[zlcn2200@yeah.net][7]
+
+### 贡献
+欢迎提供任何代码,设计,文案,功能特点等的内容。
+
+### License
+[MIT License][4]
+
+[1]: https://travis-ci.org/8enet/AppOpsX
+[2]: https://github.com/8enet/AppOpsX/releases
+[3]: https://github.com/8enet/AppOpsX/issues
+[4]: https://github.com/8enet/AppOpsX/blob/master/LICENSE
+[5]: https://crowdin.com/project/appopsx
+[6]: http://www.coolapk.com/apk/com.zzzmode.appopsx
+[7]: mailto:zlcn2200@yeah.net
