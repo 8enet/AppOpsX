@@ -1,10 +1,8 @@
 # AppOpsX
 
----
-
 一个使用appops的GUI权限管理器，能方便的控制权限，避免权限滥用。
 
----
+
 
 [![Build Status](https://img.shields.io/travis/8enet/AppOpsX.svg)][1]   [![Release Version](https://img.shields.io/github/release/8enet/AppOpsX.svg)][2] [![Issues](https://img.shields.io/github/issues/8enet/AppOpsX.svg)][3][![Software License](https://img.shields.io/github/license/8enet/AppOpsX.svg)][4]
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/appopsx/localized.svg)][5]
