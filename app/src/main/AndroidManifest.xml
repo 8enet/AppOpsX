@@ -27,6 +27,7 @@
         <activity android:name=".ui.main.PermissionGroupActivity" android:configChanges="keyboardHidden|orientation"/>
         <activity android:name=".ui.permission.AlertInstalledPremActivity" android:theme="@style/alert.perm"/>
         <activity android:name=".ui.main.backup.BackupActivity"/>
+        <activity android:name=".ui.main.HtmlActionActivity"/>
 
         <receiver android:name=".ui.core.AppInstalledRevicer" android:enabled="true">
             <intent-filter>

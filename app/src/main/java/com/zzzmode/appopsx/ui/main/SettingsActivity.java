@@ -88,6 +88,10 @@ public class SettingsActivity extends BaseActivity {
             findPreference("allow_bg_remote").setOnPreferenceClickListener(this);
             findPreference("project").setOnPreferenceClickListener(this);
 
+            findPreference("opensource_licenses").setOnPreferenceClickListener(this);
+            findPreference("help").setOnPreferenceClickListener(this);
+            findPreference("translate").setOnPreferenceClickListener(this);
+
             Preference version = findPreference("version");
             version.setSummary(BuildConfig.VERSION_NAME);
             version.setOnPreferenceClickListener(this);
@@ -382,6 +386,20 @@ public class SettingsActivity extends BaseActivity {
                 id=AEvent.C_SETTING_VERSION;
             }else if("project".equals(key)){
                 id=AEvent.C_SETTING_GITHUB;
+            }else if("opensource_licenses".equals(key)){
+                id=AEvent.C_SETTING_OPENSOURCE;
+                Intent intent=new Intent(getContext(),HtmlActionActivity.class);
+                intent.putExtra(Intent.EXTRA_TITLE,preference.getTitle());
+                intent.putExtra(HtmlActionActivity.EXTRA_URL,"file:///android_res/raw/licenses.html");
+                getActivity().startActivity(intent);
+            }else if("help".equals(key)){
+                id=AEvent.C_SETTING_HELP;
+                Intent intent=new Intent(getContext(),HtmlActionActivity.class);
+                intent.putExtra(Intent.EXTRA_TITLE,preference.getTitle());
+                intent.putExtra(HtmlActionActivity.EXTRA_URL,"file:///android_res/raw/help.html");
+                getActivity().startActivity(intent);
+            }else if("translate".equals(key)){
+                id=AEvent.C_SETTING_TRANSLATE;
             }
             if(id != null){
                 ATracker.send(id);

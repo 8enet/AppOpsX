@@ -24,6 +24,9 @@ public class AEvent {
     public static final String C_SETTING_SHOW_LOG="setting_show_log";
     public static final String C_SETTING_CLOSE_SERVER="setting_close_server";
     public static final String C_SETTING_SWITCH_THEME="setting_switch_theme";
+    public static final String C_SETTING_TRANSLATE="setting_translate";
+    public static final String C_SETTING_HELP="setting_help";
+    public static final String C_SETTING_OPENSOURCE="setting_opensource";
 
     public static final String C_APP_IGNOR_ALL="app_ignore_all";
     public static final String C_APP_OPEN_ALL="app_open_all";
