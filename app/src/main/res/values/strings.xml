@@ -38,7 +38,7 @@
     <string name="show_sys_apps_summary">在应用列表中显示系统应用</string>
 
     <string name="use_adb_mode">使用ADB模式</string>
-    <string name="use_adb_mode_summary">使用ADB模式无需Root权限，只要在开发者选择中开启[网络ADB调试]即可\r\n或者连接电脑后输入adb tcpip %1$d</string>
+    <string name="use_adb_mode_summary">使用ADB模式无需Root权限，只要在开发者选项中开启[网络ADB调试]即可\r\n或者连接电脑后输入adb tcpip %1$d</string>
 
     <string name="use_adb_port">选择ADB端口</string>
     <string name="use_adb_port_summary">当前选择连接的adb端口:%1$d</string>
