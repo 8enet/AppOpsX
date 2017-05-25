@@ -42,11 +42,9 @@ import com.zzzmode.appopsx.ui.permission.AppPermissionActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,7 +63,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Function;
-import io.reactivex.functions.Function3;
 import io.reactivex.functions.Predicate;
 import io.reactivex.internal.operators.single.SingleJust;
 import io.reactivex.observers.ResourceSingleObserver;
@@ -81,22 +78,42 @@ public class Helper {
         public static final String AUDIO = "com.zzzmode.appopsx.permission-group.AUDIO";
         public static final String DEVICE = "com.zzzmode.appopsx.permission-group.DEVICE";
         public static final String OTHER = "com.zzzmode.appopsx.permission-group.OTHER";
+        public static final String GPS = "com.zzzmode.appopsx.permission-group.GPS";
+        public static final String CALLPHONE="com.zzzmode.appopsx.permission-group.CALLPHONE";
+        public static final String VIBRATION = "com.zzzmode.appopsx.permission-group.VIBRATION";
+        public static final String NET = "com.zzzmode.appopsx.permission-group.NET";
+        public static final String WIFI = "com.zzzmode.appopsx.permission-group.WIFI";
+        public static final String NFC ="com.zzzmode.appopsx.permission-group.NFC";
+        public static final String SETTINGS ="com.zzzmode.appopsx.permission-group.SETTINGS";
+        public static final String NOTIFICATIONS ="com.zzzmode.appopsx.permission-group.NOTIFICATIONS";
+        public static final String CLIPBOARD ="com.zzzmode.appopsx.permission-group.CLIPBOARD";
+
     }
 
     private static final String[] RE_SORT_GROUPS =
             {
+                    permission_group.GPS,
                     Manifest.permission_group.LOCATION,
                     Manifest.permission_group.CALENDAR,
                     Manifest.permission_group.SMS,
                     Manifest.permission_group.CONTACTS,
                     Manifest.permission_group.CAMERA,
+                    permission_group.CALLPHONE,
                     Manifest.permission_group.PHONE,
                     Manifest.permission_group.STORAGE,
                     Manifest.permission_group.SENSORS,
                     Manifest.permission_group.MICROPHONE,
+                    permission_group.VIBRATION,
+                    permission_group.NET,
+                    permission_group.WIFI,
+                    permission_group.NFC,
+                    permission_group.SETTINGS,
+                    permission_group.NOTIFICATIONS,
+                    permission_group.CLIPBOARD,
                     permission_group.AUDIO,
                     permission_group.DEVICE,
-                    permission_group.OTHER
+                    permission_group.OTHER,
+
             };
 
     private static class PermGroupInfo {
@@ -133,10 +150,16 @@ public class Helper {
         }
 
         FAKE_PERMS_GROUP.put("COARSE_LOCATION", Manifest.permission_group.LOCATION);
-        FAKE_PERMS_GROUP.put("FINE_LOCATION", Manifest.permission_group.LOCATION);
+        FAKE_PERMS_GROUP.put("FINE_LOCATION", permission_group.GPS);
+        FAKE_PERMS_GROUP.put("GPS", permission_group.GPS);
         FAKE_PERMS_GROUP.put("NEIGHBORING_CELLS", Manifest.permission_group.LOCATION);
         FAKE_PERMS_GROUP.put("MONITOR_LOCATION", Manifest.permission_group.LOCATION);
         FAKE_PERMS_GROUP.put("MONITOR_HIGH_POWER_LOCATION", Manifest.permission_group.LOCATION);
+
+        FAKE_PERMS_GROUP.put("READ_CALL_LOG", permission_group.CALLPHONE);
+        FAKE_PERMS_GROUP.put("WRITE_CALL_LOG", permission_group.CALLPHONE);
+        FAKE_PERMS_GROUP.put("CALL_PHONE", permission_group.CALLPHONE);
+        FAKE_PERMS_GROUP.put("PROCESS_OUTGOING_CALLS", permission_group.CALLPHONE);
 
         FAKE_PERMS_GROUP.put("READ_SMS", Manifest.permission_group.SMS);
         FAKE_PERMS_GROUP.put("WRITE_SMS", Manifest.permission_group.SMS);
@@ -172,9 +195,23 @@ public class Helper {
         FAKE_PERMS_GROUP.put("TURN_ON_SCREEN", permission_group.DEVICE);
         FAKE_PERMS_GROUP.put("RUN_IN_BACKGROUND", permission_group.DEVICE);
 
-        FAKE_PERMS_GROUP.put("ACCESS_PHONE_DATA", permission_group.DEVICE);
-        FAKE_PERMS_GROUP.put("ACCESS_WIFI_NETWORK", permission_group.DEVICE);
+        FAKE_PERMS_GROUP.put("ACCESS_PHONE_DATA", permission_group.NET);
+        FAKE_PERMS_GROUP.put("ACCESS_WIFI_NETWORK", permission_group.NET);
 
+        FAKE_PERMS_GROUP.put("VIBRATE", permission_group.VIBRATION);
+
+        FAKE_PERMS_GROUP.put("WIFI_SCAN", permission_group.WIFI);
+        FAKE_PERMS_GROUP.put("WIFI_CHANGE", permission_group.WIFI);
+
+        FAKE_PERMS_GROUP.put("NFC_CHANGE", permission_group.NFC);
+
+        FAKE_PERMS_GROUP.put("WRITE_SETTINGS", permission_group.SETTINGS);
+
+        FAKE_PERMS_GROUP.put("ACCESS_NOTIFICATIONS", permission_group.NOTIFICATIONS);
+        FAKE_PERMS_GROUP.put("POST_NOTIFICATION", permission_group.NOTIFICATIONS);
+
+        FAKE_PERMS_GROUP.put("READ_CLIPBOARD", permission_group.CLIPBOARD);
+        FAKE_PERMS_GROUP.put("WRITE_CLIPBOARD", permission_group.CLIPBOARD);
 
         PERMS_GROUPS.put(Manifest.permission_group.CALENDAR, new PermGroupInfo(null, Manifest.permission_group.CALENDAR, R.drawable.perm_group_calendar));
         PERMS_GROUPS.put(Manifest.permission_group.CAMERA, new PermGroupInfo(null, Manifest.permission_group.CAMERA, R.drawable.perm_group_camera));
@@ -189,6 +226,15 @@ public class Helper {
         PERMS_GROUPS.put(permission_group.AUDIO, new PermGroupInfo(null, permission_group.AUDIO, R.drawable.perm_group_audio));
         PERMS_GROUPS.put(permission_group.DEVICE, new PermGroupInfo(null, permission_group.DEVICE, R.drawable.perm_group_device));
         PERMS_GROUPS.put(permission_group.OTHER, new PermGroupInfo(null, permission_group.OTHER, R.drawable.perm_group_other));
+        PERMS_GROUPS.put(permission_group.GPS, new PermGroupInfo(null,permission_group.GPS,R.drawable.perm_group_gps));
+        PERMS_GROUPS.put(permission_group.CALLPHONE, new PermGroupInfo(null,permission_group.CALLPHONE,R.drawable.perm_group_callphone));
+        PERMS_GROUPS.put(permission_group.VIBRATION, new PermGroupInfo(null,permission_group.VIBRATION,R.drawable.perm_group_vibration));
+        PERMS_GROUPS.put(permission_group.NET, new PermGroupInfo(null,permission_group.NET,R.drawable.perm_group_net));
+        PERMS_GROUPS.put(permission_group.WIFI, new PermGroupInfo(null,permission_group.WIFI,R.drawable.perm_group_wifi));
+        PERMS_GROUPS.put(permission_group.NFC, new PermGroupInfo(null,permission_group.NFC,R.drawable.perm_group_nfc));
+        PERMS_GROUPS.put(permission_group.SETTINGS, new PermGroupInfo(null,permission_group.SETTINGS,R.drawable.perm_group_settings));
+        PERMS_GROUPS.put(permission_group.NOTIFICATIONS, new PermGroupInfo(null,permission_group.NOTIFICATIONS,R.drawable.perm_group_notifications));
+        PERMS_GROUPS.put(permission_group.CLIPBOARD, new PermGroupInfo(null,permission_group.CLIPBOARD,R.drawable.perm_group_clipboard));
 
     }
 
@@ -539,8 +585,10 @@ public class Helper {
                         for (OpEntryInfo opEntryInfo : opEntryInfos) {
                             if (opEntryInfo != null) {
 
+                                groupS = FAKE_PERMS_GROUP.get(opEntryInfo.opName);
+
                                 try {
-                                    if (opEntryInfo.opPermsName != null) {
+                                    if (groupS == null && opEntryInfo.opPermsName != null) {
                                         PermissionInfo permissionInfo = pm.getPermissionInfo(opEntryInfo.opPermsName, PackageManager.GET_META_DATA);
                                         groupS = permissionInfo.group;
                                     }
@@ -548,17 +596,11 @@ public class Helper {
                                     //ignore
                                 }
 
-                                if (groupS == null) {
-                                    groupS = FAKE_PERMS_GROUP.get(opEntryInfo.opName);
-                                }
-
 
                                 PermGroupInfo permGroupInfo = null;
                                 if (groupS != null) {
                                     permGroupInfo = PERMS_GROUPS.get(groupS);
                                 }
-
-                                //Log.e(TAG, "apply --> " + opEntryInfo.opName + "   " + opEntryInfo.opPermsName + "   " + groupS + "   " + opEntryInfo);
 
                                 if (permGroupInfo == null) {
                                     permGroupInfo = OTHER_PERM_INFO;
@@ -732,9 +774,10 @@ public class Helper {
                 PackageManager pm = context.getPackageManager();
                 for (PermissionGroup permissionGroup : permissionGroups) {
 
-                    String groupS = null;
 
-                    if (permissionGroup.opPermsName != null) {
+                    String groupS = FAKE_PERMS_GROUP.get(permissionGroup.opName);
+
+                    if (groupS == null && permissionGroup.opPermsName != null) {
                         try {
                             PermissionInfo permissionInfo = pm.getPermissionInfo(permissionGroup.opPermsName, PackageManager.GET_META_DATA);
                             groupS = permissionInfo.group;
@@ -743,9 +786,7 @@ public class Helper {
                         }
                     }
 
-                    if (groupS == null || OtherOp.isOtherOp(permissionGroup.opName)) {
-                        groupS = FAKE_PERMS_GROUP.get(permissionGroup.opName);
-                    }
+
 
                     PermGroupInfo permGroupInfo = null;
                     if (groupS != null) {
