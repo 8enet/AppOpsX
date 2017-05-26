@@ -51,6 +51,7 @@ public class AlertInstalledPremActivity extends BaseActivity implements IPermVie
 
         mPresenter = new PermPresenter(this, appInfo, getApplicationContext());
         mPresenter.setAutoDisabled(false);
+        mPresenter.setSortByMode(true);
         mPresenter.setUp();
     }
 

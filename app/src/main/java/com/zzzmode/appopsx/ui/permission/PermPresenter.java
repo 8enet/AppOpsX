@@ -22,6 +22,7 @@ import java.util.Map;
 import io.reactivex.Observable;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.ResourceObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -43,62 +44,70 @@ class PermPresenter {
 
     private boolean autoDisabled = true;
 
+    private boolean sortByMode = false;
+
     PermPresenter(IPermView mView, AppInfo appInfo, Context context) {
         this.mView = mView;
         this.context = context;
         this.appInfo = appInfo;
     }
 
+    public void setSortByMode(boolean sortByMode) {
+        this.sortByMode = sortByMode;
+    }
 
     void setUp() {
         mView.showProgress(!AppOpsx.getInstance(context).isRunning());
         load();
     }
 
+    void load(){
+        observable = Helper.getAppPermission(context, appInfo.packageName, PreferenceManager.getDefaultSharedPreferences(context).getBoolean("key_show_no_prems", false));
 
-    void load() {
+        observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<List<OpEntryInfo>>() {
 
-        observable = Helper.getAppPermission(context, appInfo.packageName, PreferenceManager.getDefaultSharedPreferences(context).getBoolean("key_show_no_prems", false))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-        observable.subscribe(new ResourceObserver<List<OpEntryInfo>>() {
+            @Override
+            protected void onStart() {
+                super.onStart();
+            }
 
-                    @Override
-                    protected void onStart() {
-                        super.onStart();
-                    }
+            @Override
+            public void onNext(List<OpEntryInfo> opEntryInfos) {
 
-                    @Override
-                    public void onNext(List<OpEntryInfo> opEntryInfos) {
-                        mView.showProgress(false);
 
-                        if (opEntryInfos != null && !opEntryInfos.isEmpty()) {
-                            if(autoDisabled){
-                                mView.showPerms(opEntryInfos);
-                            } else {
-                                autoDisable();
-                                //mView.showPerms(opEntryInfos);
-                            }
+                if (opEntryInfos != null && !opEntryInfos.isEmpty()) {
+                    if(autoDisabled){
 
-                        } else {
-                            mView.showError(context.getString(R.string.no_perms));
+                        if(sortByMode) {
+                            reSortByModePerms(opEntryInfos);
+                        }else {
+                            mView.showProgress(false);
+                            mView.showPerms(opEntryInfos);
                         }
-                        loadSuccess = true;
+                    } else {
+                        autoDisable();
                     }
 
-                    @Override
-                    public void onError(Throwable e) {
+                } else {
+                    mView.showError(context.getString(R.string.no_perms));
+                }
+                loadSuccess = true;
+            }
 
-                        mView.showError(context.getString(R.string.error_msg, Log.getStackTraceString(e)));
+            @Override
+            public void onError(Throwable e) {
+                mView.showError(context.getString(R.string.error_msg, Log.getStackTraceString(e)));
 
-                        loadSuccess = false;
-                    }
+                loadSuccess = false;
+            }
 
-                    @Override
-                    public void onComplete() {
-                    }
-                });
+            @Override
+            public void onComplete() {
+            }
+        });
     }
+
 
     void setAutoDisabled(boolean autoDisabled) {
         this.autoDisabled = autoDisabled;
@@ -126,6 +135,40 @@ class PermPresenter {
                         load();
                     }
                 });
+    }
+
+
+    void reSortByModePerms(List<OpEntryInfo> list){
+
+        Helper.groupByMode(context,list).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new SingleObserver<List<OpEntryInfo>>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(@NonNull List<OpEntryInfo> opEntryInfos) {
+                mView.showProgress(false);
+
+                if (opEntryInfos != null && !opEntryInfos.isEmpty()) {
+                    mView.showPerms(opEntryInfos);
+                } else {
+                    mView.showError(context.getString(R.string.no_perms));
+                }
+                loadSuccess = true;
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                mView.showProgress(false);
+                mView.showError(context.getString(R.string.error_msg, Log.getStackTraceString(e)));
+
+                loadSuccess = false;
+            }
+        });
+
     }
 
     void switchMode(OpEntryInfo info, boolean v) {

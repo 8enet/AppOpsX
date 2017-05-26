@@ -574,62 +574,8 @@ public class Helper {
                     }
                 }).map(new Function<List<OpEntryInfo>, List<OpEntryInfo>>() {
                     @Override
-                    public List<OpEntryInfo> apply(List<OpEntryInfo> opEntryInfos) throws Exception {
-
-                        //resort
-                        String groupS = null;
-                        PackageManager pm = context.getPackageManager();
-
-                        Map<String, List<OpEntryInfo>> sMap = new HashMap<String, List<OpEntryInfo>>();
-
-                        for (OpEntryInfo opEntryInfo : opEntryInfos) {
-                            if (opEntryInfo != null) {
-
-                                groupS = FAKE_PERMS_GROUP.get(opEntryInfo.opName);
-
-                                try {
-                                    if (groupS == null && opEntryInfo.opPermsName != null) {
-                                        PermissionInfo permissionInfo = pm.getPermissionInfo(opEntryInfo.opPermsName, PackageManager.GET_META_DATA);
-                                        groupS = permissionInfo.group;
-                                    }
-                                } catch (Exception e) {
-                                    //ignore
-                                }
-
-
-                                PermGroupInfo permGroupInfo = null;
-                                if (groupS != null) {
-                                    permGroupInfo = PERMS_GROUPS.get(groupS);
-                                }
-
-                                if (permGroupInfo == null) {
-                                    permGroupInfo = OTHER_PERM_INFO;
-                                }
-
-                                opEntryInfo.icon = permGroupInfo.icon;
-                                opEntryInfo.groupName = permGroupInfo.group;
-
-
-                                List<OpEntryInfo> infos = sMap.get(opEntryInfo.groupName);
-                                if (infos == null) {
-                                    infos = new ArrayList<OpEntryInfo>();
-                                    sMap.put(opEntryInfo.groupName, infos);
-                                }
-                                infos.add(opEntryInfo);
-
-                            }
-                        }
-
-
-                        List<OpEntryInfo> infoList = new ArrayList<OpEntryInfo>();
-                        for (String string : RE_SORT_GROUPS) {
-                            List<OpEntryInfo> infos = sMap.get(string);
-                            if (infos != null) {
-                                infoList.addAll(infos);
-                            }
-                        }
-
-                        return infoList;
+                    public List<OpEntryInfo> apply(@NonNull List<OpEntryInfo> opEntryInfos) throws Exception {
+                        return sortPermsFunction(context,opEntryInfos);
                     }
                 });
     }
@@ -1113,6 +1059,101 @@ public class Helper {
                 return appInfos;
             }
         };
+    }
+
+
+    public  static List<OpEntryInfo> sortPermsFunction(Context context,List<OpEntryInfo> opEntryInfos){
+        //resort
+        String groupS = null;
+        PackageManager pm = context.getPackageManager();
+
+        Map<String, List<OpEntryInfo>> sMap = new HashMap<String, List<OpEntryInfo>>();
+
+        for (OpEntryInfo opEntryInfo : opEntryInfos) {
+            if (opEntryInfo != null) {
+
+                groupS = FAKE_PERMS_GROUP.get(opEntryInfo.opName);
+
+                try {
+                    if (groupS == null && opEntryInfo.opPermsName != null) {
+                        PermissionInfo permissionInfo = pm.getPermissionInfo(opEntryInfo.opPermsName, PackageManager.GET_META_DATA);
+                        groupS = permissionInfo.group;
+                    }
+                } catch (Exception e) {
+                    //ignore
+                }
+
+                PermGroupInfo permGroupInfo = null;
+                if (groupS != null) {
+                    permGroupInfo = PERMS_GROUPS.get(groupS);
+                }
+
+                if (permGroupInfo == null) {
+                    permGroupInfo = OTHER_PERM_INFO;
+                }
+
+                opEntryInfo.icon = permGroupInfo.icon;
+                opEntryInfo.groupName = permGroupInfo.group;
+
+
+                List<OpEntryInfo> infos = sMap.get(opEntryInfo.groupName);
+                if (infos == null) {
+                    infos = new ArrayList<OpEntryInfo>();
+                    sMap.put(opEntryInfo.groupName, infos);
+                }
+                infos.add(opEntryInfo);
+
+            }
+        }
+
+
+        List<OpEntryInfo> infoList = new ArrayList<OpEntryInfo>();
+        for (String string : RE_SORT_GROUPS) {
+            List<OpEntryInfo> infos = sMap.get(string);
+            if (infos != null) {
+                infoList.addAll(infos);
+            }
+        }
+
+        return infoList;
+    }
+
+
+    public static Single<List<OpEntryInfo>> groupByMode(final Context context,List<OpEntryInfo> list){
+
+        return Observable.fromIterable(list).collect(new Callable<List<OpEntryInfo>[]>() {
+            @Override
+            public List<OpEntryInfo>[] call() throws Exception {
+                return new List[2];
+            }
+        }, new BiConsumer<List<OpEntryInfo>[], OpEntryInfo>() {
+            @Override
+            public void accept(List<OpEntryInfo>[] lists, OpEntryInfo opEntryInfo) throws Exception {
+                if (opEntryInfo != null) {
+                    int idx = opEntryInfo.mode == AppOpsManager.MODE_ALLOWED ? 0 : 1;
+                    List<OpEntryInfo> list = lists[idx];
+                    if (list == null) {
+                        list = new ArrayList<OpEntryInfo>();
+                        lists[idx] = list;
+                    }
+                    list.add(opEntryInfo);
+                }
+            }
+        }).map(new Function<List<OpEntryInfo>[], List<OpEntryInfo>>() {
+            @Override
+            public List<OpEntryInfo> apply(@NonNull List<OpEntryInfo>[] lists) throws Exception {
+
+                List<OpEntryInfo> ret=new ArrayList<OpEntryInfo>();
+                if(lists != null){
+                    for (List<OpEntryInfo> list : lists) {
+                        if(list != null) {
+                            ret.addAll(Helper.sortPermsFunction(context, list));
+                        }
+                    }
+                }
+                return ret;
+            }
+        });
     }
 
 }
