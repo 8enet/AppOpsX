@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_open_all"  app:showAsAction="never|collapseActionView" android:title="@string/open_all_perms"/>
+    <item android:id="@+id/action_close_all"  app:showAsAction="never|collapseActionView" android:title="@string/close_all_perms"/>
+
+</menu>

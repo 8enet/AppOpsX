@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -41,7 +42,9 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class PermissionGroupActivity extends BaseActivity implements RecyclerViewExpandableItemManager.OnGroupCollapseListener,
-        RecyclerViewExpandableItemManager.OnGroupExpandListener{
+        RecyclerViewExpandableItemManager.OnGroupExpandListener,
+        PopupMenu.OnMenuItemClickListener,
+PopupMenu.OnDismissListener{
     private static final String SAVED_STATE_EXPANDABLE_ITEM_MANAGER = "RecyclerViewExpandableItemManager";
 
     private static final String TAG = "PermissionGroupActivity";
@@ -82,23 +85,21 @@ public class PermissionGroupActivity extends BaseActivity implements RecyclerVie
         mRecyclerViewExpandableItemManager.setOnGroupExpandListener(this);
         mRecyclerViewExpandableItemManager.setOnGroupCollapseListener(this);
 
-        myItemAdapter = new PermissionGroupAdapter();
+        myItemAdapter = new PermissionGroupAdapter(mRecyclerViewExpandableItemManager);
         myItemAdapter.setHasStableIds(true);
         myItemAdapter.setListener(new PermissionGroupAdapter.OnSwitchItemClickListener() {
             @Override
             public void onSwitch(int groupPosition, int childPosition, PermissionChildItem info, boolean v) {
                 changeMode(groupPosition, childPosition, info);
             }
-        }, new View.OnCreateContextMenuListener() {
+        }, new PermissionGroupAdapter.OnGroupOtherClickListener() {
             @Override
-            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                v.setFocusableInTouchMode(false);
-
-                contextGroupPosition= (int) v.getTag(R.id.groupPosition);
-                menu.add(0, R.id.action_open_all, 0, R.string.open_all_perms);
-                menu.add(0, R.id.action_close_all, 1, R.string.close_all_perms);
+            public void onOtherClick(int groupPosition, View view) {
+                contextGroupPosition= groupPosition;
+                showPopMenu(groupPosition,view);
             }
         });
+
 
 
         recyclerView.setLayoutManager(mLayoutManager);
@@ -112,6 +113,14 @@ public class PermissionGroupActivity extends BaseActivity implements RecyclerVie
         init();
     }
 
+
+    private void showPopMenu(int groupPosition, View view){
+        PopupMenu popupMenu=new PopupMenu(this,view);
+        getMenuInflater().inflate(R.menu.group_item_menu,popupMenu.getMenu());
+        popupMenu.setOnDismissListener(this);
+        popupMenu.setOnMenuItemClickListener(this);
+        popupMenu.show();
+    }
 
     private void changeMode(final int groupPosition,final int childPosition,final PermissionChildItem info){
 
@@ -153,27 +162,6 @@ public class PermissionGroupActivity extends BaseActivity implements RecyclerVie
                     SAVED_STATE_EXPANDABLE_ITEM_MANAGER,
                     mRecyclerViewExpandableItemManager.getSavedState());
         }
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.action_close_all:
-                changeAll(AppOpsManager.MODE_IGNORED);
-                ATracker.send(AEvent.C_GROUP_IGNORE_ALL);
-                return true;
-            case R.id.action_open_all:
-                changeAll(AppOpsManager.MODE_ALLOWED);
-                ATracker.send(AEvent.C_GROUP_OPEN_ALL);
-                return true;
-        }
-        return super.onContextItemSelected(item);
-    }
-
-    @Override
-    public void onContextMenuClosed(Menu menu) {
-        super.onContextMenuClosed(menu);
-        contextGroupPosition=-1;
     }
 
     @Override
@@ -310,4 +298,23 @@ public class PermissionGroupActivity extends BaseActivity implements RecyclerVie
         }
     }
 
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_close_all:
+                changeAll(AppOpsManager.MODE_IGNORED);
+                ATracker.send(AEvent.C_GROUP_IGNORE_ALL);
+                return true;
+            case R.id.action_open_all:
+                changeAll(AppOpsManager.MODE_ALLOWED);
+                ATracker.send(AEvent.C_GROUP_OPEN_ALL);
+                return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    @Override
+    public void onDismiss(PopupMenu menu) {
+        contextGroupPosition = -1;
+    }
 }

@@ -1,6 +1,7 @@
 package com.zzzmode.appopsx.ui.main;
 
 import android.support.annotation.IntRange;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -11,8 +12,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.h6ah4i.android.widget.advrecyclerview.expandable.ExpandableItemConstants;
+import com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandableItemManager;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemAdapter;
 import com.h6ah4i.android.widget.advrecyclerview.utils.AbstractExpandableItemViewHolder;
+import com.h6ah4i.android.widget.advrecyclerview.utils.RecyclerViewAdapterUtils;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.core.LocalImageLoader;
 import com.zzzmode.appopsx.ui.model.PermissionChildItem;
@@ -29,9 +32,16 @@ class PermissionGroupAdapter extends AbstractExpandableItemAdapter<PermissionGro
 
 
     private PermissionGroupAdapter.OnSwitchItemClickListener listener;
-    private View.OnCreateContextMenuListener mOnCreateContextMenuListener;
-
+    private OnGroupOtherClickListener mOnGroupOtherClickListener;
     private List<PermissionGroup> mData;
+
+
+    private RecyclerViewExpandableItemManager mExpandableItemManager = null;
+
+
+    PermissionGroupAdapter(RecyclerViewExpandableItemManager expandableItemManager) {
+        mExpandableItemManager = expandableItemManager;
+    }
 
     public void setData(List<PermissionGroup> data) {
         this.mData = data;
@@ -48,9 +58,9 @@ class PermissionGroupAdapter extends AbstractExpandableItemAdapter<PermissionGro
         }
     }
 
-    void setListener(OnSwitchItemClickListener listener,View.OnCreateContextMenuListener onCreateContextMenuListener) {
+    void setListener(OnSwitchItemClickListener listener,OnGroupOtherClickListener onGroupOtherClickListener) {
         this.listener = listener;
-        this.mOnCreateContextMenuListener=onCreateContextMenuListener;
+        this.mOnGroupOtherClickListener=onGroupOtherClickListener;
     }
 
 
@@ -95,12 +105,16 @@ class PermissionGroupAdapter extends AbstractExpandableItemAdapter<PermissionGro
         }
         holder.groupIcon.setImageResource(permissionGroup.icon);
 
-        holder.itemView.setTag(R.id.groupPosition,groupPosition);
-        holder.itemView.setOnCreateContextMenuListener(mOnCreateContextMenuListener);
 
+        holder.itemView.setTag(R.id.groupPosition,groupPosition);
+
+        holder.itemView.setTag(holder);
+        holder.itemView.setOnClickListener(this);
 
         holder.tvCount.setText(holder.itemView.getResources().getString(R.string.permission_count,permissionGroup.grants,permissionGroup.count));
 
+        holder.imgMenu.setTag(holder);
+        holder.imgMenu.setOnClickListener(this);
 
         final int expandState = holder.getExpandStateFlags();
 
@@ -108,6 +122,8 @@ class PermissionGroupAdapter extends AbstractExpandableItemAdapter<PermissionGro
             boolean isExpanded=(expandState & ExpandableItemConstants.STATE_FLAG_IS_EXPANDED) != 0;
             boolean animateIndicator = ((expandState & ExpandableItemConstants.STATE_FLAG_HAS_EXPANDED_STATE_CHANGED) != 0);
             holder.indicator.setExpandedState(isExpanded, animateIndicator);
+
+            holder.imgMenu.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         }
 
     }
@@ -138,13 +154,45 @@ class PermissionGroupAdapter extends AbstractExpandableItemAdapter<PermissionGro
 
     @Override
     public boolean onCheckCanExpandOrCollapseGroup(GroupViewHolder holder, int groupPosition, int x, int y, boolean expand) {
-        return true;
+        return false;
     }
 
     @Override
     public void onClick(View v) {
+
+        Object tag = v.getTag();
+        if(tag instanceof RecyclerView.ViewHolder){
+            int flatPosition = ((RecyclerView.ViewHolder) v.getTag()).getAdapterPosition();
+
+            if (flatPosition == RecyclerView.NO_POSITION) {
+                return;
+            }
+
+            long expandablePosition = mExpandableItemManager.getExpandablePosition(flatPosition);
+            int groupPosition = RecyclerViewExpandableItemManager.getPackedPositionGroup(expandablePosition);
+            int childPosition = RecyclerViewExpandableItemManager.getPackedPositionChild(expandablePosition);
+
+            switch (v.getId()){
+                case R.id.layout_group_item:
+                    // toggle expanded/collapsed
+                    if (mExpandableItemManager.isGroupExpanded(groupPosition)) {
+                        mExpandableItemManager.collapseGroup(groupPosition);
+                    } else {
+                        mExpandableItemManager.expandGroup(groupPosition);
+                    }
+                    break;
+                case R.id.img_menu_ups:
+                    if(mOnGroupOtherClickListener != null){
+                        mOnGroupOtherClickListener.onOtherClick(groupPosition,v);
+                    }
+                    break;
+            }
+        }
+
         if(v.getTag() instanceof ChildViewHolder){
             ((ChildViewHolder) v.getTag()).switchCompat.toggle();
+        }else if(v.getId() == R.id.img_menu_ups){
+
         }
     }
 
@@ -164,6 +212,7 @@ class PermissionGroupAdapter extends AbstractExpandableItemAdapter<PermissionGro
         TextView tvCount;
         ImageView groupIcon;
         ExpandableItemIndicator indicator;
+        ImageView imgMenu;
 
         public GroupViewHolder(View itemView) {
             super(itemView);
@@ -171,6 +220,7 @@ class PermissionGroupAdapter extends AbstractExpandableItemAdapter<PermissionGro
             tvCount= (TextView) itemView.findViewById(R.id.tv_permission_count);
             indicator= (ExpandableItemIndicator) itemView.findViewById(R.id.indicator);
             groupIcon= (ImageView) itemView.findViewById(R.id.img_group);
+            imgMenu = (ImageView) itemView.findViewById(R.id.img_menu_ups);
         }
     }
 
@@ -188,7 +238,11 @@ class PermissionGroupAdapter extends AbstractExpandableItemAdapter<PermissionGro
         }
     }
 
-    public interface OnSwitchItemClickListener{
+    interface OnSwitchItemClickListener{
         void onSwitch(int groupPosition, int childPosition, PermissionChildItem item, boolean v);
+    }
+
+    interface OnGroupOtherClickListener{
+        void onOtherClick(int groupPosition,View view);
     }
 }

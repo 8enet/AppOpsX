@@ -7,6 +7,7 @@
     android:paddingBottom="10dp"
     android:clickable="true"
     android:background="?android:attr/selectableItemBackground"
+    android:id="@+id/layout_child_item"
     >
 
     <ImageView
