@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_group_item"
     android:orientation="horizontal"
     android:layout_width="match_parent"
@@ -9,8 +8,7 @@
     android:clickable="true"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
-    android:background="?android:attr/selectableItemBackground"
-    >
+    android:background="?attr/selectableItemBackground">
 
     <com.zzzmode.appopsx.ui.widget.ExpandableItemIndicator
         android:id="@+id/indicator"
@@ -22,7 +20,7 @@
         />
 
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/img_menu_ups"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -32,11 +30,10 @@
         android:layout_toLeftOf="@id/indicator"
         android:clickable="true"
         app:srcCompat="@drawable/ic_md_menu"
-        tools:targetApi="LOLLIPOP"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:background="?attr/selectableItemBackgroundBorderless"
         />
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/img_group"
         android:layout_width="24dp"
         android:layout_height="24dp"
