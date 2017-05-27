@@ -73,7 +73,7 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/8enet/AppOpsX"/>
         </android.support.v7.preference.Preference>
-        <android.support.v7.preference.Preference android:key="translate" android:title="翻译" android:summary="https://crowdin.com/project/appopsx">
+        <android.support.v7.preference.Preference android:key="translate" android:title="@string/translate" android:summary="https://crowdin.com/project/appopsx">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://crowdin.com/project/appopsx"/>
@@ -89,10 +89,10 @@
             android:key="close_server"
             android:title="@string/close_bg_server_summary"
             android:summary="@string/close_bg_server_title" />
-        <android.support.v7.preference.Preference android:key="acknowledgments" android:summary="感谢大家提出的反馈意见和帮助" android:title="特别鸣谢"/>
-        <android.support.v7.preference.Preference android:key="show_log" android:title="显示日志"/>
-        <android.support.v7.preference.Preference android:key="help" android:title="帮助"/>
-        <android.support.v7.preference.Preference android:key="opensource_licenses" android:title="开放源代码许可"/>
+        <android.support.v7.preference.Preference android:key="acknowledgments" android:summary="@string/acknowledgment_description" android:title="@string/acknowledgment"/>
+        <android.support.v7.preference.Preference android:key="show_log" android:title="@string/show_log"/>
+        <android.support.v7.preference.Preference android:key="help" android:title="@string/help"/>
+        <android.support.v7.preference.Preference android:key="opensource_licenses" android:title="@string/open_source"/>
     </android.support.v7.preference.PreferenceCategory>
 
 </android.support.v7.preference.PreferenceScreen>

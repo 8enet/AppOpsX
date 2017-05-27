@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.zzzmode.appopsx.OpsxManager;
+import com.zzzmode.appopsx.R;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -87,7 +88,7 @@ public class AppOpsx {
 
         }else {
 
-            sb.append("没有日志");
+            sb.append(context.getString(R.string.log_empty));
         }
 
         return sb.toString();

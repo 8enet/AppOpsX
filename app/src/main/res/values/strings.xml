@@ -33,6 +33,8 @@
     <string name="allow_bg_remote_summary">允许后台运行可以减少申请root弹窗授权的次数，部分手机上SuperSU全局默认允许AppOpsX时也会经常出现授权提示。</string>
 
     <string name="show_log">显示日志</string>
+    <string name="log_empty">没有日志</string>
+
 
     <string name="show_sys_apps">显示系统应用</string>
     <string name="show_sys_apps_summary">在应用列表中显示系统应用</string>
@@ -105,5 +107,12 @@
     <string name="dlg_delete_msg">确定删除此备份文件吗?\n %1$s </string>
     <string name="dlg_restore_msg">确定使用此备份文件恢复吗?\n %1$s </string>
     <string name="delete">删除</string>
+
+
+    <string name="translate">翻译</string>
+    <string name="help">帮助</string>
+    <string name="open_source">开放源代码许可</string>
+    <string name="acknowledgment">特别鸣谢</string>
+    <string name="acknowledgment_description">感谢大家提出的反馈意见和帮助</string>
 
 </resources>
