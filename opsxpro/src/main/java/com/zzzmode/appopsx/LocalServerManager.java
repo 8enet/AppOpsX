@@ -211,8 +211,10 @@ class LocalServerManager {
                         while (!adbStream.isClosed()) {
                             Log.e(TAG, "log run --> " + s);
                             s = reader.readLine();
-                            bw.write(s);
-                            bw.newLine();
+                            if(s != null) {
+                                bw.write(s);
+                                bw.newLine();
+                            }
                             line++;
                             if(!mConfig.printLog && (line >= 20 || (s !=null && s.startsWith("runGet")))){
                                 break;
@@ -310,7 +312,7 @@ class LocalServerManager {
                             while (s != null) {
                                 Log.e(TAG, "log run --> " + s);
                                 s = inputStream.readLine();
-                                if(saveLog) {
+                                if(saveLog && s != null) {
                                     bw.write(s);
                                     bw.newLine();
                                 }
