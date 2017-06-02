@@ -15,10 +15,10 @@
     </string-array>
 
     <string-array name="app_sort_type">
-        <item>按名称排序(字母在前)</item>
-        <item>按名称排序(字母在后)</item>
-        <item>按安装时间排序</item>
-        <item>按最后更新时间排序</item>
+        <item>@string/sort_by_name_first_letter</item>
+        <item>@string/sort_by_name_last_letter</item>
+        <item>@string/sort_by_installed_time</item>
+        <item>@string/sort_by_last_updated_time</item>
     </string-array>
 
 </resources>

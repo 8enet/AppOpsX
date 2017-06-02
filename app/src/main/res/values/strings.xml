@@ -115,4 +115,11 @@
     <string name="acknowledgment">特别鸣谢</string>
     <string name="acknowledgment_description">感谢大家提出的反馈意见和帮助</string>
 
+
+
+    <string name="sort_by_name_first_letter">按名称排序(字母在前)</string>
+    <string name="sort_by_name_last_letter">按名称排序(字母在后)</string>
+    <string name="sort_by_installed_time">按安装时间排序</string>
+    <string name="sort_by_last_updated_time">按最后更新时间排序</string>
+
 </resources>
