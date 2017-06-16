@@ -28,6 +28,7 @@ import com.zzzmode.appopsx.ui.core.LangHelper;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 import com.zzzmode.appopsx.ui.widget.NumberPickerPreference;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.SingleEmitter;
@@ -356,6 +357,7 @@ public class SettingsActivity extends BaseActivity {
                     String language = getResources().getStringArray(R.array.languages_key)[selected[0]];
                     PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putString(preference.getKey(),language).apply();
                     preference.setSummary(getResources().getStringArray(R.array.languages)[selected[0]]);
+                    ATracker.send(AEvent.C_LANG, Collections.singletonMap("lang",language));
                     switchLanguage();
                 }
             });
@@ -447,6 +449,7 @@ public class SettingsActivity extends BaseActivity {
             }else if("translate".equals(key)){
                 id=AEvent.C_SETTING_TRANSLATE;
             }else if("pref_app_language".equals(key)){
+                id = AEvent.C_SETTING_LANGUAGE;
                 showLanguageDialog(preference);
             }
             if(id != null){

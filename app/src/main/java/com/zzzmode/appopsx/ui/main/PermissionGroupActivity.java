@@ -96,6 +96,7 @@ PopupMenu.OnDismissListener{
             @Override
             public void onOtherClick(int groupPosition, View view) {
                 contextGroupPosition= groupPosition;
+                ATracker.send(AEvent.C_GROUP_MENU);
                 showPopMenu(groupPosition,view);
             }
         });
