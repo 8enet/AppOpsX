@@ -56,6 +56,7 @@ public class AppOpsx {
         config.logFile=context.getFileStreamPath(LOG_FILE).getAbsolutePath();
         config.useAdb=sp.getBoolean("use_adb", false);
         config.adbPort=sp.getInt("use_adb_port",5555);
+        config.rootOverAdb = sp.getBoolean("allow_root_over_adb",false);
         Log.e("test", "buildConfig --> "+context.getFileStreamPath(LOG_FILE).getAbsolutePath());
     }
 

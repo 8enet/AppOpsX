@@ -126,6 +126,7 @@ public class OpsxManager {
         public String logFile;
         public boolean printLog=false;
         public boolean useAdb=false;
+        public boolean rootOverAdb = false;
         public String adbHost="127.0.0.1";
         public int adbPort=5555;
         Context context;

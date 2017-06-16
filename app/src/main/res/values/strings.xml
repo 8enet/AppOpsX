@@ -61,6 +61,8 @@
 
 
     <string name="accessibility_description">此辅助服务仅用于保持进程存活，</string>
+    <string name="root_over_adb_mode">Root兼容模式</string>
+    <string name="root_over_adb_mode_summary">Root模式不能正常使用时可以开启此选型</string>
 
     <string name="disable_toast">已忽略[ %1$s ]的 %2$d 权限</string>
     <string name="permission_count">已授权 %1$d 个应用 (共 %2$d 个)</string>

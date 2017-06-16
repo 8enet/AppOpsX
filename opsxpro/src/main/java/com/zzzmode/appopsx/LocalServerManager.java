@@ -26,7 +26,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -98,13 +100,13 @@ class LocalServerManager {
         return mClientThread.exec(builder);
     }
 
-    private String[] getCommonds(){
+    private List<String> getCommonds(){
         String arch = AssetsUtils.is64Bit() ? "64" : "";
 
         StringBuilder sb=new StringBuilder();
 
         sb.append("type:");
-        if(mConfig.useAdb){
+        if(mConfig.useAdb || mConfig.rootOverAdb){
             sb.append("adb");
             sb.append(",path:"+SConfig.getPort());
         }else {
@@ -121,20 +123,22 @@ class LocalServerManager {
             sb.append(",debug:1");
         }
 
-        if(mConfig.useAdb){
+        if(mConfig.useAdb || mConfig.rootOverAdb){
             sb.append("   & ");
         }
 
         Log.e(TAG, "getCommonds --> "+sb);
 
-        return new String[] {"export LD_LIBRARY_PATH=" + String.format("/vendor/lib%1$s:/system/lib%2$s", arch, arch),
-                "export CLASSPATH=" + SConfig.getClassPath(),
-                "echo start",
-                "id",
-                "exec  app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ " + sb.toString(),
-                };
+        List<String> cmds=new ArrayList<>();
+        cmds.add("export LD_LIBRARY_PATH=" + String.format("/vendor/lib%1$s:/system/lib%2$s", arch, arch));
+        cmds.add("export CLASSPATH=" + SConfig.getClassPath());
+        cmds.add("echo start");
+        cmds.add("id");
+        cmds.add("exec  app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ " + sb.toString());
 
+        return cmds;
     }
+
     private AdbConnection connection;
     private AdbStream adbStream;
     private boolean useAdbStartServer() throws Exception{
@@ -240,7 +244,7 @@ class LocalServerManager {
         SystemClock.sleep(100);
         adbStream.write("id\n".getBytes());
         SystemClock.sleep(100);
-        String[] cmds = getCommonds();
+        List<String> cmds = getCommonds();
 
         StringBuilder sb=new StringBuilder();
         for (String cmd : cmds) {
@@ -280,7 +284,47 @@ class LocalServerManager {
 
             writer = new BufferedWriter(new OutputStreamWriter(exec.getOutputStream()));
 
-            String[] cmds = getCommonds();
+            List<String> cmds = getCommonds();
+
+            //部分情况下selinux导致执行失败 exec  app_process
+            if(mConfig.rootOverAdb){
+                cmds.clear();
+
+                cmds.add("echo 'root over adb mode'");
+                cmds.add("getenforce");
+                cmds.add("setprop service.adb.tcp.port "+mConfig.adbPort);
+                cmds.add("stop adbd");
+                cmds.add("start adbd");
+                cmds.add("echo $?");
+                cmds.add("echo end");
+
+                final BufferedWriter waitWriter = writer;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SystemClock.sleep(1000 * 20);
+                        try {
+                            Log.e(TAG, "run --> stop adb ");
+                            String[] cls = {"echo 'stop adb!!!'",
+                                    "setprop service.adb.tcp.port -1",
+                                    "stop adbd",
+                                    "start adbd",
+                                    "getprop service.adb.tcp.port"};
+                            for (String cmd : cls) {
+                                waitWriter.write(cmd);
+                                waitWriter.newLine();
+                                waitWriter.flush();
+                            }
+                            waitWriter.flush();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }).start();
+
+            }
 
             for (String cmd : cmds) {
                 writer.write(cmd);
@@ -341,6 +385,12 @@ class LocalServerManager {
             }
 
             SystemClock.sleep(3000);
+
+
+            if(mConfig.rootOverAdb){
+                Log.e(TAG, "startServer --- use root over adb,open adb server----");
+                return useAdbStartServer();
+            }
 
             Log.e(TAG, "startServer -->ROOT server start ----- ");
 
@@ -428,7 +478,7 @@ class LocalServerManager {
                 try {
                     OutputStream os=null;
                     InputStream is=null;
-                    if(mConfig.useAdb){
+                    if(mConfig.useAdb || mConfig.rootOverAdb ){
                         Socket socket=new Socket("127.0.0.1",SConfig.getPort());
                         os=socket.getOutputStream();
                         is=socket.getInputStream();
@@ -447,6 +497,7 @@ class LocalServerManager {
                     isRunning = true;
                 } catch (IOException e) {
                     e.printStackTrace();
+                    isRunning = false;
                     if (retryCount >= 0) {
                         try {
                             startServer();

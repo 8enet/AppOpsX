@@ -36,6 +36,12 @@
             android:title="@string/allow_bg_remote"
             android:summary="@string/allow_bg_remote_summary" />
 
+        <android.support.v7.preference.CheckBoxPreference
+            android:defaultValue="false"
+            android:key="allow_root_over_adb"
+            android:title="@string/root_over_adb_mode"
+            android:summary="@string/root_over_adb_mode_summary" />
+
     </android.support.v7.preference.PreferenceCategory>
 
     <android.support.v7.preference.PreferenceCategory android:key="app_ui" android:title="@string/app_ui">
