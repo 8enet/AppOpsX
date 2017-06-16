@@ -117,6 +117,9 @@ public class OpsxManager {
         LocalServerManager.closeBgServer();
     }
 
+    public static boolean isEnableSELinux(){
+        return AssetsUtils.isEnableSELinux();
+    }
 
     public static class Config{
         public boolean allowBgRunning=false;

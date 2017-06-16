@@ -61,6 +61,12 @@ public class AppOpsx {
 
     public static String readLogs(Context context){
         StringBuilder sb=new StringBuilder();
+        sb.append("SELinux:");
+        if(OpsxManager.isEnableSELinux()){
+            sb.append("Enforcing");
+        }
+        sb.append("\n\n");
+
         File file = context.getFileStreamPath(LOG_FILE);
         if(file.exists()){
             BufferedReader br=null;
