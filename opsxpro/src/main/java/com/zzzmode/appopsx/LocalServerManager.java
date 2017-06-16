@@ -78,7 +78,7 @@ class LocalServerManager {
                 Log.e(TAG, "start --> server alread start !!!!!");
             } else {
                 startServer();
-                mClientThread.start(10,true);
+                mClientThread.start(5,true);
             }
         }
     }
@@ -123,9 +123,9 @@ class LocalServerManager {
             sb.append(",debug:1");
         }
 
-        if(mConfig.useAdb || mConfig.rootOverAdb){
+        //if(mConfig.useAdb || mConfig.rootOverAdb){
             sb.append("   & ");
-        }
+        //}
 
         Log.e(TAG, "getCommonds --> "+sb);
 
@@ -264,11 +264,12 @@ class LocalServerManager {
     private boolean useRootStartServer() throws Exception{
         BufferedWriter writer = null;
         RootChecker checker = null;
+        Process exec = null;
         try {
 
             Log.e(TAG, "useRootStartServer --> ");
 
-            Process exec = Runtime.getRuntime().exec("su");
+            exec = Runtime.getRuntime().exec("su");
             checker = new RootChecker(exec);
             checker.start();
 
@@ -299,6 +300,7 @@ class LocalServerManager {
                 cmds.add("echo end");
 
                 final BufferedWriter waitWriter = writer;
+                final Process waitProcess = exec;
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -319,6 +321,12 @@ class LocalServerManager {
 
                         } catch (Exception e) {
                             e.printStackTrace();
+                        }finally {
+                            try {
+                                waitProcess.destroy();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
 
                     }
@@ -402,13 +410,13 @@ class LocalServerManager {
             }
             throw e;
         } finally {
-//            try {
-//                if(exec != null){
-//                    exec.destroy();
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
+            try {
+                if(exec != null && !mConfig.rootOverAdb){
+                    exec.destroy();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -497,11 +505,11 @@ class LocalServerManager {
                     isRunning = true;
                 } catch (IOException e) {
                     e.printStackTrace();
-                    isRunning = false;
                     if (retryCount >= 0) {
                         try {
-                            startServer();
                             isRunning = false;
+                            startServer();
+
                             SystemClock.sleep(1000);
                             Log.e(TAG, "connect --> retry " + retryCount);
                             connect(--retryCount);
@@ -532,7 +540,7 @@ class LocalServerManager {
 
         OpsResult exec(OpsCommands.Builder builder) throws Exception {
             if (!isRunning) {
-                connect(10);
+                connect(5);
             }
             try {
                 return ParcelableUtil.unmarshall(execCmd(builder), OpsResult.CREATOR);
