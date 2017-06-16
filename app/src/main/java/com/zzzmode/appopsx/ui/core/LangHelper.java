@@ -55,7 +55,7 @@ public class LangHelper {
             case "en":
                 return Locale.ENGLISH;
             default:
-                return Locale.ENGLISH;
+                return Locale.getDefault();
         }
     }
 

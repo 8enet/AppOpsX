@@ -19,7 +19,7 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        LangHelper.updateLanguage(getApplicationContext());
+        LangHelper.updateLanguage(this);
         super.onCreate(savedInstanceState);
         AppCompatDelegate.setDefaultNightMode(SpHelper.getThemeMode(this));
 
