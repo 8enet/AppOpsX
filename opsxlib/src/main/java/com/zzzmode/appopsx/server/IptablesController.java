@@ -1,6 +1,6 @@
 package com.zzzmode.appopsx.server;
 
-import android.database.sqlite.SQLiteDatabase;
+import com.zzzmode.appopsx.common.Shell;
 
 import java.io.IOException;
 import java.util.Locale;

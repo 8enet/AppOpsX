@@ -26,6 +26,7 @@ import com.zzzmode.appopsx.common.OtherOp;
 import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.common.ParcelableUtil;
 import com.zzzmode.appopsx.common.ReflectUtils;
+import com.zzzmode.appopsx.common.Shell;
 
 import java.io.IOException;
 import java.util.ArrayList;

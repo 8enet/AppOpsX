@@ -1,16 +1,17 @@
 
-package com.zzzmode.appopsx.server;
-
-import com.zzzmode.appopsx.common.FLog;
+package com.zzzmode.appopsx.common;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-class Shell {
+public class Shell {
 
     private final static String TAG = "Shell";
 
@@ -25,6 +26,7 @@ class Shell {
     private volatile boolean close = false;
 
     private static Shell sShell;
+    private static Shell sRootShell;
 
     public static Shell getShell(){
         if(sShell == null){
@@ -41,6 +43,76 @@ class Shell {
         return sShell;
     }
 
+    public static Shell getRootShell() throws IOException {
+        if(sRootShell == null){
+            synchronized (Shell.class){
+                if(sRootShell == null){
+                    sRootShell = openRootShell();
+                }
+            }
+        }
+        return sRootShell;
+    }
+
+    public static Shell openRootShell() throws IOException {
+        return new Shell("su",true);
+    }
+
+    private Shell(String cmd,boolean checkRoot) throws IOException{
+
+        proc = new ProcessBuilder(cmd).redirectErrorStream(true).start();
+        in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+        if(checkRoot){
+            RootChecker checker = null;
+            try{
+                checker=new RootChecker(proc);
+                checker.start();
+
+                checker.join(20000);
+
+                if (checker.exit == -1) {
+                    throw new RuntimeException("grant root timeout");
+                }
+
+                if (checker.exit != 1) {
+                    throw new RuntimeException(checker.errorMsg);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }
+
+        out = proc.getOutputStream();
+
+        Runnable shellRunnable = new Runnable() {
+            @Override
+            public void run() {
+                while (!close) {
+                    try {
+                        Command command = commandQueue.take();
+                        if(command != null && !close) {
+                            writeCommand(command);
+                            readCommand(command);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (close) {
+                    try {
+                        destroyShell();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+
+        new Thread(shellRunnable,"shell").start();
+    }
 
     private Shell(String cmd) throws IOException{
 
@@ -124,6 +196,21 @@ class Shell {
 
     public void destroyShell() throws InterruptedException {
         //proc.waitFor();
+        try {
+            writeCommand(new Command("exit 33\n") {
+                @Override
+                public void onUpdate(int id, String message) {
+
+                }
+
+                @Override
+                public void onFinished(int id) {
+
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             if (in != null) {
                 in.close();
@@ -331,7 +418,7 @@ class Shell {
         }
 
     }
-    class Result {
+    public static class Result {
 
         private String message;
         private int statusCode=-1;
@@ -345,4 +432,54 @@ class Shell {
         }
 
     }
+
+
+
+
+    private static class RootChecker extends Thread {
+
+        int exit = -1;
+        String errorMsg = null;
+        Process process;
+
+        private RootChecker(Process process) {
+            this.process = process;
+        }
+
+        @Override
+        public void run() {
+            try {
+                BufferedReader inputStream = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
+                BufferedWriter outputStream = new BufferedWriter(new OutputStreamWriter(this.process.getOutputStream(), "UTF-8"));
+
+                outputStream.write("echo Started");
+                outputStream.newLine();
+                outputStream.flush();
+
+                while (true) {
+                    String line = inputStream.readLine();
+                    if (line == null) {
+                        throw new EOFException();
+                    }
+                    if ("".equals(line)) {
+                        continue;
+                    }
+                    if ("Started".equals(line)) {
+                        this.exit = 1;
+                        break;
+                    }
+                    errorMsg = "unkown error occured.";
+                }
+            } catch (IOException e) {
+                exit = -42;
+                if (e.getMessage() != null) {
+                    errorMsg = e.getMessage();
+                } else {
+                    errorMsg = "RootAccess denied?.";
+                }
+            }
+
+        }
+    }
+
 }
