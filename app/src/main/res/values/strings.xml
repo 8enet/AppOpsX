@@ -53,14 +53,9 @@
     <string name="app_daynight_mode">夜间模式</string>
     <string name="app_daynight_mode_summary">该设置在下次启动时生效</string>
 
-    <string name="app_perm_detail_summary">应用权限显示界面</string>
-    <string name="app_perm_detail_title">编辑权限显示界面显示样式</string>
-
     <string name="close_bg_server_summary">关闭后台服务</string>
     <string name="close_bg_server_title">部分情况下点击此选项可以改善连接失败的问题\r\n如果使用正常请不要点击此项</string>
 
-
-    <string name="accessibility_description">此辅助服务仅用于保持进程存活，</string>
     <string name="root_over_adb_mode">Root兼容模式</string>
     <string name="root_over_adb_mode_summary">Root模式不能正常使用时可以开启此选型</string>
 
@@ -69,7 +64,7 @@
 
     <string name="acknowledgments_list">致谢名单</string>
 
-    <string name="error_msg">长按复制:\n%1$s</string>
+    <string name="error_msg">%1$s\n\n%2$s</string>
 
     <string name="permlab_POST_NOTIFICATION">允许使用通知栏</string>
     <string name="permlab_PLAY_AUDIO">允许播放声音</string>
@@ -123,5 +118,11 @@
     <string name="sort_by_name_last_letter">按名称排序(字母在后)</string>
     <string name="sort_by_installed_time">按安装时间排序</string>
     <string name="sort_by_last_updated_time">按最后更新时间排序</string>
+
+
+    <string name="error_no_adb">连接失败！\n解决方法:\n1.在开发者选项中开启ADB调试或者开启网络ADB调试\n2.连接PC端后在终端中输入adb tcpip %1$d</string>
+    <string name="error_no_su">连接失败！\n请检查手机是否已Root，没有Root可以在设置中修改使用ADB模式。</string>
+    <string name="error_su_timeout">错误，请检查是否授予了Root权限。</string>
+    <string name="error_connect_fail">连接失败！\n解决方法:\nA.在设置中开启【Root兼容模式】试试。\nB.使用其他Root授权应用，比如SuperSU试试。\nC.如果还是不行请尝试关闭SElinux(出于安全考虑，请谨慎选择!)\n请查看帮助</string>
 
 </resources>

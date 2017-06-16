@@ -3,9 +3,9 @@ package com.zzzmode.appopsx.ui.permission;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.SparseIntArray;
 
+import com.zzzmode.appopsx.OpsxManager;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.ui.analytics.AEvent;
@@ -15,6 +15,8 @@ import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 
+import java.io.IOException;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +99,7 @@ class PermPresenter {
 
             @Override
             public void onError(Throwable e) {
-                mView.showError(context.getString(R.string.error_msg, Log.getStackTraceString(e)));
+                mView.showError(getHandleError(e));
 
                 loadSuccess = false;
             }
@@ -108,6 +110,33 @@ class PermPresenter {
         });
     }
 
+    private String getHandleError(Throwable e){
+        OpsxManager.Config config = AppOpsx.getInstance(context).getConfig();
+        String msg="";
+        String errorMsg=e.getMessage();
+        if(config.useAdb){
+            //adb
+            if(e instanceof ConnectException){
+                msg=context.getString(R.string.error_no_adb,config.adbPort);
+            }
+        }else {
+            //root
+            if(e instanceof IOException){
+               if(errorMsg.contains("error=13")){
+                   msg=context.getString(R.string.error_no_su);
+               }
+            }else if(e instanceof RuntimeException){
+                if(errorMsg.contains("RootAccess denied")){
+                    msg=context.getString(R.string.error_su_timeout);
+                }else if(errorMsg.contains("connect fail")){
+                    msg=context.getString(R.string.error_connect_fail);
+                }
+            }
+
+        }
+
+        return context.getString(R.string.error_msg, msg,errorMsg);
+    }
 
     void setAutoDisabled(boolean autoDisabled) {
         this.autoDisabled = autoDisabled;
@@ -163,7 +192,7 @@ class PermPresenter {
             @Override
             public void onError(@NonNull Throwable e) {
                 mView.showProgress(false);
-                mView.showError(context.getString(R.string.error_msg, Log.getStackTraceString(e)));
+                mView.showError(getHandleError(e));
 
                 loadSuccess = false;
             }

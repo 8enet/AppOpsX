@@ -16,7 +16,6 @@
         android:id="@+id/tv_error"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:scrollbars="vertical"
         android:textIsSelectable="true"
         android:visibility="gone"
@@ -25,6 +24,7 @@
         android:focusable="true"
         android:enabled="true"
         android:focusableInTouchMode="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text=""
         />
 
