@@ -24,6 +24,7 @@ import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
+import com.zzzmode.appopsx.ui.core.LangHelper;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 import com.zzzmode.appopsx.ui.widget.NumberPickerPreference;
 
@@ -96,6 +97,9 @@ public class SettingsActivity extends BaseActivity {
             version.setSummary(BuildConfig.VERSION_NAME);
             version.setOnPreferenceClickListener(this);
 
+            Preference appLanguage = findPreference("pref_app_language");
+            appLanguage.setOnPreferenceClickListener(this);
+            appLanguage.setSummary(getResources().getStringArray(R.array.languages)[LangHelper.getLocalIndex(getContext())]);
 
             findPreference("acknowledgments").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -329,6 +333,48 @@ public class SettingsActivity extends BaseActivity {
             builder.show();
         }
 
+        private void showLanguageDialog(final Preference preference){
+            AlertDialog.Builder builder =
+                    new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.app_language);
+
+            final int[] selected=new int[1];
+            int defSelected = LangHelper.getLocalIndex(getContext());
+
+
+            builder.setSingleChoiceItems(R.array.languages, defSelected, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    selected[0]=which;
+                }
+            });
+
+            builder.setNegativeButton(android.R.string.cancel,null);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String language = getResources().getStringArray(R.array.languages_key)[selected[0]];
+                    PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putString(preference.getKey(),language).apply();
+                    preference.setSummary(getResources().getStringArray(R.array.languages)[selected[0]]);
+                    switchLanguage();
+                }
+            });
+            builder.show();
+        }
+
+
+
+        private void switchLanguage(){
+            LangHelper.updateLanguage(getContext());
+            LangHelper.updateLanguage(getContext().getApplicationContext());
+
+            Intent it = new Intent(getActivity(), MainActivity.class);
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getActivity().startActivity(it);
+            getActivity().finish();
+        }
 
         private void showLog(){
             SingleJust.create(new SingleOnSubscribe<String>() {
@@ -400,6 +446,8 @@ public class SettingsActivity extends BaseActivity {
                 getActivity().startActivity(intent);
             }else if("translate".equals(key)){
                 id=AEvent.C_SETTING_TRANSLATE;
+            }else if("pref_app_language".equals(key)){
+                showLanguageDialog(preference);
             }
             if(id != null){
                 ATracker.send(id);

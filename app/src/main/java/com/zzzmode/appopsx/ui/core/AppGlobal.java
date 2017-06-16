@@ -2,6 +2,8 @@ package com.zzzmode.appopsx.ui.core;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -20,12 +22,22 @@ public class AppGlobal extends Application implements Application.ActivityLifecy
     @Override
     public void onCreate() {
         super.onCreate();
-
+        LangHelper.updateLanguage(this);
         registerActivityLifecycleCallbacks(this);
         Helper.updataShortcuts(this);
         ATracker.init(getApplicationContext());
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        LangHelper.updateLanguage(this);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(LangHelper.attachBaseContext(base));
+    }
 
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {

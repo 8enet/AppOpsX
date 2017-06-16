@@ -1,11 +1,14 @@
 package com.zzzmode.appopsx.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 
 import com.zzzmode.appopsx.ui.analytics.ATracker;
+import com.zzzmode.appopsx.ui.core.Helper;
+import com.zzzmode.appopsx.ui.core.LangHelper;
 import com.zzzmode.appopsx.ui.core.SpHelper;
 
 /**
@@ -16,8 +19,15 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        LangHelper.updateLanguage(getApplicationContext());
         super.onCreate(savedInstanceState);
         AppCompatDelegate.setDefaultNightMode(SpHelper.getThemeMode(this));
+
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LangHelper.attachBaseContext(newBase));
     }
 
     @Override
