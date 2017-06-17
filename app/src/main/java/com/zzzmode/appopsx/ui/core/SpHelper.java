@@ -11,15 +11,15 @@ import android.support.v7.app.AppCompatDelegate;
 
 public class SpHelper {
 
-    public static SharedPreferences getSharedPreferences(Context context){
-        return PreferenceManager.getDefaultSharedPreferences(context);
-    }
+  public static SharedPreferences getSharedPreferences(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context);
+  }
 
-    public static int getThemeMode(Context context){
-         if(getSharedPreferences(context).getBoolean("pref_app_daynight_mode", false)){
-             return AppCompatDelegate.MODE_NIGHT_YES;
-         }
-         return AppCompatDelegate.MODE_NIGHT_NO;
+  public static int getThemeMode(Context context) {
+    if (getSharedPreferences(context).getBoolean("pref_app_daynight_mode", false)) {
+      return AppCompatDelegate.MODE_NIGHT_YES;
     }
+    return AppCompatDelegate.MODE_NIGHT_NO;
+  }
 
 }

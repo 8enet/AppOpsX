@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="wrap_content"
+  android:orientation="vertical"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:padding="4dp"
+  android:paddingStart="6dp"
+  android:paddingEnd="6dp">
+  <TextView
+    android:id="@android:id/message"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="4dp"
-    android:paddingStart="6dp"
-    android:paddingEnd="6dp" >
-    <TextView
-        android:id="@android:id/message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
-    <NumberPicker
-        android:id="@+id/numpicker_pref"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
+    android:layout_marginBottom="8dp"
+    android:textAppearance="?android:attr/textAppearanceMedium"/>
+  <NumberPicker
+    android:id="@+id/numpicker_pref"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"/>
 </LinearLayout>

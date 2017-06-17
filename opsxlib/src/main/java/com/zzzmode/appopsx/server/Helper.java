@@ -21,57 +21,60 @@ import java.util.Map;
  * Created by zl on 2017/1/15.
  */
 class Helper {
-    static int getPackageUid(String packageName, int flag) {
-        int uid = 0;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            List<Class> paramsType = new ArrayList<>();
-            paramsType.add(String.class);
-            paramsType.add(int.class);
-            paramsType.add(int.class);
-            List<Object> params = new ArrayList<>();
-            params.add(packageName);
-            params.add(PackageManager.MATCH_UNINSTALLED_PACKAGES);
-            params.add(flag);
-            uid = (int) ReflectUtils.invokMethod(ActivityThread.getPackageManager(), "getPackageUid", paramsType, params);
-        } else {
-            List<Class> paramsType = new ArrayList<>();
-            paramsType.add(String.class);
-            paramsType.add(int.class);
-            List<Object> params = new ArrayList<>();
-            params.add(packageName);
-            params.add(flag);
-            uid = (int) ReflectUtils.invokMethod(ActivityThread.getPackageManager(), "getPackageUid", paramsType, params);
-        }
 
-        return uid;
+  static int getPackageUid(String packageName, int flag) {
+    int uid = 0;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      List<Class> paramsType = new ArrayList<>();
+      paramsType.add(String.class);
+      paramsType.add(int.class);
+      paramsType.add(int.class);
+      List<Object> params = new ArrayList<>();
+      params.add(packageName);
+      params.add(PackageManager.MATCH_UNINSTALLED_PACKAGES);
+      params.add(flag);
+      uid = (int) ReflectUtils
+          .invokMethod(ActivityThread.getPackageManager(), "getPackageUid", paramsType, params);
+    } else {
+      List<Class> paramsType = new ArrayList<>();
+      paramsType.add(String.class);
+      paramsType.add(int.class);
+      List<Object> params = new ArrayList<>();
+      params.add(packageName);
+      params.add(flag);
+      uid = (int) ReflectUtils
+          .invokMethod(ActivityThread.getPackageManager(), "getPackageUid", paramsType, params);
     }
 
-    private static Map<String,Integer> sRuntimePermToOp = null;
+    return uid;
+  }
 
-    static int permissionToCode(String permission) {
-        if (sRuntimePermToOp == null) {
-            sRuntimePermToOp = new HashMap<>();
-            Object sOpPerms = ReflectUtils.getFieldValue(AppOpsManager.class, "sOpPerms");
-            Object sOpToSwitch = ReflectUtils.getFieldValue(AppOpsManager.class, "sOpToSwitch");
+  private static Map<String, Integer> sRuntimePermToOp = null;
 
-            if (sOpPerms instanceof String[] && sOpToSwitch instanceof int[]) {
-                String[] opPerms = (String[]) sOpPerms;
-                int[] opToSwitch = (int[]) sOpToSwitch;
+  static int permissionToCode(String permission) {
+    if (sRuntimePermToOp == null) {
+      sRuntimePermToOp = new HashMap<>();
+      Object sOpPerms = ReflectUtils.getFieldValue(AppOpsManager.class, "sOpPerms");
+      Object sOpToSwitch = ReflectUtils.getFieldValue(AppOpsManager.class, "sOpToSwitch");
 
-                if (opPerms.length == opToSwitch.length) {
-                    for (int i = 0; i < opToSwitch.length; i++) {
-                        if (opPerms[i] != null) {
-                            sRuntimePermToOp.put(opPerms[i],opToSwitch[i]);
-                        }
-                    }
-                }
+      if (sOpPerms instanceof String[] && sOpToSwitch instanceof int[]) {
+        String[] opPerms = (String[]) sOpPerms;
+        int[] opToSwitch = (int[]) sOpToSwitch;
+
+        if (opPerms.length == opToSwitch.length) {
+          for (int i = 0; i < opToSwitch.length; i++) {
+            if (opPerms[i] != null) {
+              sRuntimePermToOp.put(opPerms[i], opToSwitch[i]);
             }
+          }
         }
-        Integer code = sRuntimePermToOp.get(permission);
-        if (code != null) {
-            return code;
-        }
-        return -1;
+      }
     }
+    Integer code = sRuntimePermToOp.get(permission);
+    if (code != null) {
+      return code;
+    }
+    return -1;
+  }
 
 }

@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_search" android:icon="@drawable/ic_search" app:showAsAction="ifRoom|collapseActionView" app:actionViewClass="android.support.v7.widget.SearchView" android:title="@android:string/search_go"/>
-    <item android:id="@+id/action_setting" android:icon="@drawable/ic_settings" app:showAsAction="always" android:title="@string/menu_setting"/>
-    <item android:id="@+id/action_permission_sort"  app:showAsAction="never|collapseActionView" android:title="@string/menu_permission_sort"/>
-    <item android:id="@+id/action_backup"  app:showAsAction="never|collapseActionView" android:title="@string/menu_backup"/>
+  xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+    android:id="@+id/action_search"
+    android:icon="@drawable/ic_search"
+    app:showAsAction="ifRoom|collapseActionView"
+    app:actionViewClass="android.support.v7.widget.SearchView"
+    android:title="@android:string/search_go"/>
+  <item
+    android:id="@+id/action_setting"
+    android:icon="@drawable/ic_settings"
+    app:showAsAction="always"
+    android:title="@string/menu_setting"/>
+  <item
+    android:id="@+id/action_permission_sort"
+    app:showAsAction="never|collapseActionView"
+    android:title="@string/menu_permission_sort"/>
+  <item
+    android:id="@+id/action_backup"
+    app:showAsAction="never|collapseActionView"
+    android:title="@string/menu_backup"/>
 
 </menu>

@@ -4,7 +4,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.core.LocalImageLoader;
 import com.zzzmode.appopsx.ui.model.AppInfo;
@@ -15,18 +14,18 @@ import com.zzzmode.appopsx.ui.model.AppInfo;
 
 public class AppItemViewHolder extends RecyclerView.ViewHolder {
 
-    ImageView imgIcon;
-    TextView tvName;
+  ImageView imgIcon;
+  TextView tvName;
 
-    public AppItemViewHolder(View itemView) {
-        super(itemView);
-        imgIcon= (ImageView) itemView.findViewById(R.id.app_icon);
-        tvName= (TextView) itemView.findViewById(R.id.app_name);
-    }
+  public AppItemViewHolder(View itemView) {
+    super(itemView);
+    imgIcon = (ImageView) itemView.findViewById(R.id.app_icon);
+    tvName = (TextView) itemView.findViewById(R.id.app_name);
+  }
 
 
-    public void bindData(AppInfo appInfo){
-        tvName.setText(appInfo.appName);
-        LocalImageLoader.load(imgIcon,appInfo);
-    }
+  public void bindData(AppInfo appInfo) {
+    tvName.setText(appInfo.appName);
+    LocalImageLoader.load(imgIcon, appInfo);
+  }
 }

@@ -1,7 +1,6 @@
 package com.zzzmode.appopsx.ui.main.backup;
 
 import com.zzzmode.appopsx.ui.model.PreAppInfo;
-
 import java.util.List;
 
 /**
@@ -9,11 +8,12 @@ import java.util.List;
  */
 
 class RestoreModel {
-    long createTime;
-    int version;
-    int size;
-    long fileSize;
-    String path;
-    String fileName;
-    List<PreAppInfo> preAppInfos;
+
+  long createTime;
+  int version;
+  int size;
+  long fileSize;
+  String path;
+  String fileName;
+  List<PreAppInfo> preAppInfos;
 }

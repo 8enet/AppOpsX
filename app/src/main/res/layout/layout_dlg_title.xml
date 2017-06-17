@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:paddingTop="8dp"
+  android:paddingBottom="8dp"
+  android:orientation="horizontal">
+
+  <ImageView
+    android:id="@+id/app_icon"
+    android:layout_width="36dp"
+    android:layout_height="36dp"
+    android:layout_gravity="center_vertical"
+    android:layout_marginLeft="8dp"
+    android:src="@mipmap/ic_launcher"/>
+
+  <LinearLayout
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:orientation="horizontal">
+    android:orientation="vertical"
+    android:layout_marginLeft="8dp"
+    >
+    <TextView
+      android:id="@+id/tv_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center_vertical"
+      android:text="sdfsdf"
+      android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+      android:textColor="?android:attr/textColorPrimary"/>
 
-    <ImageView
-        android:id="@+id/app_icon"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="8dp"
-        android:src="@mipmap/ic_launcher" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginLeft="8dp"
-        >
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="sdfsdf"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="?android:attr/textColorPrimary"/>
-
-        <TextView
-            android:id="@+id/tv_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="sdfsdf"
-            android:layout_gravity="center_vertical"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
-            android:textColor="?android:attr/textColorSecondary"/>
-    </LinearLayout>
+    <TextView
+      android:id="@+id/tv_info"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="sdfsdf"
+      android:layout_gravity="center_vertical"
+      android:textAppearance="?android:attr/textAppearanceListItemSmall"
+      android:textColor="?android:attr/textColorSecondary"/>
+  </LinearLayout>
 
 </LinearLayout>

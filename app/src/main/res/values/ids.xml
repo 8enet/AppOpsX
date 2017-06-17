@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="groupPosition" type="id"/>
-    <item name="childPosition" type="id"/>
+  <item name="groupPosition" type="id"/>
+  <item name="childPosition" type="id"/>
 </resources>

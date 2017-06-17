@@ -1,80 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/layout_group_item"
-    android:orientation="horizontal"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:id="@+id/layout_group_item"
+  android:orientation="horizontal"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:clickable="true"
+  android:paddingTop="10dp"
+  android:paddingBottom="10dp"
+  android:background="?attr/selectableItemBackground">
+
+  <com.zzzmode.appopsx.ui.widget.ExpandableItemIndicator
+    android:id="@+id/indicator"
+    android:layout_width="24dp"
+    android:layout_height="24dp"
+    android:layout_alignParentRight="true"
+    android:layout_marginRight="16dp"
+    android:layout_centerVertical="true"
+    />
+
+
+  <android.support.v7.widget.AppCompatImageView
+    android:id="@+id/img_menu_ups"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_centerVertical="true"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp"
+    android:layout_toLeftOf="@id/indicator"
+    android:clickable="true"
+    app:srcCompat="@drawable/ic_md_menu"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    />
+
+  <android.support.v7.widget.AppCompatImageView
+    android:id="@+id/img_group"
+    android:layout_width="24dp"
+    android:layout_height="24dp"
+    android:layout_alignParentLeft="true"
+    android:layout_centerVertical="true"
+    android:layout_marginLeft="8dp"
+    app:srcCompat="@drawable/ic_perm_device_info"
+    />
+
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clickable="true"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
-    android:background="?attr/selectableItemBackground">
-
-    <com.zzzmode.appopsx.ui.widget.ExpandableItemIndicator
-        android:id="@+id/indicator"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="16dp"
-        android:layout_centerVertical="true"
-        />
-
-
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/img_menu_ups"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_centerVertical="true"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:layout_toLeftOf="@id/indicator"
-        android:clickable="true"
-        app:srcCompat="@drawable/ic_md_menu"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        />
-
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/img_group"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="8dp"
-        app:srcCompat="@drawable/ic_perm_device_info"
-        />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_toLeftOf="@id/img_menu_ups"
-        android:layout_toRightOf="@id/img_group"
-        android:layout_marginLeft="8dp"
-        >
-        <TextView
-            android:id="@+id/tv_permission_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceListItem"
-            android:textColor="?android:attr/textColorPrimary"
-            />
+    android:orientation="vertical"
+    android:layout_toLeftOf="@id/img_menu_ups"
+    android:layout_toRightOf="@id/img_group"
+    android:layout_marginLeft="8dp"
+    >
+    <TextView
+      android:id="@+id/tv_permission_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textAppearance="?android:attr/textAppearanceListItem"
+      android:textColor="?android:attr/textColorPrimary"
+      />
 
 
-        <TextView
-            android:id="@+id/tv_permission_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
-            android:textColor="?android:attr/textColorSecondary"
-            />
+    <TextView
+      android:id="@+id/tv_permission_count"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"
+      android:textAppearance="?android:attr/textAppearanceListItemSmall"
+      android:textColor="?android:attr/textColorSecondary"
+      />
 
 
-    </LinearLayout>
-
-
-
-
+  </LinearLayout>
 
 
 </RelativeLayout>

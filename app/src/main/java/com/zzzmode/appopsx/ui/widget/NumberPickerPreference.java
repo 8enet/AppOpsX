@@ -25,116 +25,117 @@ import android.support.v7.preference.PreferenceDialogFragmentCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.NumberPicker;
-
 import com.zzzmode.appopsx.R;
 
 public class NumberPickerPreference extends DialogPreference {
-    private int currentValue;
-    private int maxValue;
-    private int minValue;
 
-    private static final int DEFAULT_value = 0;
-    private static final int DEFAULT_maxValue = 0;
-    private static final int DEFAULT_minValue = 0;
+  private int currentValue;
+  private int maxValue;
+  private int minValue;
 
-    private final String defaultSummary;
+  private static final int DEFAULT_value = 0;
+  private static final int DEFAULT_maxValue = 0;
+  private static final int DEFAULT_minValue = 0;
 
-    public NumberPickerPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
+  private final String defaultSummary;
 
-        defaultSummary = getSummary().toString();
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.NumberPickerPreference);
+  public NumberPickerPreference(Context context, AttributeSet attrs) {
+    super(context, attrs);
 
-        try {
-            maxValue = a.getInt(R.styleable.NumberPickerPreference_maxValue, DEFAULT_maxValue);
-            minValue = a.getInt(R.styleable.NumberPickerPreference_minValue, DEFAULT_minValue);
-        } finally {
-            a.recycle();
-        }
+    defaultSummary = getSummary().toString();
+    TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.NumberPickerPreference);
 
-        setDialogLayoutResource(R.layout.numberpicker_dialog);
-        setPositiveButtonText(android.R.string.ok);
-        setNegativeButtonText(android.R.string.cancel);
-
-        setDialogIcon(null);
-
+    try {
+      maxValue = a.getInt(R.styleable.NumberPickerPreference_maxValue, DEFAULT_maxValue);
+      minValue = a.getInt(R.styleable.NumberPickerPreference_minValue, DEFAULT_minValue);
+    } finally {
+      a.recycle();
     }
 
-    public int getValue() {
-        return currentValue;
+    setDialogLayoutResource(R.layout.numberpicker_dialog);
+    setPositiveButtonText(android.R.string.ok);
+    setNegativeButtonText(android.R.string.cancel);
+
+    setDialogIcon(null);
+
+  }
+
+  public int getValue() {
+    return currentValue;
+  }
+
+  public void setValue(int value) {
+    currentValue = value;
+    persistInt(currentValue);
+    setSummary(String.format(defaultSummary, getValue()));
+    notifyChanged();
+  }
+
+  @Override
+  protected Object onGetDefaultValue(TypedArray a, int index) {
+    return a.getInt(index, DEFAULT_value);
+  }
+
+  @Override
+  protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
+    setValue(restorePersistedValue ? getPersistedInt(currentValue) : (Integer) defaultValue);
+  }
+
+
+  public static class NumberPickerPreferenceDialogFragmentCompat
+      extends PreferenceDialogFragmentCompat {
+
+    private static final String SAVE_STATE_VALUE = "NumberPickerPreferenceDialogFragment.value";
+    private NumberPicker picker;
+    private int currentValue = 1;
+
+    public NumberPickerPreferenceDialogFragmentCompat() {
     }
 
-    public void setValue(int value) {
-        currentValue = value;
-        persistInt(currentValue);
-        setSummary(String.format(defaultSummary, getValue()));
-        notifyChanged();
+    public static NumberPickerPreferenceDialogFragmentCompat newInstance(String key) {
+      NumberPickerPreferenceDialogFragmentCompat fragment =
+          new NumberPickerPreferenceDialogFragmentCompat();
+      Bundle b = new Bundle(1);
+      b.putString(ARG_KEY, key);
+      fragment.setArguments(b);
+      return fragment;
+    }
+
+    public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      if (savedInstanceState == null) {
+        currentValue = getNumberPickerPreference().getValue();
+      } else {
+        currentValue = savedInstanceState.getInt(SAVE_STATE_VALUE);
+      }
+    }
+
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+      outState.putInt(SAVE_STATE_VALUE, currentValue);
+    }
+
+    private NumberPickerPreference getNumberPickerPreference() {
+      return (NumberPickerPreference) this.getPreference();
     }
 
     @Override
-    protected Object onGetDefaultValue(TypedArray a, int index) {
-        return a.getInt(index, DEFAULT_value);
+    protected void onBindDialogView(View view) {
+      super.onBindDialogView(view);
+      picker = (NumberPicker) view.findViewById(R.id.numpicker_pref);
+      picker.setMaxValue(getNumberPickerPreference().maxValue);
+      picker.setMinValue(getNumberPickerPreference().minValue);
+      picker.setValue(currentValue);
     }
 
     @Override
-    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        setValue(restorePersistedValue ? getPersistedInt(currentValue) : (Integer) defaultValue);
+    public void onDialogClosed(boolean b) {
+      if (b) {
+        picker.clearFocus();
+        int value = picker.getValue();
+        if (getPreference().callChangeListener(value)) {
+          getNumberPickerPreference().setValue(value);
+        }
+      }
     }
-
-
-    public static class NumberPickerPreferenceDialogFragmentCompat
-            extends PreferenceDialogFragmentCompat {
-        private static final String SAVE_STATE_VALUE = "NumberPickerPreferenceDialogFragment.value";
-        private NumberPicker picker;
-        private int currentValue = 1;
-
-        public NumberPickerPreferenceDialogFragmentCompat() {
-        }
-
-        public static NumberPickerPreferenceDialogFragmentCompat newInstance(String key) {
-            NumberPickerPreferenceDialogFragmentCompat fragment =
-                    new NumberPickerPreferenceDialogFragmentCompat();
-            Bundle b = new Bundle(1);
-            b.putString(ARG_KEY, key);
-            fragment.setArguments(b);
-            return fragment;
-        }
-
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            if (savedInstanceState == null) {
-                currentValue = getNumberPickerPreference().getValue();
-            } else {
-                currentValue = savedInstanceState.getInt(SAVE_STATE_VALUE);
-            }
-        }
-
-        public void onSaveInstanceState(@NonNull Bundle outState) {
-            outState.putInt(SAVE_STATE_VALUE, currentValue);
-        }
-
-        private NumberPickerPreference getNumberPickerPreference() {
-            return (NumberPickerPreference) this.getPreference();
-        }
-
-        @Override
-        protected void onBindDialogView(View view) {
-            super.onBindDialogView(view);
-            picker = (NumberPicker) view.findViewById(R.id.numpicker_pref);
-            picker.setMaxValue(getNumberPickerPreference().maxValue);
-            picker.setMinValue(getNumberPickerPreference().minValue);
-            picker.setValue(currentValue);
-        }
-
-        @Override
-        public void onDialogClosed(boolean b) {
-            if (b) {
-                picker.clearFocus();
-                int value = picker.getValue();
-                if(getPreference().callChangeListener(value)) {
-                    getNumberPickerPreference().setValue(value);
-                }
-            }
-        }
-    }
+  }
 }

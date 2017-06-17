@@ -16,65 +16,66 @@ import com.zzzmode.appopsx.ui.model.AppInfo;
 
 public class LocalImageLoader {
 
-    private static LruCache<String, Drawable> sLruCache = null;
+  private static LruCache<String, Drawable> sLruCache = null;
 
-    private static void init(Context context) {
-        if (sLruCache == null) {
+  private static void init(Context context) {
+    if (sLruCache == null) {
 
-            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-            int maxSize=Math.round(am.getMemoryClass() * 1024 * 1024 * 0.3f);
+      ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+      int maxSize = Math.round(am.getMemoryClass() * 1024 * 1024 * 0.3f);
 
-            sLruCache = new LruCache<String, Drawable>(maxSize) {
-                @Override
-                protected int sizeOf(String key, Drawable drawable) {
-                    if (drawable != null ) {
-                        if (drawable instanceof BitmapDrawable) {
-                            return ((BitmapDrawable) drawable).getBitmap().getAllocationByteCount();
-                        } else {
-                            return drawable.getIntrinsicWidth() * drawable.getIntrinsicHeight() * 2;
-                        }
-                    }
-                    return super.sizeOf(key, drawable);
-                }
-
-                @Override
-                protected void entryRemoved(boolean evicted, String key, Drawable oldValue, Drawable newValue) {
-                    super.entryRemoved(evicted, key, oldValue, newValue);
-
-                }
-            };
+      sLruCache = new LruCache<String, Drawable>(maxSize) {
+        @Override
+        protected int sizeOf(String key, Drawable drawable) {
+          if (drawable != null) {
+            if (drawable instanceof BitmapDrawable) {
+              return ((BitmapDrawable) drawable).getBitmap().getAllocationByteCount();
+            } else {
+              return drawable.getIntrinsicWidth() * drawable.getIntrinsicHeight() * 2;
+            }
+          }
+          return super.sizeOf(key, drawable);
         }
-    }
 
-    public static void load(ImageView view, AppInfo appInfo) {
+        @Override
+        protected void entryRemoved(boolean evicted, String key, Drawable oldValue,
+            Drawable newValue) {
+          super.entryRemoved(evicted, key, oldValue, newValue);
 
-        Drawable drawable = getDrawable(view.getContext(), appInfo);
-
-        if (drawable != null) {
-            view.setImageDrawable(drawable);
-        } else {
-            view.setImageResource(R.mipmap.ic_launcher);
         }
+      };
     }
+  }
 
+  public static void load(ImageView view, AppInfo appInfo) {
 
-    public static Drawable getDrawable(Context context, AppInfo appInfo) {
-        init(context);
-        Drawable drawable = sLruCache.get(appInfo.packageName);
+    Drawable drawable = getDrawable(view.getContext(), appInfo);
 
-
-        if (drawable == null && appInfo.applicationInfo != null) {
-            drawable = appInfo.applicationInfo.loadIcon(context.getPackageManager());
-            sLruCache.put(appInfo.packageName, drawable);
-        }
-        return drawable;
+    if (drawable != null) {
+      view.setImageDrawable(drawable);
+    } else {
+      view.setImageResource(R.mipmap.ic_launcher);
     }
+  }
 
-    public static void initAdd(Context context, AppInfo appInfo){
-        init(context);
-        if(sLruCache.evictionCount() == 0){
-            sLruCache.put(appInfo.packageName, appInfo.applicationInfo.loadIcon(context.getPackageManager()));
-        }
+
+  public static Drawable getDrawable(Context context, AppInfo appInfo) {
+    init(context);
+    Drawable drawable = sLruCache.get(appInfo.packageName);
+
+    if (drawable == null && appInfo.applicationInfo != null) {
+      drawable = appInfo.applicationInfo.loadIcon(context.getPackageManager());
+      sLruCache.put(appInfo.packageName, drawable);
     }
+    return drawable;
+  }
+
+  public static void initAdd(Context context, AppInfo appInfo) {
+    init(context);
+    if (sLruCache.evictionCount() == 0) {
+      sLruCache
+          .put(appInfo.packageName, appInfo.applicationInfo.loadIcon(context.getPackageManager()));
+    }
+  }
 
 }

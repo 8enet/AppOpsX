@@ -12,23 +12,23 @@
        limitations under the License.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportHeight="24"
-    android:viewportWidth="24"
-    android:tint="@color/expandable_item_indicator_color"
-    >
+  android:width="24dp"
+  android:height="24dp"
+  android:viewportHeight="24"
+  android:viewportWidth="24"
+  android:tint="@color/expandable_item_indicator_color"
+  >
 
-    <group
-        android:name="rotationGroup"
-        android:pivotX="12.0"
-        android:pivotY="12.0"
-        android:rotation="-180.0">
+  <group
+    android:name="rotationGroup"
+    android:pivotX="12.0"
+    android:pivotY="12.0"
+    android:rotation="-180.0">
 
-        <!-- Converted from ic_expand_less_24px.svg part of the material-design-icons -->
-        <path
-            android:fillColor="@color/fullColor"
-            android:pathData="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/>
-    </group>
+    <!-- Converted from ic_expand_less_24px.svg part of the material-design-icons -->
+    <path
+      android:fillColor="@color/fullColor"
+      android:pathData="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/>
+  </group>
 
 </vector>

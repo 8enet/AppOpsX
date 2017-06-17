@@ -14,29 +14,31 @@ import android.util.TypedValue;
  */
 
 public class PremissionTempleteDialog extends AlertDialog {
-    protected PremissionTempleteDialog(@NonNull Context context) {
 
-        super(context);
-    }
+  protected PremissionTempleteDialog(@NonNull Context context) {
 
-    protected PremissionTempleteDialog(@NonNull Context context, @StyleRes int themeResId) {
-        super(context, themeResId);
-    }
+    super(context);
+  }
 
-
-    public static PremissionTempleteDialog create(Context context){
-        TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(android.support.v7.appcompat.R.attr.alertDialogTheme, outValue, true);
-        return new PremissionTempleteDialog(context,outValue.resourceId);
-    }
+  protected PremissionTempleteDialog(@NonNull Context context, @StyleRes int themeResId) {
+    super(context, themeResId);
+  }
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        RecyclerView recyclerView=new RecyclerView(getContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+  public static PremissionTempleteDialog create(Context context) {
+    TypedValue outValue = new TypedValue();
+    context.getTheme()
+        .resolveAttribute(android.support.v7.appcompat.R.attr.alertDialogTheme, outValue, true);
+    return new PremissionTempleteDialog(context, outValue.resourceId);
+  }
 
-        setContentView(recyclerView);
-    }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    RecyclerView recyclerView = new RecyclerView(getContext());
+    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+    setContentView(recyclerView);
+  }
 }

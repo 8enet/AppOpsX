@@ -15,111 +15,111 @@ import java.util.List;
 
 public class OpsCommands {
 
-    public static final String ACTION_GET="get";
-    public static final String ACTION_SET="set";
-    public static final String ACTION_RESET="reset";
-    public static final String ACTION_OTHER="other";
+  public static final String ACTION_GET = "get";
+  public static final String ACTION_SET = "set";
+  public static final String ACTION_RESET = "reset";
+  public static final String ACTION_OTHER = "other";
 
-    public static class Builder implements Parcelable {
-        private String action=ACTION_GET;
-        private String packageName;
-        private int userHandleId;
-        private int opInt;
-        private int modeInt;
+  public static class Builder implements Parcelable {
+
+    private String action = ACTION_GET;
+    private String packageName;
+    private int userHandleId;
+    private int opInt;
+    private int modeInt;
 
 
-
-        public String getAction() {
-            return action;
-        }
-
-        public Builder setAction(String action) {
-            this.action = action;
-            return this;
-        }
-
-        public String getPackageName() {
-            return packageName;
-        }
-
-        public Builder setPackageName(String packageName) {
-            this.packageName = packageName;
-            return this;
-        }
-
-        public int getOpInt() {
-            return opInt;
-        }
-
-        public Builder setOpInt(int opInt) {
-            this.opInt = opInt;
-            return this;
-        }
-
-        public int getModeInt() {
-            return modeInt;
-        }
-
-        public Builder setModeInt(int modeInt) {
-            this.modeInt = modeInt;
-            return this;
-        }
-
-        public int getUserHandleId() {
-            return userHandleId;
-        }
-
-        public Builder setUserHandleId(int uid) {
-            this.userHandleId = uid;
-            return this;
-        }
-
-        @Override
-        public String toString() {
-            return "Builder{" +
-                    "action='" + action + '\'' +
-                    ", packageName='" + packageName + '\'' +
-                    ", userHandleId=" + userHandleId +
-                    ", opInt=" + opInt +
-                    ", modeInt=" + modeInt +
-                    '}';
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(this.action);
-            dest.writeString(this.packageName);
-            dest.writeInt(this.opInt);
-            dest.writeInt(this.modeInt);
-            dest.writeInt(this.userHandleId);
-        }
-
-        public Builder() {
-        }
-
-        protected Builder(Parcel in) {
-            this.action = in.readString();
-            this.packageName = in.readString();
-            this.opInt = in.readInt();
-            this.modeInt = in.readInt();
-            this.userHandleId = in.readInt();
-        }
-
-        public static final Creator<Builder> CREATOR = new Creator<Builder>() {
-            @Override
-            public Builder createFromParcel(Parcel source) {
-                return new Builder(source);
-            }
-
-            @Override
-            public Builder[] newArray(int size) {
-                return new Builder[size];
-            }
-        };
+    public String getAction() {
+      return action;
     }
+
+    public Builder setAction(String action) {
+      this.action = action;
+      return this;
+    }
+
+    public String getPackageName() {
+      return packageName;
+    }
+
+    public Builder setPackageName(String packageName) {
+      this.packageName = packageName;
+      return this;
+    }
+
+    public int getOpInt() {
+      return opInt;
+    }
+
+    public Builder setOpInt(int opInt) {
+      this.opInt = opInt;
+      return this;
+    }
+
+    public int getModeInt() {
+      return modeInt;
+    }
+
+    public Builder setModeInt(int modeInt) {
+      this.modeInt = modeInt;
+      return this;
+    }
+
+    public int getUserHandleId() {
+      return userHandleId;
+    }
+
+    public Builder setUserHandleId(int uid) {
+      this.userHandleId = uid;
+      return this;
+    }
+
+    @Override
+    public String toString() {
+      return "Builder{" +
+          "action='" + action + '\'' +
+          ", packageName='" + packageName + '\'' +
+          ", userHandleId=" + userHandleId +
+          ", opInt=" + opInt +
+          ", modeInt=" + modeInt +
+          '}';
+    }
+
+    @Override
+    public int describeContents() {
+      return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+      dest.writeString(this.action);
+      dest.writeString(this.packageName);
+      dest.writeInt(this.opInt);
+      dest.writeInt(this.modeInt);
+      dest.writeInt(this.userHandleId);
+    }
+
+    public Builder() {
+    }
+
+    protected Builder(Parcel in) {
+      this.action = in.readString();
+      this.packageName = in.readString();
+      this.opInt = in.readInt();
+      this.modeInt = in.readInt();
+      this.userHandleId = in.readInt();
+    }
+
+    public static final Creator<Builder> CREATOR = new Creator<Builder>() {
+      @Override
+      public Builder createFromParcel(Parcel source) {
+        return new Builder(source);
+      }
+
+      @Override
+      public Builder[] newArray(int size) {
+        return new Builder[size];
+      }
+    };
+  }
 }

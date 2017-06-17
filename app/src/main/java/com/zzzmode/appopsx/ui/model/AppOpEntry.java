@@ -7,22 +7,23 @@ import com.zzzmode.appopsx.common.OpsResult;
  */
 
 public class AppOpEntry {
-    public AppInfo appInfo;
-    public OpsResult opsResult;
 
-    public OpsResult modifyResult;
+  public AppInfo appInfo;
+  public OpsResult opsResult;
 
-    public AppOpEntry(AppInfo appInfo, OpsResult opsResult) {
-        this.appInfo = appInfo;
-        this.opsResult = opsResult;
-    }
+  public OpsResult modifyResult;
 
-    @Override
-    public String toString() {
-        return "AppOpEntry{" +
-                "appInfo=" + appInfo +
-                ", opsResult=" + opsResult +
-                ", modifyResult=" + modifyResult +
-                '}';
-    }
+  public AppOpEntry(AppInfo appInfo, OpsResult opsResult) {
+    this.appInfo = appInfo;
+    this.opsResult = opsResult;
+  }
+
+  @Override
+  public String toString() {
+    return "AppOpEntry{" +
+        "appInfo=" + appInfo +
+        ", opsResult=" + opsResult +
+        ", modifyResult=" + modifyResult +
+        '}';
+  }
 }

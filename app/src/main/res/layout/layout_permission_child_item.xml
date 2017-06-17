@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
+  android:orientation="horizontal"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:paddingTop="10dp"
+  android:paddingBottom="10dp"
+  android:clickable="true"
+  android:background="?attr/selectableItemBackground"
+  android:id="@+id/layout_child_item"
+  >
+
+  <ImageView
+    android:id="@+id/app_icon"
+    android:layout_width="@android:dimen/app_icon_size"
+    android:layout_height="@android:dimen/app_icon_size"
+    android:layout_gravity="center_vertical"
+    android:src="@mipmap/ic_launcher"
+    android:layout_marginLeft="40dp"
+
+    />
+
+  <TextView
+    android:id="@+id/app_name"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
-    android:clickable="true"
-    android:background="?attr/selectableItemBackground"
-    android:id="@+id/layout_child_item"
-    >
-
-    <ImageView
-        android:id="@+id/app_icon"
-        android:layout_width="@android:dimen/app_icon_size"
-        android:layout_height="@android:dimen/app_icon_size"
-        android:layout_gravity="center_vertical"
-        android:src="@mipmap/ic_launcher"
-        android:layout_marginLeft="40dp"
-
-        />
-
-    <TextView
-        android:id="@+id/app_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textColor="?android:attr/textColorPrimary"
-        android:layout_toRightOf="@id/app_icon"
-        android:layout_centerVertical="true"
-        android:maxLines="1"
-        android:ellipsize="end"
-        />
+    android:layout_marginLeft="8dp"
+    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+    android:textColor="?android:attr/textColorPrimary"
+    android:layout_toRightOf="@id/app_icon"
+    android:layout_centerVertical="true"
+    android:maxLines="1"
+    android:ellipsize="end"
+    />
 
 
-    <android.support.v7.widget.SwitchCompat
-        android:id="@+id/switch_compat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="4dp" />
+  <android.support.v7.widget.SwitchCompat
+    android:id="@+id/switch_compat"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_centerVertical="true"
+    android:layout_marginRight="4dp"/>
 
 </RelativeLayout>

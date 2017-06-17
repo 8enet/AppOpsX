@@ -14,41 +14,41 @@ import java.util.Map;
 
 public final class ATracker {
 
-    private static Context sContext;
+  private static Context sContext;
 
-    public static void init(Context context){
-        sContext=context;
+  public static void init(Context context) {
+    sContext = context;
 
-        MobclickAgent.setDebugMode(BuildConfig.DEBUG);
+    MobclickAgent.setDebugMode(BuildConfig.DEBUG);
+  }
+
+  public static void send(String id) {
+    send(sContext, id, null);
+  }
+
+  public static void send(String id, Map<String, String> param) {
+    send(sContext, id, param);
+  }
+
+  public static void send(Context context, String id, Map<String, String> param) {
+    if (!BuildConfig.DEBUG && context != null) {
+      if (param != null) {
+        MobclickAgent.onEvent(context, id, param);
+      } else {
+        MobclickAgent.onEvent(context, id);
+      }
     }
+  }
 
-    public static void send(String id){
-        send(sContext,id,null);
+  public static void onResume(Activity activity) {
+    if (!BuildConfig.DEBUG) {
+      MobclickAgent.onResume(activity);
     }
+  }
 
-    public static void send(String id,Map<String,String> param){
-        send(sContext,id,param);
+  public static void onPause(Activity activity) {
+    if (!BuildConfig.DEBUG) {
+      MobclickAgent.onPause(activity);
     }
-
-    public static void send(Context context, String id, Map<String,String> param){
-        if(!BuildConfig.DEBUG && context != null) {
-            if(param != null) {
-                MobclickAgent.onEvent(context, id, param);
-            }else {
-                MobclickAgent.onEvent(context,id);
-            }
-        }
-    }
-
-    public static void onResume(Activity activity){
-        if(!BuildConfig.DEBUG){
-            MobclickAgent.onResume(activity);
-        }
-    }
-
-    public static void onPause(Activity activity){
-        if(!BuildConfig.DEBUG){
-            MobclickAgent.onPause(activity);
-        }
-    }
+  }
 }

@@ -7,8 +7,9 @@ import android.content.pm.IPackageManager;
  */
 
 public class ActivityThread {
-    public static IPackageManager getPackageManager(){
-        return null;
-    }
+
+  public static IPackageManager getPackageManager() {
+    return null;
+  }
 }
 

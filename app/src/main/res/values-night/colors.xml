@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="expandable_item_indicator_color">#42000000</color>
+  <color name="expandable_item_indicator_color">#42000000</color>
 
-    <color name="fullColor">#f2ffffff</color>
-    <color name="divider">#2bffffff</color>
+  <color name="fullColor">#f2ffffff</color>
+  <color name="divider">#2bffffff</color>
 </resources>

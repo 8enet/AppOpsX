@@ -1,67 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:background="?attr/selectableItemBackground"
+  android:clickable="true">
+
+
+  <android.support.v7.widget.SwitchCompat
+    android:id="@+id/switch_compat"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_centerVertical="true"
+    android:layout_marginRight="4dp"/>
+
+
+  <android.support.v7.widget.AppCompatImageView
+    android:id="@+id/img_group"
+    android:layout_width="24dp"
+    android:layout_height="24dp"
+    android:layout_alignParentLeft="true"
+    android:layout_centerVertical="true"
+    android:layout_marginLeft="8dp"
+    app:srcCompat="@drawable/ic_perm_device_info"
+    />
+
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    android:clickable="true">
+    android:orientation="vertical"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_toLeftOf="@id/switch_compat"
+    android:layout_toRightOf="@id/img_group"
+    android:paddingBottom="16dp"
+    android:paddingTop="16dp">
 
+    <TextView
+      android:id="@android:id/title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:ellipsize="marquee"
+      android:singleLine="true"
+      android:textColor="?android:attr/textColorPrimary"
+      android:textAppearance="?android:attr/textAppearanceListItem"/>
 
-    <android.support.v7.widget.SwitchCompat
-        android:id="@+id/switch_compat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="4dp" />
+    <TextView
+      android:id="@android:id/summary"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:maxLines="10"
+      android:textAppearance="?android:attr/textAppearanceListItemSmall"
+      android:textColor="?android:attr/textColorSecondary"/>
 
+    <TextView
+      android:id="@+id/last_time"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textAppearance="?android:attr/textAppearanceListItemSmall"
+      android:textColor="?android:attr/textColorTertiary"/>
 
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/img_group"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="8dp"
-        app:srcCompat="@drawable/ic_perm_device_info"
-        />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_toLeftOf="@id/switch_compat"
-        android:layout_toRightOf="@id/img_group"
-        android:paddingBottom="16dp"
-        android:paddingTop="16dp">
-
-        <TextView
-            android:id="@android:id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textAppearance="?android:attr/textAppearanceListItem" />
-
-        <TextView
-            android:id="@android:id/summary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="10"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
-            android:textColor="?android:attr/textColorSecondary" />
-
-        <TextView
-            android:id="@+id/last_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
-            android:textColor="?android:attr/textColorTertiary" />
-
-    </LinearLayout>
+  </LinearLayout>
 
 
 </RelativeLayout>

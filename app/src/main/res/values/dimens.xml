@@ -1,9 +1,9 @@
 <resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
+  <!-- Default screen margins, per the Android Design guidelines. -->
+  <dimen name="activity_horizontal_margin">16dp</dimen>
+  <dimen name="activity_vertical_margin">16dp</dimen>
 
-    <dimen name="dlg_min_height">350dp</dimen>
+  <dimen name="dlg_min_height">350dp</dimen>
 
-    <integer name="expandable_item_indicator_anim_duration">200</integer>
+  <integer name="expandable_item_indicator_anim_duration">200</integer>
 </resources>

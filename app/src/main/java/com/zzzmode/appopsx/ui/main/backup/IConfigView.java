@@ -5,6 +5,8 @@ package com.zzzmode.appopsx.ui.main.backup;
  */
 
 interface IConfigView {
-    void showProgress(boolean show,int max);
-    void setProgress(int progress);
+
+  void showProgress(boolean show, int max);
+
+  void setProgress(int progress);
 }

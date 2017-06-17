@@ -8,13 +8,14 @@ import android.view.accessibility.AccessibilityEvent;
  */
 
 public class HelpAccessibilityService extends AccessibilityService {
-    @Override
-    public void onAccessibilityEvent(AccessibilityEvent event) {
 
-    }
+  @Override
+  public void onAccessibilityEvent(AccessibilityEvent event) {
 
-    @Override
-    public void onInterrupt() {
+  }
 
-    }
+  @Override
+  public void onInterrupt() {
+
+  }
 }
