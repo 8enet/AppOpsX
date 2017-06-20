@@ -23,11 +23,25 @@ android {
     }
 }
 
+def toPath(String s){
+    if(isWin()){
+        return s.replace('/','\\')
+    }else {
+        return s
+    }
+}
+
+def isWin(){
+    return org.gradle.internal.os.OperatingSystem.current().isWindows()
+}
+
+String.metaClass.toPath = { -> toPath(delegate) }
+
 ext{
-    debugClassDir=project.buildDir.absolutePath+'/intermediates/classes/debug'
-    commonJar=project.buildDir.absolutePath+"/appopsx-common.jar"
-    appopsxJar=project.buildDir.absolutePath+"/appopsx.jar"
-    appopsxOrigJar=project.buildDir.absolutePath+"/appopsx-orig.jar"
+    debugClassDir=project.buildDir.absolutePath+'/intermediates/classes/debug'.toPath()
+    commonJar=project.buildDir.absolutePath+'/appopsx-common.jar'.toPath()
+    appopsxJar=project.buildDir.absolutePath+'/appopsx.jar'.toPath()
+    appopsxOrigJar=project.buildDir.absolutePath+'/appopsx-orig.jar'.toPath()
 }
 
 dependencies {
@@ -66,7 +80,7 @@ def get_args(String path,List pkgPath){
     def ret=[]
     pkgPath.forEach{
         it ->
-            def file = file(path + File.separator + it)
+            def file = file(path + File.separator + it.toPath())
             loadClsFiles(file,ret,path+File.separator)
     }
     return ret
@@ -80,7 +94,7 @@ def loadClsFiles(File f,List paths,String ignorePrefix){
             file ->
                 if(file.file){
                     if(file.name.endsWith(".class")){
-                        paths.add(file.path.replaceFirst(ignorePrefix,""))
+                        paths.add(file.path.replace(ignorePrefix,""))
                     }
                 }else{
                     loadClsFiles(file,paths,ignorePrefix)
@@ -118,7 +132,7 @@ def jar2dex(){
     def sdkHome = findSdkHome()
 
     println("android sdk home:${sdkHome}")
-    def dxFile=file("${sdkHome}/build-tools/${rootProject.ext.buildToolsVersion}/dx")
+    def dxFile=file("${sdkHome}/build-tools/${rootProject.ext.buildToolsVersion}/dx${isWin()?'.bat':''}".toPath())
 
     if(dxFile.exists()){
         dxFile.setExecutable(true)
