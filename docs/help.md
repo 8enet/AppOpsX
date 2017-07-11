@@ -37,6 +37,7 @@
 2. **不想Root手机，怎么使用ADB模式？**
    * 如果开发者选项中有[网络ADB调试]功能的，请直接打开此选项，然后在AppOpsX中选择使用ADB模式即可。
    * 没有[网络ADB调试]功能的，需要打开USB调试功能，连接电脑后在终端输入`adb tcpip 5555` 即可，如果选择使用其他端口，需要在AppOpsX中设置相应端口。
+   * 直接使用脚本启动，从1.1.9版本开始支持脚本方式启动，开启USB调试连接电脑后使用 `adb shell sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh &` 
 
 3. **为什么有一些权限关闭后又自动打开了？**   
    有一些权限用appops改动并不会生效，所以再次查看的时候会发现又自动打开了。
@@ -47,7 +48,7 @@
 5. **为什么自动关闭权限有时候在安装完成后没有弹出提示？**   
    应用被完全停止后收不到新安装广播，所以无法弹出提示，请根据实际情况手动添加白名单。
 
-
+Last Edited on 2017-07-11
 
 [1]: https://github.com/8enet/AppOpsX
 [2]: https://github.com/8enet/AppOpsX/issues
