@@ -1087,10 +1087,7 @@ public class Helper {
           comparator = new Comparator<AppInfo>() {
             @Override
             public int compare(AppInfo o1, AppInfo o2) {
-              if (o2.installTime == o1.installTime) {
-                return 0;
-              }
-              return o2.installTime > o1.installTime ? 1 : -1;
+              return Long.compare(o2.installTime, o1.installTime);
             }
           };
         } else if (type == 3) {
@@ -1098,9 +1095,8 @@ public class Helper {
           comparator = new Comparator<AppInfo>() {
             @Override
             public int compare(AppInfo o1, AppInfo o2) {
-              return
-                  Math.max(o2.installTime, o2.updateTime) > Math.max(o1.installTime, o1.updateTime)
-                      ? 1 : -1;
+              return Long.compare(Math.max(o2.installTime, o2.updateTime),
+                  Math.max(o1.installTime, o1.updateTime));
             }
           };
         }
