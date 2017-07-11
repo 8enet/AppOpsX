@@ -46,6 +46,10 @@
       android:title="@string/root_over_adb_mode"
       android:summary="@string/root_over_adb_mode_summary"/>
 
+    <android.support.v7.preference.Preference
+      android:key="shell_start"
+      android:title="@string/shell_start"
+      android:summary="@string/shell_start_description"/>
   </android.support.v7.preference.PreferenceCategory>
 
   <android.support.v7.preference.PreferenceCategory

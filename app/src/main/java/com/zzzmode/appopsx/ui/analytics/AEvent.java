@@ -30,6 +30,7 @@ public class AEvent {
   public static final String C_SETTING_OPENSOURCE = "setting_opensource";
   public static final String C_SETTING_LANGUAGE = "setting_language";
   public static final String C_LANG = "setting_language_v";
+  public static final String C_SETTING_SHELL_START="setting_shell_start";
 
   public static final String C_APP_IGNOR_ALL = "app_ignore_all";
   public static final String C_APP_OPEN_ALL = "app_open_all";

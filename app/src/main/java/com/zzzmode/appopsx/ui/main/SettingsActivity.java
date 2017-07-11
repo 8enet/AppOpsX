@@ -1,7 +1,11 @@
 package com.zzzmode.appopsx.ui.main;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -92,6 +96,8 @@ public class SettingsActivity extends BaseActivity {
       findPreference("opensource_licenses").setOnPreferenceClickListener(this);
       findPreference("help").setOnPreferenceClickListener(this);
       findPreference("translate").setOnPreferenceClickListener(this);
+
+      findPreference("shell_start").setOnPreferenceClickListener(this);
 
       Preference version = findPreference("version");
       version.setSummary(BuildConfig.VERSION_NAME);
@@ -429,6 +435,22 @@ public class SettingsActivity extends BaseActivity {
       }
     }
 
+    private void showShellStart(){
+      AlertDialog.Builder builder =
+          new AlertDialog.Builder(getActivity());
+      builder.setMessage(getString(R.string.shell_cmd_help,getString(R.string.shell_cmd)));
+      builder.setPositiveButton(android.R.string.copy, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+          clipboardManager.setPrimaryClip(ClipData.newPlainText(null, getString(R.string.shell_cmd)));
+          dialog.dismiss();
+          Toast.makeText(getContext(),R.string.copied_hint,Toast.LENGTH_SHORT).show();
+        }
+      });
+      builder.create().show();
+    }
+
     @Override
     public boolean onPreferenceClick(Preference preference) {
       String key = preference.getKey();
@@ -463,6 +485,9 @@ public class SettingsActivity extends BaseActivity {
       } else if ("pref_app_language".equals(key)) {
         id = AEvent.C_SETTING_LANGUAGE;
         showLanguageDialog(preference);
+      } else if ("shell_start".equals(key)){
+        id = AEvent.C_SETTING_SHELL_START;
+        showShellStart();
       }
       if (id != null) {
         ATracker.send(id);

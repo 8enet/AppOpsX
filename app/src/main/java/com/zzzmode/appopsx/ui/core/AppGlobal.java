@@ -26,6 +26,7 @@ public class AppGlobal extends Application implements Application.ActivityLifecy
     registerActivityLifecycleCallbacks(this);
     Helper.updataShortcuts(this);
     ATracker.init(getApplicationContext());
+    AppOpsx.getInstance(getApplicationContext());
   }
 
   @Override
