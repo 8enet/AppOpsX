@@ -49,6 +49,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -691,41 +692,13 @@ public class Helper {
             }
           }
         })
-        .map(new Function<Map<String, List<AppPermissions>>, Map<String, List<AppPermissions>>>() {
-          @Override
-          public Map<String, List<AppPermissions>> apply(Map<String, List<AppPermissions>> map)
-              throws Exception {
-            Map<String, Integer> counts = new HashMap<String, Integer>();
-            Set<Map.Entry<String, List<AppPermissions>>> entries = map.entrySet();
-            for (Map.Entry<String, List<AppPermissions>> entry : entries) {
-              counts.put(entry.getKey(), entry.getValue().size());
-            }
-            List<Map.Entry<String, Integer>> countsSort = new LinkedList<Map.Entry<String, Integer>>(
-                counts.entrySet());
-            Collections.sort(countsSort, new Comparator<Map.Entry<String, Integer>>() {
-              @Override
-              public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                return o2.getValue().compareTo(o1.getValue());
-              }
-            });
-
-            Map<String, List<AppPermissions>> ret = new LinkedHashMap<String, List<AppPermissions>>();
-            for (Map.Entry<String, Integer> stringIntegerEntry : countsSort) {
-              String key = stringIntegerEntry.getKey();
-              List<AppPermissions> appPermissionses = map.get(key);
-              if (appPermissionses != null) {
-                ret.put(key, appPermissionses);
-              }
-            }
-            return ret;
-          }
-        }).map(new Function<Map<String, List<AppPermissions>>, List<PermissionGroup>>() {
+        .map(new Function<Map<String, List<AppPermissions>>, List<PermissionGroup>>() {
           @Override
           public List<PermissionGroup> apply(Map<String, List<AppPermissions>> map)
               throws Exception {
             List<PermissionGroup> groups = new ArrayList<PermissionGroup>();
-            Set<Map.Entry<String, List<AppPermissions>>> entries = map.entrySet();
-            for (Map.Entry<String, List<AppPermissions>> entry : entries) {
+            Set<Entry<String, List<AppPermissions>>> entries = map.entrySet();
+            for (Entry<String, List<AppPermissions>> entry : entries) {
               PermissionGroup group = new PermissionGroup();
               group.opName = entry.getKey();
 
@@ -756,6 +729,15 @@ public class Helper {
 
 
               }
+
+
+              Collections.sort(group.apps, new Comparator<PermissionChildItem>() {
+                @Override
+                public int compare(PermissionChildItem o1, PermissionChildItem o2) {
+                  return Long.compare(o2.opEntryInfo.opEntry.getTime(),o1.opEntryInfo.opEntry.getTime());
+                }
+              });
+
               groups.add(group);
             }
 

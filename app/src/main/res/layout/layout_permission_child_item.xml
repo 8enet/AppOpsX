@@ -20,19 +20,34 @@
 
     />
 
+  <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginLeft="8dp"
+    android:layout_toRightOf="@id/app_icon"
+    android:layout_centerVertical="true"
+    >
   <TextView
     android:id="@+id/app_name"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="8dp"
     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
     android:textColor="?android:attr/textColorPrimary"
-    android:layout_toRightOf="@id/app_icon"
-    android:layout_centerVertical="true"
     android:maxLines="1"
     android:ellipsize="end"
     />
 
+    <TextView
+      android:id="@+id/perm_last_time"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textAppearance="@style/TextAppearance.AppCompat.Small"
+      android:textColor="?android:attr/textColorTertiary"
+      android:maxLines="1"
+      android:ellipsize="end"
+      />
+  </LinearLayout>
 
   <android.support.v7.widget.SwitchCompat
     android:id="@+id/switch_compat"

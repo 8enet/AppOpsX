@@ -4,6 +4,7 @@ import android.support.annotation.IntRange;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -142,8 +143,17 @@ class PermissionGroupAdapter extends
 
     holder.tvName.setText(appPermissions.appInfo.appName);
 
-    holder.itemView.setOnClickListener(this);
+    long time = appPermissions.opEntryInfo.opEntry.getTime();
+    if (time > 0) {
+      holder.tvLastTime.setText(DateUtils
+          .getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS,
+              DateUtils.FORMAT_ABBREV_TIME));
+    } else {
+      holder.tvLastTime.setText(R.string.never_used);
+    }
 
+
+    holder.itemView.setOnClickListener(this);
     holder.itemView.setTag(holder);
 
     holder.switchCompat.setTag(appPermissions);
@@ -237,6 +247,7 @@ class PermissionGroupAdapter extends
 
     ImageView imgIcon;
     TextView tvName;
+    TextView tvLastTime;
     SwitchCompat switchCompat;
 
     public ChildViewHolder(View itemView) {
@@ -244,6 +255,7 @@ class PermissionGroupAdapter extends
       imgIcon = (ImageView) itemView.findViewById(R.id.app_icon);
       tvName = (TextView) itemView.findViewById(R.id.app_name);
       switchCompat = (SwitchCompat) itemView.findViewById(R.id.switch_compat);
+      tvLastTime = (TextView) itemView.findViewById(R.id.perm_last_time);
     }
   }
 
