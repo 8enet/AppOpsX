@@ -1045,12 +1045,12 @@ public class Helper {
 //    }
 
 
-  public static Single<Boolean> closeBgServer() {
-    return SingleJust.create(new SingleOnSubscribe<Boolean>() {
+  public static Single<Boolean> closeBgServer(Context context) {
+    return SingleJust.just(context).map(new Function<Context, Boolean>() {
       @Override
-      public void subscribe(SingleEmitter<Boolean> e) throws Exception {
-        OpsxManager.closeBgServer();
-        e.onSuccess(true);
+      public Boolean apply(@NonNull Context context) throws Exception {
+        AppOpsx.getInstance(context).closeBgServer();
+        return true;
       }
     });
   }

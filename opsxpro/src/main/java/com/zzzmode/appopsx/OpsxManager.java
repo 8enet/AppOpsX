@@ -113,7 +113,10 @@ public class OpsxManager {
   }
 
 
-  public static void closeBgServer() {
+  public void closeBgServer() {
+    if(mLocalServerManager != null){
+      mLocalServerManager.stop();
+    }
     LocalServerManager.closeBgServer();
   }
 

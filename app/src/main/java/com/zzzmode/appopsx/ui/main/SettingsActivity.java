@@ -219,7 +219,7 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void closeServer() {
-      Helper.closeBgServer().subscribeOn(Schedulers.io())
+      Helper.closeBgServer(getActivity().getApplicationContext()).subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<Boolean>() {
         @Override
         public void onSubscribe(Disposable d) {
