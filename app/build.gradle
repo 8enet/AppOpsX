@@ -15,7 +15,7 @@ android {
     }
 
     aaptOptions {
-        noCompress 'jar'
+        noCompress 'jar','sh'
     }
 
     lintOptions {
