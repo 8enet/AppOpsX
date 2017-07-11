@@ -127,7 +127,10 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
           }
         }
       };
-      handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
+      if(!allowBg) {
+        handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
+      }
+      System.out.println("AppOpsX server start successful, enjoy it! \uD83D\uDE0E");
       server.run();
     } catch (Exception e) {
       e.printStackTrace();
