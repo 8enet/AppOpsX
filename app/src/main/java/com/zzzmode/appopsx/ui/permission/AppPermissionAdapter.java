@@ -2,6 +2,7 @@ package com.zzzmode.appopsx.ui.permission;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,12 +93,17 @@ class AppPermissionAdapter extends RecyclerView.Adapter<AppPermissionAdapter.Vie
         }
       }
 
-      if (showPermTime && opEntryInfo.opEntry.getTime() != 0) {
-        StringBuilder sb = new StringBuilder("time:");
-        TimeUtils.formatDuration(System.currentTimeMillis() - opEntryInfo.opEntry.getTime(), sb);
-        sb.append(" ago");
+      if (showPermTime ) {
+        long time = opEntryInfo.opEntry.getTime();
+        if(time > 0){
+          holder.lastTime.setText(DateUtils
+              .getRelativeTimeSpanString(time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS,
+                  DateUtils.FORMAT_ABBREV_TIME));
+        }else {
+          holder.lastTime.setText(R.string.never_used);
+        }
         holder.lastTime.setVisibility(View.VISIBLE);
-        holder.lastTime.setText(sb.toString());
+
       } else {
         holder.lastTime.setVisibility(View.GONE);
       }

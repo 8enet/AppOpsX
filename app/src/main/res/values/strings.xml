@@ -102,4 +102,5 @@
   <string name="shell_cmd_help">开启USB调试，连接电脑，复制以下命令在终端中执行\n%1$s</string>
 
   <string name="shell_cmd">adb shell sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh &amp;</string>
+  <string name="never_used">(Never used)</string>
 </resources>

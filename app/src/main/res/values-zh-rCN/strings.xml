@@ -63,6 +63,7 @@
 
   <string name="disable_toast">已忽略[ %1$s ]的 %2$d 权限</string>
   <string name="permission_count">已授权 %1$d 个应用 (共 %2$d 个)</string>
+  <string name="never_used">从未使用</string>
 
   <string name="acknowledgments_list">致谢名单</string>
 
