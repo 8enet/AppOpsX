@@ -91,8 +91,15 @@
   <string name="sort_by_name_last_letter">按名稱排序(字母在後)</string>
   <string name="sort_by_installed_time">按安裝時間排序</string>
   <string name="sort_by_last_updated_time">按最後更新時間排序</string>
-  <string name="error_no_adb">連接失敗！ \n解決方法:\n1.在開發者選項中開啟ADB調試或者開啟網路ADB調試\n2.連接PC端後在終端中輸入adb tcpip %1$d</string>
+  <string name="error_no_adb">連接失敗！ \n解決方法:\n1.在開發者選項中開啟ADB調試或者開啟網路ADB調試\n2.連接PC端後在終端中輸入adb tcpip %1$d \n3.開啟USB調試，連接電腦，複製以下命令在終端中執行\nadb shell sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh</string>
   <string name="error_no_su">連接失敗！ \n請檢查手機是否已Root，沒有Root可以在設置中修改使用ADB模式。</string>
   <string name="error_su_timeout">錯誤，請檢查是否授予了Root許可權。</string>
   <string name="error_connect_fail">連接失敗！ \n解決方法:\nA.在設置中開啟【Root相容模式】試試。 \nB.使用其他Root授權應用，比如SuperSU試試。 \nC.如果還是不行請嘗試關閉SElinux(出於安全考慮，請謹慎選擇!) \n請查看説明</string>
+  <string name="shell_start">腳本啟動</string>
+  <string name="shell_start_description">使用命令方式啟動，無須Root許可權和設置ADB埠</string>
+  <string name="copied_hint">已被複製到剪貼簿</string>
+  <string name="shell_cmd_help">開啟USB調試，連接電腦，複製以下命令在終端中執行\n%1$s</string>
+  <string name="shell_cmd">adb shell sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh &amp;</string>
+  <string name="never_used">(從未使用)</string>
+  <string name="menu_app_info">應用程式資訊</string>
 </resources>
