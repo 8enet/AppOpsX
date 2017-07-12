@@ -30,4 +30,8 @@
     android:id="@+id/action_close_all"
     app:showAsAction="never"
     android:title="@string/menu_close_all"/>
+  <item
+    android:id="@+id/action_app_info"
+    app:showAsAction="never"
+    android:title="@string/menu_app_info"/>
 </menu>

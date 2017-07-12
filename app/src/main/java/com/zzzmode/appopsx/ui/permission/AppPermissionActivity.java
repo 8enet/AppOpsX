@@ -1,9 +1,12 @@
 package com.zzzmode.appopsx.ui.permission;
 
 import android.app.AppOpsManager;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -42,6 +45,8 @@ public class AppPermissionActivity extends BaseActivity implements IPermView {
   private TextView tvError;
   private PermPresenter mPresenter;
   private AppPermissionAdapter adapter;
+
+  private String pkgName;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,6 +90,7 @@ public class AppPermissionActivity extends BaseActivity implements IPermView {
       }
     });
 
+    pkgName = appInfo.packageName;
     mPresenter = new PermPresenter(this, appInfo, getApplicationContext());
     mPresenter.setUp();
   }
@@ -116,6 +122,9 @@ public class AppPermissionActivity extends BaseActivity implements IPermView {
       case R.id.action_close_all:
         changeAll(AppOpsManager.MODE_IGNORED);
         ATracker.send(AEvent.C_APP_IGNOR_ALL);
+        break;
+      case R.id.action_app_info:
+        startAppinfo();
         break;
     }
     return super.onOptionsItemSelected(item);
@@ -218,5 +227,12 @@ public class AppPermissionActivity extends BaseActivity implements IPermView {
     adapter.updateItem(info);
 
     //Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+  }
+
+
+  private void startAppinfo(){
+    Intent intent=new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+    intent.setData(Uri.fromParts("package",pkgName,null));
+    startActivity(intent);
   }
 }
