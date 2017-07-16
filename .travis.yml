@@ -41,4 +41,4 @@ install:
 env:
   - ANDROID_HOME=$HOME/android-sdk
 
-script: ./gradlew build
+script: ./gradlew clean build
