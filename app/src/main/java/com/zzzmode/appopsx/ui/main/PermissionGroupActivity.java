@@ -25,6 +25,7 @@ import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.PermissionChildItem;
 import com.zzzmode.appopsx.ui.model.PermissionGroup;
 import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
+import com.zzzmode.appopsx.ui.widget.ScrollTopHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.ResourceObserver;
 import io.reactivex.observers.ResourceSingleObserver;
@@ -48,6 +49,7 @@ public class PermissionGroupActivity extends BaseActivity implements
 
   private ProgressBar mProgressBar;
   private RecyclerView recyclerView;
+  private View coordinatorLayout;
 
   private RecyclerView.LayoutManager mLayoutManager;
   private RecyclerView.Adapter mWrappedAdapter;
@@ -69,10 +71,9 @@ public class PermissionGroupActivity extends BaseActivity implements
 
     mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
     recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+    coordinatorLayout = findViewById(R.id.coordinator_layout);
 
     tvError = (TextView) findViewById(R.id.tv_error);
-
-    findViewById(R.id.swiperefreshlayout).setEnabled(false);
 
     mLayoutManager = new LinearLayoutManager(this);
 
@@ -81,6 +82,8 @@ public class PermissionGroupActivity extends BaseActivity implements
     mRecyclerViewExpandableItemManager = new RecyclerViewExpandableItemManager(eimSavedState);
     mRecyclerViewExpandableItemManager.setOnGroupExpandListener(this);
     mRecyclerViewExpandableItemManager.setOnGroupCollapseListener(this);
+
+    recyclerView.setHasFixedSize(true);
 
     myItemAdapter = new PermissionGroupAdapter(mRecyclerViewExpandableItemManager);
     myItemAdapter.setHasStableIds(true);
@@ -104,12 +107,16 @@ public class PermissionGroupActivity extends BaseActivity implements
     recyclerView.setHasFixedSize(false);
 
     recyclerView.addItemDecoration(new CommonDivderDecorator(getApplicationContext()));
+    //recyclerView.addItemDecoration(new StickyHeaderDecoration(myItemAdapter));
 
     mRecyclerViewExpandableItemManager.attachRecyclerView(recyclerView);
 
     init();
-  }
 
+    stickyHelper = new ScrollTopHelper(recyclerView, (LinearLayoutManager) mLayoutManager,
+        mRecyclerViewExpandableItemManager,findViewById(R.id.fab));
+  }
+  ScrollTopHelper stickyHelper;
 
   private void showPopMenu(int groupPosition, View view) {
     PopupMenu popupMenu = new PopupMenu(this, view);
@@ -166,6 +173,10 @@ public class PermissionGroupActivity extends BaseActivity implements
   @Override
   protected void onDestroy() {
     super.onDestroy();
+    if(stickyHelper != null) {
+      stickyHelper.release();
+    }
+
     if (mRecyclerViewExpandableItemManager != null) {
       mRecyclerViewExpandableItemManager.release();
       mRecyclerViewExpandableItemManager = null;
@@ -224,7 +235,7 @@ public class PermissionGroupActivity extends BaseActivity implements
             try {
               mProgressBar.setVisibility(View.GONE);
               tvError.setVisibility(View.VISIBLE);
-              tvError.setText(getString(R.string.error_msg, Log.getStackTraceString(e)));
+              tvError.setText(getString(R.string.error_msg,"", Log.getStackTraceString(e)));
             } catch (Exception e1) {
               e1.printStackTrace();
             }
@@ -239,6 +250,7 @@ public class PermissionGroupActivity extends BaseActivity implements
       return;
     }
     mProgressBar.setVisibility(View.GONE);
+    coordinatorLayout.setVisibility(View.VISIBLE);
     recyclerView.setVisibility(View.VISIBLE);
 
     myItemAdapter.setData(value);
@@ -246,7 +258,8 @@ public class PermissionGroupActivity extends BaseActivity implements
     mWrappedAdapter = mRecyclerViewExpandableItemManager.createWrappedAdapter(myItemAdapter);
     recyclerView.setAdapter(mWrappedAdapter);
 
-    myItemAdapter.notifyDataSetChanged();
+    //mRecyclerViewExpandableItemManager.expandAll();
+    //myItemAdapter.notifyDataSetChanged();
 
     if (BuildConfig.DEBUG) {
       for (PermissionGroup group : value) {
@@ -255,17 +268,7 @@ public class PermissionGroupActivity extends BaseActivity implements
     }
   }
 
-  @Override
-  public void onGroupCollapse(int groupPosition, boolean fromUser) {
 
-  }
-
-  @Override
-  public void onGroupExpand(int groupPosition, boolean fromUser) {
-    if (fromUser) {
-      adjustScrollPositionOnGroupExpanded(groupPosition);
-    }
-  }
 
 
   private void adjustScrollPositionOnGroupExpanded(int groupPosition) {
@@ -277,6 +280,9 @@ public class PermissionGroupActivity extends BaseActivity implements
 
     mRecyclerViewExpandableItemManager
         .scrollToGroup(groupPosition, childItemHeight, topMargin, bottomMargin);
+
+
+    recyclerView.smoothScrollBy(0,-100);
   }
 
 
@@ -318,5 +324,17 @@ public class PermissionGroupActivity extends BaseActivity implements
   @Override
   public void onDismiss(PopupMenu menu) {
     contextGroupPosition = -1;
+  }
+
+  @Override
+  public void onGroupCollapse(int groupPosition, boolean fromUser, Object o) {
+
+  }
+
+  @Override
+  public void onGroupExpand(int groupPosition, boolean fromUser, Object o) {
+    if (fromUser) {
+      adjustScrollPositionOnGroupExpanded(groupPosition);
+    }
   }
 }
