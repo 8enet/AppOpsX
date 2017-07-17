@@ -1,4 +1,4 @@
-package com.zzzmode.appopsx.ui.main;
+package com.zzzmode.appopsx.ui.main.group;
 
 import android.support.annotation.IntRange;
 import android.support.v7.widget.RecyclerView;

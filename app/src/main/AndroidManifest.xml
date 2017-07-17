@@ -33,7 +33,7 @@
       android:theme="@style/SettingsTheme"/>
     <activity
       android:configChanges="keyboardHidden|orientation"
-      android:name=".ui.main.PermissionGroupActivity"/>
+      android:name=".ui.main.group.PermissionGroupActivity"/>
     <activity
       android:name=".ui.permission.AlertInstalledPremActivity"
       android:theme="@style/alert.perm"/>

@@ -1,4 +1,4 @@
-package com.zzzmode.appopsx.ui.widget;
+package com.zzzmode.appopsx.ui.main.group;
 
 import android.content.res.Resources;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,7 +13,7 @@ import com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandab
  * Created by zl on 2017/7/13.
  */
 
-public class ScrollTopHelper extends OnScrollListener {
+class ScrollTopHelper extends OnScrollListener {
 
 
   private RecyclerView recyclerView;
@@ -22,9 +22,9 @@ public class ScrollTopHelper extends OnScrollListener {
 
   private View fab;
 
-  public ScrollTopHelper(final RecyclerView recyclerView,
+  ScrollTopHelper(final RecyclerView recyclerView,
       LinearLayoutManager linearLayoutManager,
-      RecyclerViewExpandableItemManager rVExpandableItemManager,View fab) {
+      RecyclerViewExpandableItemManager rVExpandableItemManager, View fab) {
     this.recyclerView = recyclerView;
     this.linearLayoutManager = linearLayoutManager;
     this.mRVExpandableItemManager = rVExpandableItemManager;
@@ -66,7 +66,7 @@ public class ScrollTopHelper extends OnScrollListener {
 
     boolean fGroupExpanded = mRVExpandableItemManager.isGroupExpanded(fGroupPos);
 
-    boolean show= false;
+    boolean show = false;
 
     if (fChildPos == RecyclerView.NO_POSITION) {
       //group position
@@ -92,10 +92,10 @@ public class ScrollTopHelper extends OnScrollListener {
       show = (lGroupPos == fGroupPos);
     }
 
-    if(show){
+    if (show) {
       childPos = fChildPos;
       show();
-    }else {
+    } else {
       hide();
     }
 
@@ -137,7 +137,7 @@ public class ScrollTopHelper extends OnScrollListener {
   }
 
 
-  public void release() {
+  void release() {
     recyclerView.removeOnScrollListener(this);
   }
 }

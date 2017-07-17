@@ -40,6 +40,9 @@ import com.zzzmode.appopsx.ui.model.PermissionGroup;
 import com.zzzmode.appopsx.ui.model.PreAppInfo;
 import com.zzzmode.appopsx.ui.permission.AppPermissionActivity;
 
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function3;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -654,14 +657,16 @@ public class Helper {
   }
 
   public static Single<List<PermissionGroup>> getPermissionGroup(final Context context,
-      final boolean loadSysapp) {
-    return getInstalledApps(context, loadSysapp).map(getSortComparator(context))
+      final boolean loadSysapp,@NonNull final Consumer<List<AppInfo>> doAfterNextApps,final Consumer<AppPermissions> onNext) {
+    return getInstalledApps(context, loadSysapp)
+        .observeOn(AndroidSchedulers.mainThread())
+        .doAfterNext(doAfterNextApps).map(getSortComparator(context))
         .concatMap(new Function<List<AppInfo>, ObservableSource<AppInfo>>() {
           @Override
           public ObservableSource<AppInfo> apply(List<AppInfo> appInfos) throws Exception {
             return Observable.fromIterable(appInfos);
           }
-        }).map(new Function<AppInfo, AppPermissions>() {
+        }).observeOn(Schedulers.io()).map(new Function<AppInfo, AppPermissions>() {
           @Override
           public AppPermissions apply(AppInfo info) throws Exception {
             AppPermissions p = new AppPermissions();
@@ -669,7 +674,11 @@ public class Helper {
             p.opEntries = getAppPermission(context, info.packageName).blockingFirst();
             return p;
           }
-        }).collect(new Callable<Map<String, List<AppPermissions>>>() {
+        })
+        .observeOn(AndroidSchedulers.mainThread())
+        .doOnNext(onNext)
+        .observeOn(Schedulers.io())
+        .collect(new Callable<Map<String, List<AppPermissions>>>() {
           @Override
           public Map<String, List<AppPermissions>> call() throws Exception {
             return new HashMap<String, List<AppPermissions>>();

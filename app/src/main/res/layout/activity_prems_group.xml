@@ -5,18 +5,46 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <ProgressBar
-    android:id="@+id/progressBar"
-    style="@style/Widget.AppCompat.ProgressBar"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_centerInParent="true"
-    android:maxHeight="48dp"
-    android:maxWidth="48dp"
-    android:minHeight="24dp"
-    android:minWidth="24dp"
-    android:visibility="visible"/>
 
+  <RelativeLayout
+    android:id="@+id/layout_loading"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="visible"
+    >
+    <ProgressBar
+      android:id="@+id/progressBar"
+      style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:layout_marginLeft="@dimen/activity_horizontal_margin"
+      android:layout_marginRight="@dimen/activity_horizontal_margin"
+      android:maxWidth="48dp"
+      android:minHeight="24dp"
+      android:minWidth="24dp"
+      />
+    <TextView
+      android:id="@+id/tv_appname"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textAppearance="@style/TextAppearance.AppCompat.Small"
+      android:textColor="?android:attr/textColorSecondary"
+      android:layout_below="@id/progressBar"
+      android:layout_alignLeft="@id/progressBar"
+      android:text="loading..."
+      />
+    <TextView
+      android:id="@+id/tv_progress_size"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textAppearance="@style/TextAppearance.AppCompat.Small"
+      android:textColor="?android:attr/textColorSecondary"
+      android:layout_below="@id/progressBar"
+      android:layout_alignRight="@id/progressBar"
+      android:text="0/0"
+      />
+  </RelativeLayout>
   <TextView
     android:id="@+id/tv_error"
     android:layout_width="wrap_content"

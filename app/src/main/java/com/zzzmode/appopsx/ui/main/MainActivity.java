@@ -30,6 +30,7 @@ import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.main.backup.BackupActivity;
+import com.zzzmode.appopsx.ui.main.group.PermissionGroupActivity;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.AppOpEntry;
 import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
