@@ -74,11 +74,11 @@ class LocalServerManager {
   void start() throws Exception {
     if (mClientThread == null || !mClientThread.isRunning()) {
       mClientThread = new SyncClient();
-      if (mClientThread.start(1, false)) {
+      if (mClientThread.start(0, false)) {
         Log.e(TAG, "start --> server alread start !!!!!");
       } else {
         startServer();
-        mClientThread.start(5, true);
+        mClientThread.start(0, true);
       }
     }
   }
@@ -519,7 +519,7 @@ class LocalServerManager {
               Log.e(TAG, "connect --> retry " + retryCount);
               connect(--retryCount);
             } catch (Exception e1) {
-              e1.printStackTrace();
+              //e1.printStackTrace();
               throw e1;
             }
           } else {
@@ -538,7 +538,7 @@ class LocalServerManager {
         if (orThrow) {
           throw e;
         }
-        e.printStackTrace();
+        //e.printStackTrace();
       }
       return isRunning;
     }

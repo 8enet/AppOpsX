@@ -51,8 +51,12 @@ public class OpsxManager {
     AssetsUtils.copyFile(mContext, SConfig.JAR_NAME, SConfig.getDestJarFile(), true);
   }
 
+  private synchronized void checkConnect() throws Exception {
+    mLocalServerManager.start();
+  }
 
   public OpsResult getOpsForPackage(final String packageName) throws Exception {
+    checkConnect();
     OpsCommands.Builder builder = new OpsCommands.Builder();
     builder.setAction(OpsCommands.ACTION_GET);
     builder.setPackageName(packageName);
@@ -61,6 +65,7 @@ public class OpsxManager {
   }
 
   public OpsResult setOpsMode(String packageName, int opInt, int modeInt) throws Exception {
+    checkConnect();
     OpsCommands.Builder builder = new OpsCommands.Builder();
     builder.setAction(OpsCommands.ACTION_SET);
     builder.setPackageName(packageName);
