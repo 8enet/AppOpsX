@@ -26,7 +26,20 @@
     </activity>
     <activity
       android:configChanges="keyboardHidden|orientation"
-      android:name=".ui.permission.AppPermissionActivity"/>
+      android:exported="true"
+      android:name=".ui.permission.AppPermissionActivity">
+      <intent-filter>
+        <!-- e.g. appops://details?id=com.zzzmode.appopsx -->
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data
+          android:host="details"
+          android:scheme="appops"
+          />
+      </intent-filter>
+    </activity>
+
+
     <activity
       android:configChanges="keyboardHidden|orientation"
       android:name=".ui.main.SettingsActivity"

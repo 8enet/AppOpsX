@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,15 +21,23 @@ import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.BaseActivity;
 import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.analytics.ATracker;
+import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
+ * am start -n com.zzzmode.appopsx/.ui.permission.AppPermissionActivity --es pkgName "com.zzzmode.appopsx"
+ * am start "appops://details?id=com.zzzmode.appopsx"
  * Created by zl on 2016/11/18.
  */
 
@@ -37,8 +46,8 @@ public class AppPermissionActivity extends BaseActivity implements IPermView {
   private static final String TAG = "AppPermissionActivity";
 
   public static final String EXTRA_APP = "extra.app";
-  public static final String EXTRA_APP_PKGNAME = "extra.app.packagename";
-  public static final String EXTRA_APP_NAME = "extra.app.name";
+  public static final String EXTRA_APP_PKGNAME = "pkgName";
+  public static final String EXTRA_APP_NAME = "appName";
 
 
   private ProgressBar mProgressBar;
@@ -55,22 +64,19 @@ public class AppPermissionActivity extends BaseActivity implements IPermView {
 
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-    AppInfo appInfo = getIntent().getParcelableExtra(EXTRA_APP);
-    if (appInfo == null) {
-      String pkgName = getIntent().getStringExtra(EXTRA_APP_PKGNAME);
-      String name = getIntent().getStringExtra(EXTRA_APP_NAME);
-      if (pkgName != null && name != null) {
-        appInfo = new AppInfo();
-        appInfo.packageName = pkgName;
-        appInfo.appName = name;
-      } else {
-        finish();
-        return;
-      }
 
+    AppInfo appInfo = handleIntent(getIntent());
+    if(appInfo == null){
+      finish();
+      return;
     }
 
-    setTitle(appInfo.appName);
+    if(TextUtils.isEmpty(appInfo.appName)){
+      loadAppinfo(appInfo.packageName);
+    }else {
+      setTitle(appInfo.appName);
+    }
+
 
     tvError = (TextView) findViewById(R.id.tv_error);
     mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -93,6 +99,46 @@ public class AppPermissionActivity extends BaseActivity implements IPermView {
     pkgName = appInfo.packageName;
     mPresenter = new PermPresenter(this, appInfo, getApplicationContext());
     mPresenter.setUp();
+  }
+
+
+  private AppInfo handleIntent(Intent intent){
+    AppInfo appInfo = intent.getParcelableExtra(EXTRA_APP);
+    if(appInfo == null){
+      //find from extra
+      String pkgName = intent.getStringExtra(EXTRA_APP_PKGNAME);
+      if(TextUtils.isEmpty(pkgName) && intent.getData() != null){
+        pkgName = intent.getData().getQueryParameter("id");
+      }
+      if(!TextUtils.isEmpty(pkgName)){
+        appInfo = new AppInfo();
+        appInfo.packageName = pkgName;
+      }
+
+    }
+    return appInfo;
+  }
+
+  private void loadAppinfo(String pkgName){
+    Helper.getAppInfo(getApplicationContext(),pkgName)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new SingleObserver<AppInfo>() {
+          @Override
+          public void onSubscribe(@NonNull Disposable d) {
+
+          }
+
+          @Override
+          public void onSuccess(@NonNull AppInfo appInfo) {
+            setTitle(appInfo.appName);
+          }
+
+          @Override
+          public void onError(@NonNull Throwable e) {
+
+          }
+        });
   }
 
   @Override
