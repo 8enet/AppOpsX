@@ -4,9 +4,9 @@ import android.content.res.Resources;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandableItemManager;
 
 /**
@@ -15,6 +15,7 @@ import com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandab
 
 class ScrollTopHelper extends OnScrollListener {
 
+  private static final String TAG = "ScrollTopHelper";
 
   private RecyclerView recyclerView;
   private LinearLayoutManager linearLayoutManager;
@@ -22,9 +23,12 @@ class ScrollTopHelper extends OnScrollListener {
 
   private View fab;
 
+  private int offset = 0;
+  private int childPos = 0;
+
   ScrollTopHelper(final RecyclerView recyclerView,
       LinearLayoutManager linearLayoutManager,
-      RecyclerViewExpandableItemManager rVExpandableItemManager, View fab) {
+      RecyclerViewExpandableItemManager rVExpandableItemManager, final View fab) {
     this.recyclerView = recyclerView;
     this.linearLayoutManager = linearLayoutManager;
     this.mRVExpandableItemManager = rVExpandableItemManager;
@@ -51,6 +55,18 @@ class ScrollTopHelper extends OnScrollListener {
 
       }
     });
+
+    fab.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+      @Override
+      public void onGlobalLayout() {
+        offset = ((View) fab.getParent()).getBottom() - fab.getTop();
+        if (offset != 0) {
+          ScrollTopHelper.this.fab.animate().translationYBy(offset).start();
+          ScrollTopHelper.this.fab.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        }
+      }
+    });
+
   }
 
 
@@ -104,25 +120,20 @@ class ScrollTopHelper extends OnScrollListener {
 
   private void hide() {
     childPos = RecyclerView.NO_POSITION;
-    fab.animate().alpha(0).start();
-  }
 
-  private int measuredHeight = 0;
-  private int childPos = 0;
-
-  private void show() {
-    if (measuredHeight == 0) {
-      ViewHolder viewHolder = recyclerView.findViewHolderForLayoutPosition(0);
-      if (viewHolder != null && viewHolder.itemView != null) {
-        measuredHeight = viewHolder.itemView
-            .getMeasuredHeight();
-      }
-
+    if (fab.getAlpha() == 1) {
+      fab.animate().translationYBy(offset).alpha(0).start();
     }
 
-    fab.setEnabled(true);
+  }
 
-    fab.animate().alpha(1).start();
+
+  private void show() {
+
+    fab.setEnabled(true);
+    if (fab.getAlpha() == 0) {
+      fab.animate().translationYBy(-offset).alpha(1).start();
+    }
 
   }
 
