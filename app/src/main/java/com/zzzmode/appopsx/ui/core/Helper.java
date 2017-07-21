@@ -92,6 +92,7 @@ public class Helper {
     public static final String SETTINGS = "com.zzzmode.appopsx.permission-group.SETTINGS";
     public static final String NOTIFICATIONS = "com.zzzmode.appopsx.permission-group.NOTIFICATIONS";
     public static final String CLIPBOARD = "com.zzzmode.appopsx.permission-group.CLIPBOARD";
+    public static final String FINGERPRINT = "com.zzzmode.appopsx.permission-group.FINGERPRINT";
 
   }
 
@@ -107,6 +108,7 @@ public class Helper {
           Manifest.permission_group.PHONE,
           Manifest.permission_group.STORAGE,
           Manifest.permission_group.SENSORS,
+          permission_group.FINGERPRINT,
           Manifest.permission_group.MICROPHONE,
           permission_group.VIBRATION,
           permission_group.NET,
@@ -220,6 +222,8 @@ public class Helper {
     FAKE_PERMS_GROUP.put("READ_CLIPBOARD", permission_group.CLIPBOARD);
     FAKE_PERMS_GROUP.put("WRITE_CLIPBOARD", permission_group.CLIPBOARD);
 
+    FAKE_PERMS_GROUP.put("USE_FINGERPRINT", permission_group.FINGERPRINT);
+
     PERMS_GROUPS.put(Manifest.permission_group.CALENDAR,
         new PermGroupInfo(null, Manifest.permission_group.CALENDAR,
             R.drawable.perm_group_calendar));
@@ -269,6 +273,8 @@ public class Helper {
     PERMS_GROUPS.put(permission_group.CLIPBOARD,
         new PermGroupInfo(null, permission_group.CLIPBOARD, R.drawable.perm_group_clipboard));
 
+    PERMS_GROUPS.put(permission_group.FINGERPRINT,
+        new PermGroupInfo(null, permission_group.FINGERPRINT, R.drawable.perm_group_fingerprint));
   }
 
   private static final String TAG = "Helper";
