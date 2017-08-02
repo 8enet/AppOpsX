@@ -5,7 +5,6 @@ import android.net.LocalSocketAddress;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.cgutman.adblib.AdbConnection;
 import com.cgutman.adblib.AdbStream;
 import com.zzzmode.adblib.AdbConnector;
@@ -15,9 +14,9 @@ import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.ParcelableUtil;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -78,7 +77,9 @@ class LocalServerManager {
         Log.e(TAG, "start --> server alread start !!!!!");
       } else {
         startServer();
-        mClientThread.start(0, true);
+        if(mClientThread != null) {
+          mClientThread.start(0, true);
+        }
       }
     }
   }
@@ -88,6 +89,14 @@ class LocalServerManager {
   }
 
   public void stop() {
+    try {
+      if(adbStream != null){
+        adbStream.close();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
     if (mClientThread != null) {
       mClientThread.exit();
       mClientThread = null;
@@ -222,7 +231,7 @@ class LocalServerManager {
                 bw.newLine();
               }
               line++;
-              if (!mConfig.printLog && (line >= 20 || (s != null && s.startsWith("runGet")))) {
+              if (!mConfig.printLog && (line >= 50 || (s != null && s.startsWith("runGet")))) {
                 break;
               }
             }
@@ -264,7 +273,7 @@ class LocalServerManager {
   }
 
   private boolean useRootStartServer() throws Exception {
-    BufferedWriter writer = null;
+    DataOutputStream outputStream = null;
     RootChecker checker = null;
     Process exec = null;
     try {
@@ -285,7 +294,7 @@ class LocalServerManager {
         throw new RuntimeException(checker.errorMsg);
       }
 
-      writer = new BufferedWriter(new OutputStreamWriter(exec.getOutputStream()));
+      outputStream = new DataOutputStream(exec.getOutputStream());
 
       List<String> cmds = getCommonds();
 
@@ -301,7 +310,7 @@ class LocalServerManager {
         cmds.add("echo $?");
         cmds.add("echo end");
 
-        final BufferedWriter waitWriter = writer;
+        final OutputStream waitWriter = outputStream;
         final Process waitProcess = exec;
         new Thread(new Runnable() {
           @Override
@@ -309,17 +318,18 @@ class LocalServerManager {
             SystemClock.sleep(1000 * 20);
             try {
               Log.e(TAG, "run --> stop adb ");
-              String[] cls = {"echo 'stop adb!!!'",
-                  "setprop service.adb.tcp.port -1",
-                  "stop adbd",
-                  "start adbd",
-                  "getprop service.adb.tcp.port"};
-              for (String cmd : cls) {
-                waitWriter.write(cmd);
-                waitWriter.newLine();
-                waitWriter.flush();
-              }
-              waitWriter.flush();
+
+              List<String> cls=new ArrayList<String>(){
+                {
+                  add("echo 'stop adb!!!'");
+                  add("setprop service.adb.tcp.port -1");
+                  add("stop adbd");
+                  add("start adbd");
+                  add("getprop service.adb.tcp.port");
+                }
+              };
+
+              writeCmds(cls,waitWriter);
 
             } catch (Exception e) {
               e.printStackTrace();
@@ -336,12 +346,7 @@ class LocalServerManager {
 
       }
 
-      for (String cmd : cmds) {
-        writer.write(cmd);
-        writer.newLine();
-        writer.flush();
-      }
-      writer.flush();
+      writeCmds(cmds,outputStream);
 
       final BufferedReader inputStream = new BufferedReader(
           new InputStreamReader(exec.getInputStream(), "UTF-8"));
@@ -372,7 +377,7 @@ class LocalServerManager {
                   bw.newLine();
                 }
                 line++;
-                if (!mConfig.printLog && (line >= 20 || (s != null && s.startsWith("runGet")))) {
+                if (!mConfig.printLog && (line >= 50 || (s != null && s.startsWith("runGet")))) {
                   break;
                 }
 
@@ -421,6 +426,14 @@ class LocalServerManager {
       }
     }
 
+  }
+
+  private void writeCmds(List<String> cmds, OutputStream outputStream) throws IOException {
+    for (String cmd : cmds) {
+      outputStream.write((cmd + "\n").getBytes("UTF-8"));
+      outputStream.flush();
+    }
+    outputStream.flush();
   }
 
   private boolean startServer() throws Exception {

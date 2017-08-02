@@ -75,7 +75,7 @@ public class AppGlobal extends Application implements Application.ActivityLifecy
     int i = mAliveActivity.decrementAndGet();
     if (i <= 0) {
       Log.e("test", "onActivityDestroyed --> ");
-      AppOpsx.getInstance(getApplicationContext()).destory();
+      Helper.closeBgServer(getApplicationContext());
     }
   }
 }
