@@ -29,11 +29,16 @@ class OpsXServer {
   OpsXServer(String name, String token, OpsDataTransfer.OnRecvCallback callback)
       throws IOException {
 
+    int port = -1;
     try {
-      int port = Integer.parseInt(name);
-      server = new NetSocketServerImpl(port);
+      port = Integer.parseInt(name);
     } catch (Exception e) {
-      //e.printStackTrace();
+      //ignore
+    }
+
+    if(port != -1){
+      server = new NetSocketServerImpl(port);
+    }else {
       server = new LocalServerImpl(name);
     }
 
@@ -41,7 +46,7 @@ class OpsXServer {
     this.token = token;
   }
 
-  public void run() throws Exception {
+  void run() throws Exception {
     while (running) {
 
       try {

@@ -11,7 +11,6 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.os.Process;
 import android.os.ServiceManager;
-import android.system.Os;
 import android.text.TextUtils;
 import android.util.Log;
 import com.android.internal.app.IAppOpsService;
@@ -57,13 +56,12 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
     boolean allowBg = TextUtils.equals(params.get("bgrun"), "1");
     boolean debug = TextUtils.equals(params.get("debug"), "1");
 
-    if (isRoot) {
-      List<Class> paramsType = new ArrayList<>(1);
-      paramsType.add(String.class);
-      List<Object> v0params = new ArrayList<>(1);
-      v0params.add("appopsx_local_server");
-      ReflectUtils.invokMethod(Process.class, "setArgV0", paramsType, v0params);
-    }
+    List<Class> paramsType = new ArrayList<>(1);
+    paramsType.add(String.class);
+    List<Object> v0params = new ArrayList<>(1);
+    v0params.add("appopsx_local_server");
+    ReflectUtils.invokMethod(Process.class, "setArgV0", paramsType, v0params);
+
 
     server = new OpsXServer(path, token, this);
     server.allowBackgroundRun = this.allowBg = allowBg;
@@ -80,32 +78,24 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
       mIptablesController = null;
     }
 
-    try {
 
-      HandlerThread thread1 = new HandlerThread("watcher-ups");
-      thread1.start();
-      handler = new Handler(thread1.getLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-          super.handleMessage(msg);
-          switch (msg.what) {
-            case MSG_TIMEOUT:
-              destory();
-              break;
-          }
-        }
-      };
       if(!allowBg) {
+        HandlerThread thread1 = new HandlerThread("watcher-ups");
+        thread1.start();
+        handler = new Handler(thread1.getLooper()) {
+          @Override
+          public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+              case MSG_TIMEOUT:
+                destory();
+                break;
+            }
+          }
+        };
         handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
       }
 
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      FLog.log("eeeeeeeend  ---   --dfs pid " + Process.myPid());
-      FLog.log(e);
-    }
-    FLog.log("end ----");
   }
 
 
@@ -115,7 +105,7 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
 
   void destory() {
     try {
-      if (!allowBg) {
+      if (!allowBg && handler != null) {
         handler.removeCallbacksAndMessages(null);
         handler.removeMessages(MSG_TIMEOUT);
         handler.getLooper().quit();
@@ -299,11 +289,13 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
 
   @Override
   public void onMessage(byte[] bytes) {
-    handler.removeCallbacksAndMessages(null);
-    handler.removeMessages(MSG_TIMEOUT);
+    if(handler != null) {
+      handler.removeCallbacksAndMessages(null);
+      handler.removeMessages(MSG_TIMEOUT);
+    }
 
     if (!isDeath) {
-      if (!allowBg) {
+      if (!allowBg && handler != null) {
         handler.sendEmptyMessageDelayed(MSG_TIMEOUT, BG_TIME_OUT);
       }
 
