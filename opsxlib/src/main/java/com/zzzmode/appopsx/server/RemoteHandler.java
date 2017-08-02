@@ -273,9 +273,8 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
     try {
       final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
           ServiceManager.getService(Context.APP_OPS_SERVICE));
-      final int uid = Helper.getPackageUid(builder.getPackageName(), builder.getUserHandleId());
 
-      appOpsService.resetAllModes(uid, builder.getPackageName());
+      appOpsService.resetAllModes(builder.getUserHandleId(), builder.getPackageName());
       server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));
     } catch (Exception e) {
       e.printStackTrace();

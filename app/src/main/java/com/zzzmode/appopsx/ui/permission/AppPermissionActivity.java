@@ -155,9 +155,9 @@ public class AppPermissionActivity extends BaseActivity implements IPermView {
       case android.R.id.home:
         finish();
         return true;
-//            case R.id.action_reset:
-//                resetMode();
-//                return true;
+      case R.id.action_reset:
+        mPresenter.reset();
+        return true;
       case R.id.action_hide_perm:
         showHidePerms();
         return true;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto">
-  <!--<item android:id="@+id/action_reset" app:showAsAction="never" android:title="@string/reset_all"/>-->
+
   <item
     android:id="@+id/action_hide_perm"
     app:showAsAction="never"
@@ -34,4 +34,6 @@
     android:id="@+id/action_app_info"
     app:showAsAction="never"
     android:title="@string/menu_app_info"/>
+
+  <item android:id="@+id/action_reset" app:showAsAction="never" android:title="@string/reset_all"/>
 </menu>

@@ -20,12 +20,9 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.text.BidiFormatter;
-import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
-
 import com.zzzmode.appopsx.BuildConfig;
-import com.zzzmode.appopsx.OpsxManager;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsResult;
@@ -39,38 +36,31 @@ import com.zzzmode.appopsx.ui.model.PermissionChildItem;
 import com.zzzmode.appopsx.ui.model.PermissionGroup;
 import com.zzzmode.appopsx.ui.model.PreAppInfo;
 import com.zzzmode.appopsx.ui.permission.AppPermissionActivity;
-
-import io.reactivex.functions.Action;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function3;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import io.reactivex.internal.operators.single.SingleJust;
+import io.reactivex.observers.ResourceSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Function;
-import io.reactivex.functions.Predicate;
-import io.reactivex.internal.operators.single.SingleJust;
-import io.reactivex.observers.ResourceSingleObserver;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by zl on 2017/1/17.
@@ -874,6 +864,18 @@ public class Helper {
         });
   }
 
+  public static Single<OpsResult> resetMode(final Context context, final String pkgName) {
+    return SingleJust.just(pkgName).map(new Function<String, OpsResult>() {
+      @Override
+      public OpsResult apply(@NonNull String s) throws Exception {
+        OpsResult opsForPackage = AppOpsx.getInstance(context).resetAllModes(pkgName);
+        if (opsForPackage != null && opsForPackage.getException() != null) {
+          throw new Exception(opsForPackage.getException());
+        }
+        return opsForPackage;
+      }
+    });
+  }
 
   public static Single<SparseIntArray> autoDisable(final Context context, String pkg) {
 

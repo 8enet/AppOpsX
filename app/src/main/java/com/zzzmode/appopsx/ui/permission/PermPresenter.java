@@ -235,6 +235,29 @@ class PermPresenter {
         });
   }
 
+  void reset(){
+    Helper.resetMode(context, appInfo.packageName)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new SingleObserver<OpsResult>(){
+
+          @Override
+          public void onSubscribe(@NonNull Disposable d) {
+
+          }
+
+          @Override
+          public void onSuccess(@NonNull OpsResult opsResult) {
+            load();
+          }
+
+          @Override
+          public void onError(@NonNull Throwable e) {
+
+          }
+        });
+  }
+
   void destory() {
     try {
       if (observable != null) {
