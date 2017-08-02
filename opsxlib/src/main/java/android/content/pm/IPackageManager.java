@@ -18,8 +18,6 @@ public interface IPackageManager {
 
   void resetRuntimePermissions();
 
-  IPackageInstaller getPackageInstaller();
-
   int getPermissionFlags(String permissionName, String packageName, int userId);
   String[] getAppOpPermissionPackages(String permissionName);
   ResolveInfo resolveIntent(Intent intent, String resolvedType, int flags, int userId);
