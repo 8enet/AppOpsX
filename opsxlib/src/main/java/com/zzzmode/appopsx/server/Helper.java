@@ -2,17 +2,12 @@ package com.zzzmode.appopsx.server;
 
 import android.app.ActivityThread;
 import android.app.AppOpsManager;
-import android.content.pm.PackageInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.RemoteException;
-import android.util.SparseArray;
-
-import com.android.internal.app.IAppOpsService;
+import android.os.UserHandle;
 import com.zzzmode.appopsx.common.ReflectUtils;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,28 +17,28 @@ import java.util.Map;
  */
 class Helper {
 
-  static int getPackageUid(String packageName, int flag) {
-    int uid = 0;
+  static int getPackageUid(String packageName, int userId) {
+    int uid = -1;
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      List<Class> paramsType = new ArrayList<>();
-      paramsType.add(String.class);
-      paramsType.add(int.class);
-      paramsType.add(int.class);
-      List<Object> params = new ArrayList<>();
-      params.add(packageName);
-      params.add(PackageManager.MATCH_UNINSTALLED_PACKAGES);
-      params.add(flag);
-      uid = (int) ReflectUtils
-          .invokMethod(ActivityThread.getPackageManager(), "getPackageUid", paramsType, params);
+      uid = ActivityThread.getPackageManager().getPackageUid(packageName,PackageManager.MATCH_UNINSTALLED_PACKAGES,userId);
     } else {
-      List<Class> paramsType = new ArrayList<>();
-      paramsType.add(String.class);
-      paramsType.add(int.class);
-      List<Object> params = new ArrayList<>();
-      params.add(packageName);
-      params.add(flag);
-      uid = (int) ReflectUtils
-          .invokMethod(ActivityThread.getPackageManager(), "getPackageUid", paramsType, params);
+      uid = ActivityThread.getPackageManager().getPackageUid(packageName, userId);
+    }
+
+    if (uid == -1) {
+      try {
+        ApplicationInfo applicationInfo = ActivityThread.getPackageManager()
+            .getApplicationInfo(packageName, 0, userId);
+        List<Class> paramsType = new ArrayList<>(2);
+        paramsType.add(int.class);
+        paramsType.add(int.class);
+        List<Object> params = new ArrayList<>(2);
+        params.add(userId);
+        params.add(applicationInfo.uid);
+        uid = (int) ReflectUtils.invokMethod(UserHandle.class, "getUid", paramsType, params);
+      } catch (Throwable e) {
+        e.printStackTrace();
+      }
     }
 
     return uid;

@@ -1,54 +1,54 @@
 package com.zzzmode.appopsx.server;
 
 
+import android.annotation.TargetApi;
 import android.app.ActivityThread;
-import android.app.AppOpsManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.IPackageInstaller;
+import android.content.pm.IPackageInstallerCallback.Stub;
+import android.content.pm.IPackageManager;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageInstaller.SessionInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+import android.os.Looper;
 import android.os.Process;
-import android.os.ServiceManager;
 import android.system.Os;
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.android.internal.app.IAppOpsService;
 import com.zzzmode.appopsx.common.FLog;
-import com.zzzmode.appopsx.common.OpEntry;
-import com.zzzmode.appopsx.common.OpsCommands;
-import com.zzzmode.appopsx.common.OpsDataTransfer;
-import com.zzzmode.appopsx.common.OpsResult;
-import com.zzzmode.appopsx.common.OtherOp;
-import com.zzzmode.appopsx.common.PackageOps;
-import com.zzzmode.appopsx.common.ParcelableUtil;
 import com.zzzmode.appopsx.common.ReflectUtils;
-import com.zzzmode.appopsx.common.Shell;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
+public class AppOpsMain extends Stub {
 
-  private static final int MSG_TIMEOUT = 1;
-  private static final int DEFAULT_TIME_OUT_TIME = 1000 * 60 * 1; //1min
-  private static final int BG_TIME_OUT = DEFAULT_TIME_OUT_TIME * 10; //10min
+  private static final String APPOPSX_PKG="com.zzzmode.appopsx";
 
   public static void main(String[] args) {
 
     try {
-      FLog.writeLog = false;
+      FLog.writeLog = true;
       FLog.log("start ops server args:" + Arrays.toString(args));
       if (args == null) {
         return;
       }
+
+      try {
+        Looper.prepareMainLooper();
+        ActivityThread.systemMain();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
       String[] split = args[0].split(",");
       Map<String, String> params = new HashMap<>();
       for (String s : split) {
@@ -56,315 +56,191 @@ public class AppOpsMain implements OpsDataTransfer.OnRecvCallback {
         params.put(param[0], param[1]);
       }
       new AppOpsMain(params);
-    } catch (Exception e) {
+
+      Looper.loop();
+    } catch (Throwable e) {
       e.printStackTrace();
       FLog.log(e);
     } finally {
+      FLog.log("close log ... ");
       FLog.close();
     }
   }
 
 
-  private OpsXServer server;
-  private Handler handler;
-  private volatile boolean isDeath = false;
-  private int timeOut = DEFAULT_TIME_OUT_TIME;
-  private volatile boolean allowBg = false;
 
-  private Shell mShell;
-  private IptablesController mIptablesController;
-  private PersistenceConfig mPersistenceConfig;
-
+  private Context mContext;
+  private RemoteHandler mCallHandler;
 
   private AppOpsMain(Map<String, String> params) throws IOException {
-    System.out.println("params --> " + params);
-    boolean isRoot = TextUtils.equals(params.get("type"), "root");
-    String path = params.get("path");
-    String token = params.get("token");
-    boolean allowBg = TextUtils.equals(params.get("bgrun"), "1");
-    boolean debug = TextUtils.equals(params.get("debug"), "1");
-
-    if (isRoot) {
-      List<Class> paramsType = new ArrayList<>(1);
-      paramsType.add(String.class);
-      List<Object> v0params = new ArrayList<>(1);
-      v0params.add("appopsx_local_server");
-      ReflectUtils.invokMethod(Process.class, "setArgV0", paramsType, v0params);
-    }
-
-    server = new OpsXServer(path, token, this);
-    server.allowBackgroundRun = this.allowBg = allowBg;
 
     try {
-      //mPersistenceConfig=new PersistenceConfig();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+      mCallHandler = new RemoteHandler(params);
 
-    try {
-
-      if (isRoot) {
-        mShell = Shell.getShell();
-        mIptablesController = new IptablesController(mShell);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      mIptablesController = null;
-    }
-
-    try {
-
-      HandlerThread thread1 = new HandlerThread("watcher-ups");
-      thread1.start();
-      handler = new Handler(thread1.getLooper()) {
+      new Thread(new Runnable() {
         @Override
-        public void handleMessage(Message msg) {
-          super.handleMessage(msg);
-          switch (msg.what) {
-            case MSG_TIMEOUT:
-              destory();
-              break;
+        public void run() {
+          try {
+            mCallHandler.start();
+          } catch (Exception e) {
+            e.printStackTrace();
+            FLog.log(e);
+          }finally {
+            FLog.log("call end ----");
+            destory();
           }
         }
-      };
-      if(!allowBg) {
-        handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
-      }
+      }).start();
+
       System.out.println("AppOpsX server start successful, enjoy it! \uD83D\uDE0E");
-      server.run();
+//      if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+//        register2();
+//      }
     } catch (Exception e) {
       e.printStackTrace();
-      FLog.log("eeeeeeeend  ---   --dfs pid " + Process.myPid());
       FLog.log(e);
-      destory();
     }
-    FLog.log("end ----");
+
+  }
+
+
+  @TargetApi(VERSION_CODES.LOLLIPOP)
+  private void register2(){
+
+    getPI().registerCallback(this,0);
+
+  }
+
+  private void register(){
+    try {
+
+      System.out.println("register  ---");
+
+      PackageInfo packageInfo = ActivityThread.getPackageManager()
+          .getPackageInfo(APPOPSX_PKG, PackageManager.GET_RECEIVERS | PackageManager.GET_META_DATA, 0);
+
+      String revicerName=null;
+
+      for (ActivityInfo receiver : packageInfo.receivers) {
+        FLog.log(receiver.toString());
+        System.out.println(receiver);
+        if(receiver.metaData != null && receiver.metaData.getBoolean("installer")){
+          revicerName = receiver.name;
+          break;
+        }
+      }
+
+      ActivityThread activityThread = ActivityThread.currentActivityThread();
+      Context context = activityThread.getSystemContext();
+
+      System.out.println(context.getPackageName());
+
+      ApplicationInfo applicationInfo = context.getPackageManager()
+          .getPackageInfo(context.getPackageName(), 0).applicationInfo;
+
+      Object mPackageInfo = ReflectUtils.getFieldValue(context, "mPackageInfo");
+      ClassLoader classLoader = (ClassLoader)ReflectUtils.invokMethod(mPackageInfo, "getClassLoader", null, null);
+
+      System.out.println(mPackageInfo);
+      System.out.println(classLoader);
+
+      activityThread.installSystemApplicationInfo(applicationInfo,classLoader);
+
+      System.out.println("installSystemApplicationInfo success");
+
+      Context packageContext = context.createPackageContext(APPOPSX_PKG, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+
+
+      if(revicerName != null){
+        Class aClass = Class.forName(revicerName, false, packageContext.getClassLoader());
+        BroadcastReceiver receiver= (BroadcastReceiver) aClass.newInstance();
+
+        IntentFilter filter=new IntentFilter();
+        filter.addAction(Intent.ACTION_INSTALL_PACKAGE);
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addDataScheme("package");
+        context.registerReceiver(receiver,filter);
+        System.out.println("registerReceiver --> "+receiver);
+      }
+
+    } catch (Throwable e) {
+      e.printStackTrace();
+      FLog.log(e);
+    }
   }
 
   private void destory() {
+    getPI().unregisterCallback(this);
     try {
-      if (!allowBg) {
-        handler.removeCallbacksAndMessages(null);
-        handler.removeMessages(MSG_TIMEOUT);
-        handler.getLooper().quit();
+      if(mCallHandler != null){
+        mCallHandler.destory();
       }
+      Looper.getMainLooper().quitSafely();
+      FLog.log("call destory ----- ");
     } catch (Exception e) {
       e.printStackTrace();
     }
-    try {
-      if (mPersistenceConfig != null) {
-        mPersistenceConfig.close();
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    if (mShell != null) {
-      try {
-        mShell.close();
-        mShell.destroyShell();
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-    try {
-      isDeath = true;
-      server.setStop();
+    stop();
+  }
 
-      FLog.log("timeout stop----- " + Process.myPid());
+  private void stop(){
+    try {
+      FLog.log(" STOP ---- pid: "+Process.myPid());
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        Os.execve("kill", new String[]{"-9", String.valueOf(Process.myPid())}, null);
+        Os.execve("/system/bin/kill", new String[]{"-9", String.valueOf(Process.myPid())}, null);
       } else {
-        Runtime.getRuntime().exec("kill -9 " + Process.myPid()); //kill self
+        Runtime.getRuntime().exec("/system/bin/kill -9 " + Process.myPid()); //kill self
       }
-    } catch (Exception e) {
-      e.printStackTrace();
-    } finally {
-      System.exit(0);
-    }
-  }
-
-  private void handleCommand(OpsCommands.Builder builder) {
-    String s = builder.getAction();
-    if (OpsCommands.ACTION_GET.equals(s)) {
-      runGet(builder);
-    } else if (OpsCommands.ACTION_SET.equals(s)) {
-      runSet(builder);
-    } else if (OpsCommands.ACTION_RESET.equals(s)) {
-      runReset(builder);
-    } else {
-      runOther(builder);
-    }
-  }
-
-  private void runGet(OpsCommands.Builder getBuilder) {
-
-    try {
-      FLog.log("runGet sdk:" + Build.VERSION.SDK_INT);
-
-      final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-          ServiceManager.getService(Context.APP_OPS_SERVICE));
-      String packageName = getBuilder.getPackageName();
-
-      int uid = Helper.getPackageUid(packageName, getBuilder.getUserHandleId());
-
-      List opsForPackage = appOpsService.getOpsForPackage(uid, packageName, null);
-      List<PackageOps> packageOpses = new ArrayList<>();
-      if (opsForPackage != null) {
-        for (Object o : opsForPackage) {
-          PackageOps packageOps = ReflectUtils.opsConvert(o);
-          addSupport(appOpsService, packageOps, getBuilder.getUserHandleId());
-          packageOpses.add(packageOps);
-        }
-      } else {
-        PackageOps packageOps = new PackageOps(packageName, uid, new ArrayList<OpEntry>());
-        addSupport(appOpsService, packageOps, getBuilder.getUserHandleId());
-        packageOpses.add(packageOps);
-      }
-      if (mPersistenceConfig != null) {
-        for (PackageOps packageOpse : packageOpses) {
-          mPersistenceConfig.sync(packageOpse);
-        }
-      }
-
-      server.sendResult(ParcelableUtil.marshall(new OpsResult(packageOpses, null)));
-    } catch (Throwable e) {
-      e.printStackTrace();
-      System.out.println(Log.getStackTraceString(e));
-      try {
-        server.sendResult(ParcelableUtil.marshall(new OpsResult(null, e)));
-      } catch (IOException e1) {
-        e1.printStackTrace();
-      }
-    }
-  }
-
-
-  private void addSupport(IAppOpsService appOpsService, PackageOps ops, int userHandleId) {
-    try {
-      FLog.log("addSupport  " + mIptablesController);
-      if (mIptablesController != null) {
-        int mode = mIptablesController.isMobileDataEnable(ops.getUid()) ? AppOpsManager.MODE_ALLOWED
-            : AppOpsManager.MODE_IGNORED;
-        OpEntry opEntry = new OpEntry(OtherOp.OP_ACCESS_PHONE_DATA, mode, 0, 0, 0, 0, null);
-        ops.getOps().add(opEntry);
-
-        mode = mIptablesController.isWifiDataEnable(ops.getUid()) ? AppOpsManager.MODE_ALLOWED
-            : AppOpsManager.MODE_IGNORED;
-        opEntry = new OpEntry(OtherOp.OP_ACCESS_WIFI_NETWORK, mode, 0, 0, 0, 0, null);
-        ops.getOps().add(opEntry);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println(Log.getStackTraceString(e));
-    }
-    try {
-      PackageInfo packageInfo = ActivityThread.getPackageManager()
-          .getPackageInfo(ops.getPackageName(), PackageManager.GET_PERMISSIONS, userHandleId);
-      if (packageInfo != null && packageInfo.requestedPermissions != null) {
-        for (String permission : packageInfo.requestedPermissions) {
-          int code = Helper.permissionToCode(permission);
-
-          if (code > 0 && !ops.hasOp(code)) {
-            int mode = appOpsService.checkOperation(code, ops.getUid(), ops.getPackageName());
-            if (mode != AppOpsManager.MODE_ERRORED) {
-              //
-              ops.getOps().add(new OpEntry(code, mode, 0, 0, 0, 0, null));
-            }
-          }
-        }
-      }
-
     } catch (Throwable e) {
       e.printStackTrace();
     }
   }
 
-  private void runSet(OpsCommands.Builder builder) {
 
-    try {
-
-      final int uid = Helper.getPackageUid(builder.getPackageName(), builder.getUserHandleId());
-      if (OtherOp.isOtherOp(builder.getOpInt())) {
-        setOther(builder, uid);
-      } else {
-        final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-            ServiceManager.getService(Context.APP_OPS_SERVICE));
-        appOpsService
-            .setMode(builder.getOpInt(), uid, builder.getPackageName(), builder.getModeInt());
-      }
-      if (mPersistenceConfig != null) {
-        mPersistenceConfig
-            .setPerm(uid, builder.getOpInt(), builder.getModeInt() != AppOpsManager.MODE_ALLOWED);
-      }
-      server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));
-    } catch (Exception e) {
-      e.printStackTrace();
-      try {
-        server.sendResult(ParcelableUtil.marshall(new OpsResult(null, e)));
-      } catch (IOException e1) {
-        e1.printStackTrace();
-      }
-    }
+  private static IPackageManager getPM(){
+    return ActivityThread.getPackageManager();
   }
 
-  private void setOther(OpsCommands.Builder builder, int uid) {
-    if (mIptablesController != null) {
-      boolean enable = builder.getModeInt() == AppOpsManager.MODE_ALLOWED;
-      switch (builder.getOpInt()) {
-        case OtherOp.OP_ACCESS_PHONE_DATA:
-          mIptablesController.setMobileData(uid, enable);
-          break;
-        case OtherOp.OP_ACCESS_WIFI_NETWORK:
-          mIptablesController.setWifiData(uid, enable);
-          break;
-      }
-    }
-  }
-
-  private void runOther(OpsCommands.Builder builder) {
-    String packageName = builder.getPackageName();
-    if ("close_server".equals(packageName)) {
-      destory();
-    }
-  }
-
-  private void runReset(OpsCommands.Builder builder) {
-    try {
-      final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-          ServiceManager.getService(Context.APP_OPS_SERVICE));
-      final int uid = Helper.getPackageUid(builder.getPackageName(), builder.getUserHandleId());
-
-      appOpsService.resetAllModes(uid, builder.getPackageName());
-      server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));
-    } catch (Exception e) {
-      e.printStackTrace();
-      try {
-        server.sendResult(ParcelableUtil.marshall(new OpsResult(null, e)));
-      } catch (IOException e1) {
-        e1.printStackTrace();
-      }
-    }
+  private static IPackageInstaller getPI(){
+    return getPM().getPackageInstaller();
   }
 
   @Override
-  public void onMessage(byte[] bytes) {
-    handler.removeCallbacksAndMessages(null);
-    handler.removeMessages(MSG_TIMEOUT);
-
-    if (!isDeath) {
-      if (!allowBg) {
-        handler.sendEmptyMessageDelayed(MSG_TIMEOUT, BG_TIME_OUT);
-      }
-
-      OpsCommands.Builder unmarshall = ParcelableUtil
-          .unmarshall(bytes, OpsCommands.Builder.CREATOR);
-
-      FLog.log("onMessage ---> !!!! " + unmarshall);
-
-      handleCommand(unmarshall);
-
-    }
+  public void onSessionCreated(int sessionId)  {
+    System.out.println("onSessionCreated  "+sessionId);
+    //SessionInfo sessionInfo = getPI().getSessionInfo(sessionId);
+    readSession(sessionId);
   }
 
+  @Override
+  public void onSessionBadgingChanged(int sessionId) {
+    System.out.println("onSessionBadgingChanged "+sessionId);
+  }
 
+  @Override
+  public void onSessionActiveChanged(int sessionId, boolean active)  {
+    System.out.println("onSessionActiveChanged "+sessionId);
+  }
+
+  @Override
+  public void onSessionProgressChanged(int sessionId, float progress)  {
+    System.out.println("onSessionProgressChanged "+sessionId+"   "+progress);
+    readSession(sessionId);
+  }
+
+  @Override
+  public void onSessionFinished(int sessionId, boolean success) {
+    System.out.println("onSessionFinished "+sessionId+"   "+success);
+    readSession(sessionId);
+  }
+
+  private void readSession(int sessionId){
+    SessionInfo sessionInfo = getPI().getSessionInfo(sessionId);
+
+    if(sessionInfo != null) {
+
+      System.out.println(sessionInfo.getAppLabel() + "   " + sessionInfo.getAppPackageName()+"   "+sessionInfo.isActive());
+    }
+
+  }
 }
