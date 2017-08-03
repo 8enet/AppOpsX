@@ -133,7 +133,9 @@ public class AlertInstalledPremActivity extends BaseActivity implements IPermVie
   @Override
   protected void onDestroy() {
     super.onDestroy();
-    mPresenter.destory();
+    if(mPresenter != null) {
+      mPresenter.destory();
+    }
   }
 
   @Override

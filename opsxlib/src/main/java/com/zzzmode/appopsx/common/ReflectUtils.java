@@ -133,20 +133,24 @@ public class ReflectUtils {
     Method method = sMethodCache.get(sb.toString());
     if (method == null) {
       try {
-        if (paramsTypes != null && !paramsTypes.isEmpty()) {
-          if (object instanceof Class) {
-            //static method
-            method = ((Class) object)
-                .getDeclaredMethod(methodName, paramsTypes.toArray(new Class[paramsTypes.size()]));
-          } else {
-            method = object.getClass()
-                .getDeclaredMethod(methodName, paramsTypes.toArray(new Class[paramsTypes.size()]));
-          }
-          method.setAccessible(true);
+        Class cls = null;
+
+        if (object instanceof Class) {
+          //static method
+          cls = ((Class) object);
         } else {
-          method = object.getClass().getDeclaredMethod(methodName);
-          method.setAccessible(true);
+          cls = object.getClass();
         }
+
+        if (paramsTypes != null && !paramsTypes.isEmpty()) {
+          method = cls.getDeclaredMethod(methodName, paramsTypes.toArray(new Class[paramsTypes.size()]));
+        } else {
+          method = cls.getDeclaredMethod(methodName);
+
+        }
+        method.setAccessible(true);
+
+
         sMethodCache.put(sb.toString(), method);
       } catch (NoSuchMethodException e) {
         e.printStackTrace();
