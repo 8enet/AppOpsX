@@ -48,8 +48,13 @@
       android:configChanges="keyboardHidden|orientation"
       android:name=".ui.main.group.PermissionGroupActivity"/>
     <activity
+      android:excludeFromRecents="true"
+      android:exported="true"
       android:name=".ui.permission.AlertInstalledPremActivity"
-      android:theme="@style/alert.perm"/>
+      android:noHistory="true"
+      android:taskAffinity="com.zzzmode.appopsx.task.alert"
+      android:theme="@style/alert.perm"
+      />
     <activity android:name=".ui.main.backup.BackupActivity"/>
     <activity android:name=".ui.main.HtmlActionActivity"/>
 
