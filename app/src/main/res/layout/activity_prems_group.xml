@@ -6,75 +6,49 @@
   android:layout_height="match_parent">
 
 
-  <RelativeLayout
-    android:id="@+id/layout_loading"
+  <ProgressBar
+    android:id="@+id/progressBar"
+    style="@style/Widget.AppCompat.ProgressBar"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:visibility="visible"
-    >
-    <ProgressBar
-      android:id="@+id/progressBar"
-      style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_centerInParent="true"
-      android:layout_marginLeft="@dimen/activity_horizontal_margin"
-      android:layout_marginRight="@dimen/activity_horizontal_margin"
-      android:maxWidth="48dp"
-      android:minHeight="24dp"
-      android:minWidth="24dp"
-      />
-    <TextView
-      android:id="@+id/tv_appname"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:textAppearance="@style/TextAppearance.AppCompat.Small"
-      android:textColor="?android:attr/textColorSecondary"
-      android:layout_below="@id/progressBar"
-      android:layout_alignLeft="@id/progressBar"
-      android:text="loading..."
-      />
-    <TextView
-      android:id="@+id/tv_progress_size"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:textAppearance="@style/TextAppearance.AppCompat.Small"
-      android:textColor="?android:attr/textColorSecondary"
-      android:layout_below="@id/progressBar"
-      android:layout_alignRight="@id/progressBar"
-      android:text="0/0"
-      />
-  </RelativeLayout>
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
+    android:layout_centerInParent="true"
+    android:maxWidth="48dp"
+    android:minHeight="24dp"
+    android:minWidth="24dp"
+    />
+
   <TextView
     android:id="@+id/tv_error"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:scrollbars="vertical"
-    android:visibility="gone"
-    android:textIsSelectable="true"
     android:clickable="true"
-    android:longClickable="true"
-    android:focusable="true"
     android:enabled="true"
+    android:focusable="true"
     android:focusableInTouchMode="true"
+    android:longClickable="true"
+    android:scrollbars="vertical"
     android:text=""
+    android:textIsSelectable="true"
+    android:visibility="gone"
     />
 
 
   <android.support.design.widget.CoordinatorLayout
     android:id="@+id/coordinator_layout"
-    android:visibility="gone"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:visibility="gone">
 
     <android.support.v7.widget.RecyclerView
       android:id="@+id/recyclerView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:splitMotionEvents="false"
       android:overScrollMode="never"
       android:scrollbars="vertical"
+      android:splitMotionEvents="false"
       android:visibility="gone"
       />
     <android.support.design.widget.FloatingActionButton
@@ -82,11 +56,11 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_margin="16dp"
+      android:alpha="0"
+      android:clickable="true"
       app:layout_anchor="@id/recyclerView"
       app:layout_anchorGravity="bottom|end|right"
       app:srcCompat="@drawable/ic_vertical_align_top"
-      android:clickable="true"
-      android:alpha="0"
       />
   </android.support.design.widget.CoordinatorLayout>
 

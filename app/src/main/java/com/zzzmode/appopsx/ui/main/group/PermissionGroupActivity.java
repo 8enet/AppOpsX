@@ -38,10 +38,7 @@ public class PermissionGroupActivity extends BaseActivity implements
   private static final String TAG = "PermissionGroupActivity";
 
 
-  private View loadingLayout;
   private ProgressBar progressBar;
-  private TextView tvLeftAppName;
-  private TextView tvRightProgressSize;
 
   private RecyclerView recyclerView;
   private View coordinatorLayout;
@@ -69,12 +66,9 @@ public class PermissionGroupActivity extends BaseActivity implements
 
     recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
     coordinatorLayout = findViewById(R.id.coordinator_layout);
-    loadingLayout = findViewById(R.id.layout_loading);
     tvError = (TextView) findViewById(R.id.tv_error);
     progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-    tvLeftAppName = (TextView) findViewById(R.id.tv_appname);
-    tvRightProgressSize = (TextView) findViewById(R.id.tv_progress_size);
     mLayoutManager = new LinearLayoutManager(this);
 
     final Parcelable eimSavedState = (savedInstanceState != null) ? savedInstanceState
@@ -179,11 +173,7 @@ public class PermissionGroupActivity extends BaseActivity implements
 
   @Override
   public void loading(int count, int progress, String name) {
-    loadingLayout.setVisibility(View.VISIBLE);
-    tvLeftAppName.setText(name);
-    progressBar.setMax(count);
-    progressBar.setProgress(progress);
-    tvRightProgressSize.setText(progress+"/"+count);
+
 
   }
 
@@ -204,7 +194,7 @@ public class PermissionGroupActivity extends BaseActivity implements
     if (isFinishing()) {
       return;
     }
-    loadingLayout.setVisibility(View.GONE);
+    progressBar.setVisibility(View.GONE);
     coordinatorLayout.setVisibility(View.VISIBLE);
     recyclerView.setVisibility(View.VISIBLE);
 
@@ -218,7 +208,7 @@ public class PermissionGroupActivity extends BaseActivity implements
   @Override
   public void showError(Throwable e) {
     try {
-      loadingLayout.setVisibility(View.GONE);
+      progressBar.setVisibility(View.GONE);
       tvError.setVisibility(View.VISIBLE);
       tvError.setText(getString(R.string.error_msg,"", Log.getStackTraceString(e)));
     } catch (Exception e1) {
