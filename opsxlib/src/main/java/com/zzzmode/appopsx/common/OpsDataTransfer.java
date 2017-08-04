@@ -1,9 +1,7 @@
 package com.zzzmode.appopsx.common;
 
-import android.app.usage.NetworkStatsManager;
 import android.text.TextUtils;
 import android.util.Log;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -16,7 +14,9 @@ import java.io.OutputStream;
 
 public class OpsDataTransfer {
 
-  public static final String PROTOCOL_VERSION = "1.1.6";
+  // length+data
+
+  public static final String PROTOCOL_VERSION = "1.2.1";
 
   private DataOutputStream outputStream;
   private DataInputStream inputStream;
@@ -59,6 +59,14 @@ public class OpsDataTransfer {
     }
   }
 
+  private byte[] readMsg() throws IOException {
+    int len = inputStream.readInt();
+
+    byte[] bytes = new byte[len];
+    inputStream.readFully(bytes, 0, len);
+    return bytes;
+  }
+
   public synchronized byte[] sendMsgAndRecv(byte[] msg) throws IOException {
     if (msg != null) {
       sendMsg(msg);
@@ -72,14 +80,7 @@ public class OpsDataTransfer {
     void onMessage(byte[] bytes);
   }
 
-  private byte[] readMsg() throws IOException {
-    int len = inputStream.readInt();
-    byte[] bytes = new byte[len];
-    if (inputStream.read(bytes, 0, len) == len) {
-      return bytes;
-    }
-    return null;
-  }
+
 
   public void shakehands(String token, boolean isServer) throws IOException {
     if (token == null) {

@@ -33,7 +33,7 @@ import java.util.Map;
  * Created by zl on 2017/7/27.
  */
 
-class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
+class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
 
   private static final int MSG_TIMEOUT = 1;
   private static final int DEFAULT_TIME_OUT_TIME = 1000 * 60 * 1; //1min
@@ -62,10 +62,8 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
     v0params.add("appopsx_local_server");
     ReflectUtils.invokMethod(Process.class, "setArgV0", paramsType, v0params);
 
-
     server = new OpsXServer(path, token, this);
     server.allowBackgroundRun = this.allowBg = allowBg;
-
 
     try {
 
@@ -78,23 +76,22 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
       mIptablesController = null;
     }
 
-
-      if(!allowBg) {
-        HandlerThread thread1 = new HandlerThread("watcher-ups");
-        thread1.start();
-        handler = new Handler(thread1.getLooper()) {
-          @Override
-          public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-              case MSG_TIMEOUT:
-                destory();
-                break;
-            }
+    if (!allowBg) {
+      HandlerThread thread1 = new HandlerThread("watcher-ups");
+      thread1.start();
+      handler = new Handler(thread1.getLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+          super.handleMessage(msg);
+          switch (msg.what) {
+            case MSG_TIMEOUT:
+              destory();
+              break;
           }
-        };
-        handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
-      }
+        }
+      };
+      handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
+    }
 
   }
 
@@ -130,8 +127,15 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
     }
   }
 
+  private void sendOpResult(OpsResult result) {
+    try {
+      server.sendResult(ParcelableUtil.marshall(result));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
-  private void handleCommand(OpsCommands.Builder builder) {
+  private void handleCommand(OpsCommands.Builder builder) throws Throwable {
     String s = builder.getAction();
     if (OpsCommands.ACTION_GET.equals(s)) {
       runGet(builder);
@@ -139,53 +143,44 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
       runSet(builder);
     } else if (OpsCommands.ACTION_RESET.equals(s)) {
       runReset(builder);
+    } else if (OpsCommands.ACTION_GET_FOR_OPS.equals(s)) {
+      runGetForOps(builder);
     } else {
       runOther(builder);
     }
   }
 
-  private void runGet(OpsCommands.Builder getBuilder) {
+  private void runGet(OpsCommands.Builder getBuilder) throws Throwable {
 
-    try {
-      FLog.log("runGet sdk:" + Build.VERSION.SDK_INT);
+    FLog.log("runGet sdk:" + Build.VERSION.SDK_INT);
 
-      final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-          ServiceManager.getService(Context.APP_OPS_SERVICE));
-      String packageName = getBuilder.getPackageName();
+    final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
+        ServiceManager.getService(Context.APP_OPS_SERVICE));
+    String packageName = getBuilder.getPackageName();
 
-      int uid = Helper.getPackageUid(packageName, getBuilder.getUserHandleId());
+    int uid = Helper.getPackageUid(packageName, getBuilder.getUserHandleId());
 
-      List opsForPackage = appOpsService.getOpsForPackage(uid, packageName, null);
-      List<PackageOps> packageOpses = new ArrayList<>();
-      if (opsForPackage != null) {
-        for (Object o : opsForPackage) {
-          PackageOps packageOps = ReflectUtils.opsConvert(o);
-          addSupport(appOpsService, packageOps, getBuilder.getUserHandleId());
-          packageOpses.add(packageOps);
-        }
-      } else {
-        PackageOps packageOps = new PackageOps(packageName, uid, new ArrayList<OpEntry>());
+    List opsForPackage = appOpsService.getOpsForPackage(uid, packageName, null);
+    List<PackageOps> packageOpses = new ArrayList<>();
+    if (opsForPackage != null) {
+      for (Object o : opsForPackage) {
+        PackageOps packageOps = ReflectUtils.opsConvert(o);
         addSupport(appOpsService, packageOps, getBuilder.getUserHandleId());
         packageOpses.add(packageOps);
       }
-
-
-      server.sendResult(ParcelableUtil.marshall(new OpsResult(packageOpses, null)));
-    } catch (Throwable e) {
-      e.printStackTrace();
-      System.out.println(Log.getStackTraceString(e));
-      try {
-        server.sendResult(ParcelableUtil.marshall(new OpsResult(null, e)));
-      } catch (IOException e1) {
-        e1.printStackTrace();
-      }
+    } else {
+      PackageOps packageOps = new PackageOps(packageName, uid, new ArrayList<OpEntry>());
+      addSupport(appOpsService, packageOps, getBuilder.getUserHandleId());
+      packageOpses.add(packageOps);
     }
+
+    sendOpResult(new OpsResult(packageOpses, null));
+
   }
 
 
   private void addSupport(IAppOpsService appOpsService, PackageOps ops, int userHandleId) {
     try {
-      FLog.log("addSupport  " + mIptablesController);
       if (mIptablesController != null) {
         int mode = mIptablesController.isMobileDataEnable(ops.getUid()) ? AppOpsManager.MODE_ALLOWED
             : AppOpsManager.MODE_IGNORED;
@@ -223,29 +218,20 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
     }
   }
 
-  private void runSet(OpsCommands.Builder builder) {
+  private void runSet(OpsCommands.Builder builder) throws Throwable {
 
-    try {
-
-      final int uid = Helper.getPackageUid(builder.getPackageName(), builder.getUserHandleId());
-      if (OtherOp.isOtherOp(builder.getOpInt())) {
-        setOther(builder, uid);
-      } else {
-        final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-            ServiceManager.getService(Context.APP_OPS_SERVICE));
-        appOpsService
-            .setMode(builder.getOpInt(), uid, builder.getPackageName(), builder.getModeInt());
-      }
-
-      server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));
-    } catch (Exception e) {
-      e.printStackTrace();
-      try {
-        server.sendResult(ParcelableUtil.marshall(new OpsResult(null, e)));
-      } catch (IOException e1) {
-        e1.printStackTrace();
-      }
+    final int uid = Helper.getPackageUid(builder.getPackageName(), builder.getUserHandleId());
+    if (OtherOp.isOtherOp(builder.getOpInt())) {
+      setOther(builder, uid);
+    } else {
+      final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
+          ServiceManager.getService(Context.APP_OPS_SERVICE));
+      appOpsService
+          .setMode(builder.getOpInt(), uid, builder.getPackageName(), builder.getModeInt());
     }
+
+    sendOpResult(new OpsResult(null, null));
+
   }
 
   private void setOther(OpsCommands.Builder builder, int uid) {
@@ -269,26 +255,39 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
     }
   }
 
-  private void runReset(OpsCommands.Builder builder) {
-    try {
-      final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-          ServiceManager.getService(Context.APP_OPS_SERVICE));
+  private void runReset(OpsCommands.Builder builder) throws Throwable {
+    final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
+        ServiceManager.getService(Context.APP_OPS_SERVICE));
 
-      appOpsService.resetAllModes(builder.getUserHandleId(), builder.getPackageName());
-      server.sendResult(ParcelableUtil.marshall(new OpsResult(null, null)));
-    } catch (Exception e) {
-      e.printStackTrace();
-      try {
-        server.sendResult(ParcelableUtil.marshall(new OpsResult(null, e)));
-      } catch (IOException e1) {
-        e1.printStackTrace();
+    appOpsService.resetAllModes(builder.getUserHandleId(), builder.getPackageName());
+    sendOpResult(new OpsResult(null, null));
+  }
+
+  private void runGetForOps(OpsCommands.Builder builder) throws Throwable {
+
+    final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
+        ServiceManager.getService(Context.APP_OPS_SERVICE));
+
+    List opsForPackage = appOpsService.getPackagesForOps(builder.getOps());
+    List<PackageOps> packageOpses = new ArrayList<>();
+
+    if (opsForPackage != null) {
+      for (Object o : opsForPackage) {
+        PackageOps packageOps = ReflectUtils.opsConvert(o);
+        addSupport(appOpsService, packageOps, builder.getUserHandleId());
+        packageOpses.add(packageOps);
       }
+
+      FLog.log("runGetForOps ---- "+packageOpses.size());
     }
+
+    sendOpResult(new OpsResult(packageOpses, null));
+
   }
 
   @Override
   public void onMessage(byte[] bytes) {
-    if(handler != null) {
+    if (handler != null) {
       handler.removeCallbacksAndMessages(null);
       handler.removeMessages(MSG_TIMEOUT);
     }
@@ -303,7 +302,12 @@ class RemoteHandler  implements OpsDataTransfer.OnRecvCallback{
 
       FLog.log("onMessage ---> !!!! " + unmarshall);
 
-      handleCommand(unmarshall);
+      try {
+        handleCommand(unmarshall);
+      } catch (Throwable throwable) {
+        throwable.printStackTrace();
+        sendOpResult(new OpsResult(null, throwable));
+      }
 
     }
   }

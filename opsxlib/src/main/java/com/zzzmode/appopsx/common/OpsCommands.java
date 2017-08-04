@@ -18,6 +18,7 @@ public class OpsCommands {
   public static final String ACTION_GET = "get";
   public static final String ACTION_SET = "set";
   public static final String ACTION_RESET = "reset";
+  public static final String ACTION_GET_FOR_OPS ="get_f_ops";
   public static final String ACTION_OTHER = "other";
 
   public static class Builder implements Parcelable {
@@ -27,7 +28,7 @@ public class OpsCommands {
     private int userHandleId;
     private int opInt;
     private int modeInt;
-
+    private int[] ops;
 
     public String getAction() {
       return action;
@@ -74,6 +75,15 @@ public class OpsCommands {
       return this;
     }
 
+    public int[] getOps() {
+      return ops;
+    }
+
+    public Builder setOps(int[] ops) {
+      this.ops = ops;
+      return this;
+    }
+
     @Override
     public String toString() {
       return "Builder{" +
@@ -85,6 +95,9 @@ public class OpsCommands {
           '}';
     }
 
+    public Builder() {
+    }
+
     @Override
     public int describeContents() {
       return 0;
@@ -94,20 +107,19 @@ public class OpsCommands {
     public void writeToParcel(Parcel dest, int flags) {
       dest.writeString(this.action);
       dest.writeString(this.packageName);
+      dest.writeInt(this.userHandleId);
       dest.writeInt(this.opInt);
       dest.writeInt(this.modeInt);
-      dest.writeInt(this.userHandleId);
-    }
-
-    public Builder() {
+      dest.writeIntArray(this.ops);
     }
 
     protected Builder(Parcel in) {
       this.action = in.readString();
       this.packageName = in.readString();
+      this.userHandleId = in.readInt();
       this.opInt = in.readInt();
       this.modeInt = in.readInt();
-      this.userHandleId = in.readInt();
+      this.ops = in.createIntArray();
     }
 
     public static final Creator<Builder> CREATOR = new Creator<Builder>() {

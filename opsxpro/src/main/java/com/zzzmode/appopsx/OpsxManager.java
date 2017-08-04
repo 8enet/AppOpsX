@@ -64,6 +64,15 @@ public class OpsxManager {
     return mLocalServerManager.exec(builder);
   }
 
+  public OpsResult getPackagesForOps(int[] ops)throws Exception{
+    checkConnect();
+    OpsCommands.Builder builder = new OpsCommands.Builder();
+    builder.setAction(OpsCommands.ACTION_GET_FOR_OPS);
+    builder.setOps(ops);
+    builder.setUserHandleId(mUserHandleId);
+    return mLocalServerManager.exec(builder);
+  }
+
   public OpsResult setOpsMode(String packageName, int opInt, int modeInt) throws Exception {
     checkConnect();
     OpsCommands.Builder builder = new OpsCommands.Builder();
