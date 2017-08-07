@@ -1,13 +1,17 @@
 package com.zzzmode.appopsx.ui.main.group;
 
 import android.app.AppOpsManager;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -165,17 +169,38 @@ public class PermissionGroupActivity extends BaseActivity implements
       case android.R.id.home:
         finish();
         return true;
+      case R.id.action_with_net:
+        return true;
       default:
         return super.onOptionsItemSelected(item);
     }
   }
 
-
   @Override
-  public void loading(int count, int progress, String name) {
+  public boolean onCreateOptionsMenu(Menu menu) {
+    if(mPresenter != null && mPresenter.isLoadSuccess()){
+      getMenuInflater().inflate(R.menu.group_menu,menu);
 
+      MenuItem menuShowNet = menu.findItem(R.id.action_with_net);
 
+      final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+
+      MenuItem.OnMenuItemClickListener itemClickListener = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+          item.setChecked(!item.isChecked());
+          sp.edit().putBoolean("key_g_show_net", item.isChecked()).apply();
+          ActivityCompat.invalidateOptionsMenu(PermissionGroupActivity.this);
+          return true;
+        }
+      };
+
+      menuShowNet.setChecked(sp.getBoolean("key_g_show_net", false));
+      menuShowNet.setOnMenuItemClickListener(itemClickListener);
+    }
+    return super.onCreateOptionsMenu(menu);
   }
+
 
   @Override
   public void changeTitle(int groupPosition, int childPosition, boolean allowed) {
@@ -202,7 +227,7 @@ public class PermissionGroupActivity extends BaseActivity implements
 
     mWrappedAdapter = mRecyclerViewExpandableItemManager.createWrappedAdapter(myItemAdapter);
     recyclerView.setAdapter(mWrappedAdapter);
-
+    ActivityCompat.invalidateOptionsMenu(PermissionGroupActivity.this);
   }
 
   @Override

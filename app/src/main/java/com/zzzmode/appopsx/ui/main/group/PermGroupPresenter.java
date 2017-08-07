@@ -2,7 +2,6 @@ package com.zzzmode.appopsx.ui.main.group;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.PermissionChildItem;
@@ -28,6 +27,8 @@ class PermGroupPresenter {
 
   private List<PermissionGroup> mPermsGroup;
 
+  private boolean loadSuccess = false;
+
   PermGroupPresenter(IPermGroupView mView, Context context) {
     this.mView = mView;
     this.context = context;
@@ -37,11 +38,13 @@ class PermGroupPresenter {
   void loadPerms() {
     boolean showSysApp = PreferenceManager.getDefaultSharedPreferences(context)
         .getBoolean("show_sysapp", false);
+    boolean reqNet = PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean("key_g_show_net", false);
     
     subscriber = new ResourceSingleObserver<List<PermissionGroup>>() {
       @Override
       public void onSuccess(List<PermissionGroup> value) {
-        Log.e(TAG, "subscriber onSuccess --> ");
+        loadSuccess = true;
         mView.showList(value);
       }
 
@@ -52,13 +55,16 @@ class PermGroupPresenter {
 
     };
 
-    Helper.getPermissionGroup(context,showSysApp)
+    Helper.getPermissionGroup(context,showSysApp,reqNet)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(subscriber);
 
   }
 
+  boolean isLoadSuccess(){
+    return loadSuccess;
+  }
 
   void changeMode(final int groupPosition, final int childPosition,
       final PermissionChildItem info) {

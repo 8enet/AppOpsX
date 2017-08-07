@@ -657,12 +657,12 @@ public class Helper {
 
 
   public static Single<List<PermissionGroup>> getPermissionGroup(final Context context,
-      final boolean loadSysapp) {
+      final boolean loadSysapp, final boolean reqNet) {
     return Observable.create(new ObservableOnSubscribe<OpsResult>() {
       @Override
       public void subscribe(ObservableEmitter<OpsResult> e) throws Exception {
 
-        OpsResult opsForPackage = AppOpsx.getInstance(context).getPackagesForOps(null);
+        OpsResult opsForPackage = AppOpsx.getInstance(context).getPackagesForOps(null,reqNet);
         if (opsForPackage != null) {
           if (opsForPackage.getException() == null) {
             e.onNext(opsForPackage);
@@ -693,7 +693,7 @@ public class Helper {
         }).flatMap(new Function<Map<String, PackageOps>, ObservableSource<List<AppPermissions>>>() {
 
           public ObservableSource<List<AppPermissions>> apply(final Map<String, PackageOps> result) throws Exception {
-            return getInstalledApps(context,false).map(
+            return getInstalledApps(context,loadSysapp).map(
                 new Function<List<AppInfo>, List<AppPermissions>>() {
                   @Override
                   public List<AppPermissions> apply(List<AppInfo> appInfos) throws Exception {
