@@ -29,6 +29,7 @@ public class OpsCommands {
     private int opInt;
     private int modeInt;
     private int[] ops;
+    private boolean reqNet;
 
     public String getAction() {
       return action;
@@ -84,6 +85,15 @@ public class OpsCommands {
       return this;
     }
 
+    public boolean isReqNet() {
+      return reqNet;
+    }
+
+    public Builder setReqNet(boolean reqNet) {
+      this.reqNet = reqNet;
+      return this;
+    }
+
     @Override
     public String toString() {
       return "Builder{" +
@@ -111,6 +121,7 @@ public class OpsCommands {
       dest.writeInt(this.opInt);
       dest.writeInt(this.modeInt);
       dest.writeIntArray(this.ops);
+      dest.writeByte(this.reqNet ? (byte) 1 : (byte) 0);
     }
 
     protected Builder(Parcel in) {
@@ -120,6 +131,7 @@ public class OpsCommands {
       this.opInt = in.readInt();
       this.modeInt = in.readInt();
       this.ops = in.createIntArray();
+      this.reqNet = in.readByte() != 0;
     }
 
     public static final Creator<Builder> CREATOR = new Creator<Builder>() {

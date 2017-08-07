@@ -64,11 +64,12 @@ public class OpsxManager {
     return mLocalServerManager.exec(builder);
   }
 
-  public OpsResult getPackagesForOps(int[] ops)throws Exception{
+  public OpsResult getPackagesForOps(int[] ops,boolean reqNet)throws Exception{
     checkConnect();
     OpsCommands.Builder builder = new OpsCommands.Builder();
     builder.setAction(OpsCommands.ACTION_GET_FOR_OPS);
     builder.setOps(ops);
+    builder.setReqNet(reqNet);
     builder.setUserHandleId(mUserHandleId);
     return mLocalServerManager.exec(builder);
   }

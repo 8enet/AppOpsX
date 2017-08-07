@@ -180,8 +180,12 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
 
 
   private void addSupport(IAppOpsService appOpsService, PackageOps ops, int userHandleId) {
+    addSupport(appOpsService, ops, userHandleId, true);
+  }
+
+  private void addSupport(IAppOpsService appOpsService, PackageOps ops, int userHandleId, boolean checkNet) {
     try {
-      if (mIptablesController != null) {
+      if (checkNet && mIptablesController != null) {
         int mode = mIptablesController.isMobileDataEnable(ops.getUid()) ? AppOpsManager.MODE_ALLOWED
             : AppOpsManager.MODE_IGNORED;
         OpEntry opEntry = new OpEntry(OtherOp.OP_ACCESS_PHONE_DATA, mode, 0, 0, 0, 0, null);
@@ -274,7 +278,7 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
     if (opsForPackage != null) {
       for (Object o : opsForPackage) {
         PackageOps packageOps = ReflectUtils.opsConvert(o);
-        addSupport(appOpsService, packageOps, builder.getUserHandleId());
+        addSupport(appOpsService, packageOps, builder.getUserHandleId(), builder.isReqNet());
         packageOpses.add(packageOps);
       }
 
