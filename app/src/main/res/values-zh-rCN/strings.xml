@@ -134,4 +134,6 @@
   <string name="never_used">(从未使用)</string>
 
   <string name="menu_app_info">应用信息</string>
+
+  <string name="with_root_network">显示网络权限</string>
 </resources>

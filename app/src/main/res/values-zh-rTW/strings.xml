@@ -102,4 +102,5 @@
   <string name="shell_cmd">adb shell sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh &amp;</string>
   <string name="never_used">(從未使用)</string>
   <string name="menu_app_info">應用程式資訊</string>
+  <string name="with_root_network">顯示網路許可權</string>
 </resources>
