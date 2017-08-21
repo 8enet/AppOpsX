@@ -284,7 +284,11 @@ class LocalServerManager {
       checker = new RootChecker(exec);
       checker.start();
 
-      checker.join(20000);
+      try {
+        checker.join(20000);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
 
       if (checker.exit == -1) {
         throw new RuntimeException("grant root timeout");
