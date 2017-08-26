@@ -57,6 +57,7 @@
       />
     <activity android:name=".ui.main.backup.BackupActivity"/>
     <activity android:name=".ui.main.HtmlActionActivity"/>
+    <activity android:name=".ui.main.usagestats.PermsUsageStatsActivity"/>
 
     <receiver
       android:enabled="true"

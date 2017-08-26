@@ -21,4 +21,9 @@
     app:showAsAction="never|collapseActionView"
     android:title="@string/menu_backup"/>
 
+  <item
+    android:id="@+id/action_stats"
+    app:showAsAction="never|collapseActionView"
+    android:title="@string/menu_stats"/>
+
 </menu>

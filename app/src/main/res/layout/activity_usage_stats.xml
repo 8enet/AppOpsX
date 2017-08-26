@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <ProgressBar
+    android:id="@+id/progressBar"
+    style="@style/Widget.AppCompat.ProgressBar"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:maxHeight="48dp"
+    android:maxWidth="48dp"
+    android:minHeight="24dp"
+    android:minWidth="24dp"
+    android:visibility="visible"/>
+
+  <TextView
+    android:id="@+id/tv_error"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:clickable="true"
+    android:enabled="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:longClickable="true"
+    android:scrollbars="vertical"
+    android:text=""
+    android:textIsSelectable="true"
+    android:visibility="gone"/>
+
+  <FrameLayout
+    android:id="@+id/container_app"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v4.widget.SwipeRefreshLayout
+      android:id="@+id/swiperefreshlayout"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+      <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"
+        android:scrollbars="vertical"
+        android:splitMotionEvents="false"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
+  </FrameLayout>
+
+</RelativeLayout>

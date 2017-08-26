@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:orientation="horizontal"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:clickable="true"
+  android:background="?attr/selectableItemBackground"
+  android:id="@+id/layout_child_item"
+  >
+
+
+  <ImageView
+    android:id="@+id/app_icon"
+    android:layout_width="@android:dimen/app_icon_size"
+    android:layout_height="@android:dimen/app_icon_size"
+    android:layout_gravity="center_vertical"
+    android:src="@mipmap/ic_launcher"
+    android:layout_marginLeft="12dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    />
+
+  <android.support.v7.widget.AppCompatImageView
+    android:id="@+id/img_group"
+    android:layout_width="24dp"
+    android:layout_height="24dp"
+    app:srcCompat="@drawable/ic_perm_device_info"
+    android:visibility="gone"
+    />
+
+
+
+
+  <LinearLayout
+    android:id="@+id/layout_right_control"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:layout_alignParentRight="true"
+    android:layout_centerVertical="true"
+    android:layout_marginRight="4dp">
+
+    <android.support.v7.widget.SwitchCompat
+      android:id="@+id/switch_compat"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginRight="4dp"
+      android:layout_gravity="right"
+      />
+    <TextView
+      android:id="@+id/perm_last_time"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textAppearance="@style/TextAppearance.AppCompat.Small"
+      android:textColor="?android:attr/textColorTertiary"
+      android:layout_gravity="center_horizontal"
+      android:layout_marginTop="4dp"
+      android:maxLines="1"
+      android:ellipsize="end"
+      android:text="4545"
+      />
+  </LinearLayout>
+
+  <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginLeft="8dp"
+    android:layout_toRightOf="@id/app_icon"
+    android:layout_toLeftOf="@id/layout_right_control"
+    android:layout_marginRight="8dp"
+    android:layout_centerVertical="true">
+    <TextView
+      android:id="@+id/app_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+      android:textColor="?android:attr/textColorPrimary"
+      android:maxLines="1"
+      android:ellipsize="end"
+      />
+
+    <TextView
+      android:id="@+id/perm_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:textAppearance="@style/TextAppearance.AppCompat.Small"
+      android:textColor="?android:attr/textColorTertiary"
+      />
+  </LinearLayout>
+
+
+</RelativeLayout>

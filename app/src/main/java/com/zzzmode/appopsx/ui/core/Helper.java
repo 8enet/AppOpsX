@@ -20,6 +20,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.text.BidiFormatter;
+import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -30,6 +31,8 @@ import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.OtherOp;
 import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.common.ReflectUtils;
+import com.zzzmode.appopsx.ui.analytics.AEvent;
+import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.AppPermissions;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
@@ -42,6 +45,7 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiConsumer;
@@ -660,9 +664,8 @@ public class Helper {
   }
 
 
-
-  public static Single<List<PermissionGroup>> getPermissionGroup(final Context context,
-      final boolean loadSysapp, final boolean reqNet) {
+  static Observable<AppPermissions> getAllAppPermissions(final Context context,
+      final boolean loadSysapp, final boolean reqNet){
     return Observable.create(new ObservableOnSubscribe<OpsResult>() {
       @Override
       public void subscribe(ObservableEmitter<OpsResult> e) throws Exception {
@@ -737,7 +740,54 @@ public class Helper {
           public ObservableSource<AppPermissions> apply(List<AppPermissions> appPermissions) throws Exception {
             return Observable.fromIterable(appPermissions);
           }
-        })
+        });
+  }
+
+
+  public static Single<List<Pair<AppInfo, OpEntryInfo>>> getPermsUsageStatus(final Context context,
+      final boolean loadSysapp){
+    return getAllAppPermissions(context,loadSysapp,false)
+        .collect(new Callable<List<Pair<AppInfo, OpEntryInfo>>>() {
+          @Override
+          public List<Pair<AppInfo, OpEntryInfo>> call() throws Exception {
+            return new ArrayList<Pair<AppInfo, OpEntryInfo>>();
+          }
+        }, new BiConsumer<List<Pair<AppInfo, OpEntryInfo>>, AppPermissions>() {
+          @Override
+          public void accept(List<Pair<AppInfo, OpEntryInfo>> pairs, AppPermissions appPermissions)
+              throws Exception {
+            if(appPermissions.opEntries != null){
+              for (OpEntryInfo opEntry : appPermissions.opEntries) {
+                //被调用过并且允许的才加入列表
+                //超过一个月的记录不显示
+                long time = opEntry.opEntry.getTime();
+                long now = System.currentTimeMillis();
+
+                if(time > 0 && (now-time < 60 * 60 * 24 * 31 * 1000L) && opEntry.isAllowed()) {
+                  joinOpEntryInfo(opEntry,context);
+                  pairs.add(Pair.create(appPermissions.appInfo, opEntry));
+                }
+              }
+            }
+          }
+        }).flatMapObservable(new Function<List<Pair<AppInfo, OpEntryInfo>>, ObservableSource<Pair<AppInfo, OpEntryInfo>>>() {
+          @Override
+          public ObservableSource<Pair<AppInfo, OpEntryInfo>> apply(@NonNull List<Pair<AppInfo, OpEntryInfo>> pairs)
+              throws Exception {
+            return Observable.fromIterable(pairs);
+          }
+        }).toSortedList(new Comparator<Pair<AppInfo, OpEntryInfo>>() {
+          @Override
+          public int compare(Pair<AppInfo, OpEntryInfo> t0,
+              Pair<AppInfo, OpEntryInfo> t1) {
+            return Long.compare(t1.second.opEntry.getTime(),t0.second.opEntry.getTime());
+          }
+        });
+  }
+
+  public static Single<List<PermissionGroup>> getPermissionGroup(final Context context,
+      final boolean loadSysapp, final boolean reqNet) {
+    return getAllAppPermissions(context, loadSysapp, reqNet)
         .collect(new Callable<Map<String, List<AppPermissions>>>() {
           @Override
           public Map<String, List<AppPermissions>> call() throws Exception {
@@ -867,6 +917,21 @@ public class Helper {
       }
     }
     return ret;
+  }
+
+
+  public static Observable<OpsResult> setMode(final Context context, final String pkgName,
+      final OpEntryInfo opEntryInfo,boolean isAllow) {
+    if (isAllow) {
+      opEntryInfo.mode = AppOpsManager.MODE_ALLOWED;
+    } else {
+      opEntryInfo.mode = AppOpsManager.MODE_IGNORED;
+    }
+    Map<String, String> map = new HashMap<String, String>(2);
+    map.put("new_mode", String.valueOf(opEntryInfo.mode));
+    map.put("op_name", opEntryInfo.opName);
+    ATracker.send(AEvent.C_PERM_ITEM, map);
+    return setMode(context, pkgName, opEntryInfo);
   }
 
   public static Observable<OpsResult> setMode(final Context context, final String pkgName,
@@ -1059,21 +1124,6 @@ public class Helper {
     return new ArrayList<OpEntryInfo>(sOpEntryInfoList);
   }
 
-//    public static SparseIntArray getAllowedIgnoreOps(Context context){
-//        getLocalOpEntryInfos(context);
-//        SparseIntArray denyIgnoreOps = getAllowedIgnoreOps(context);
-//        Log.e(TAG, "getAllowedIgnoreOps -->denyIgnoreOps  "+denyIgnoreOps);
-//
-//        SparseIntArray clone = sAllOps.clone();
-//
-//        Log.e(TAG, "getAllowedIgnoreOps --> clone "+clone);
-//
-//        int size = denyIgnoreOps.size();
-//        for (int i = 0; i < size; i++) {
-//            clone.delete(denyIgnoreOps.keyAt(i));
-//        }
-//        return clone;
-//    }
 
   public static SparseIntArray getAllowedIgnoreOps(Context context) {
     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
@@ -1090,41 +1140,6 @@ public class Helper {
     }
     return ret;
   }
-
-//    public static boolean isPermOp(int op){
-//        return NO_PERM_OP.indexOfKey(op) < 0;
-//    }
-//
-//    public static void aaa(final Context context){
-//        SingleJust.create(new SingleOnSubscribe<String>() {
-//            @Override
-//            public void subscribe(SingleEmitter<String> emitter) throws Exception {
-//                PermissionInfo permissionInfo = context.getPackageManager().getPermissionInfo(Manifest.permission.READ_CONTACTS, PackageManager.GET_META_DATA);
-//
-//                PermissionGroupInfo permissionGroupInfo = context.getPackageManager().getPermissionGroupInfo(Manifest.permission_group.LOCATION, PackageManager.GET_META_DATA);
-//                Log.e(TAG, "subscribe -->permissionInfo "+permissionInfo.name+"  "+permissionInfo.packageName+"  "+permissionInfo.icon+"   "+permissionInfo.group);
-//
-//                Log.e(TAG, "subscribe --> permissionGroupInfo "+permissionGroupInfo.name+"  "+permissionGroupInfo.packageName+"  "+permissionGroupInfo.icon+"  "+context.getResources().getResourceName(permissionGroupInfo.icon));
-//
-//                Drawable d=loadDrawable(context.getPackageManager(),permissionInfo.packageName,permissionInfo.icon);
-//                Log.e(TAG, "subscribe --> "+d);
-//                if (d == null) {
-//                    d = context.getDrawable(R.drawable.ic_perm_device_info);
-//                }
-//
-//            }
-//        }).subscribeOn(Schedulers.io()).subscribe();
-//    }
-//
-//    public static Drawable loadDrawable(PackageManager pm, String pkg, int resId) {
-//        try {
-//            return pm.getResourcesForApplication(pkg).getDrawable(resId, null);
-//        } catch (Resources.NotFoundException | PackageManager.NameNotFoundException e) {
-//            Log.d(TAG, "Couldn't get resource", e);
-//            return null;
-//        }
-//    }
-
 
   public static Single<Boolean> closeBgServer(Context context) {
     return SingleJust.just(context).map(new Function<Context, Boolean>() {
@@ -1185,29 +1200,7 @@ public class Helper {
     for (OpEntryInfo opEntryInfo : opEntryInfos) {
       if (opEntryInfo != null) {
 
-        groupS = FAKE_PERMS_GROUP.get(opEntryInfo.opName);
-
-        try {
-          if (groupS == null && opEntryInfo.opPermsName != null) {
-            PermissionInfo permissionInfo = pm
-                .getPermissionInfo(opEntryInfo.opPermsName, PackageManager.GET_META_DATA);
-            groupS = permissionInfo.group;
-          }
-        } catch (Exception e) {
-          //ignore
-        }
-
-        PermGroupInfo permGroupInfo = null;
-        if (groupS != null) {
-          permGroupInfo = PERMS_GROUPS.get(groupS);
-        }
-
-        if (permGroupInfo == null) {
-          permGroupInfo = OTHER_PERM_INFO;
-        }
-
-        opEntryInfo.icon = permGroupInfo.icon;
-        opEntryInfo.groupName = permGroupInfo.group;
+        joinOpEntryInfo(opEntryInfo,context);
 
         List<OpEntryInfo> infos = sMap.get(opEntryInfo.groupName);
         if (infos == null) {
@@ -1230,6 +1223,32 @@ public class Helper {
     return infoList;
   }
 
+  private static void joinOpEntryInfo(OpEntryInfo opEntryInfo,Context context){
+    String groupS = FAKE_PERMS_GROUP.get(opEntryInfo.opName);
+
+    try {
+      if (groupS == null && opEntryInfo.opPermsName != null) {
+        PermissionInfo permissionInfo = context.getPackageManager()
+            .getPermissionInfo(opEntryInfo.opPermsName, PackageManager.GET_META_DATA);
+        groupS = permissionInfo.group;
+      }
+    } catch (Exception e) {
+      //ignore
+    }
+
+    PermGroupInfo permGroupInfo = null;
+    if (groupS != null) {
+      permGroupInfo = PERMS_GROUPS.get(groupS);
+    }
+
+    if (permGroupInfo == null) {
+      permGroupInfo = OTHER_PERM_INFO;
+    }
+
+    opEntryInfo.icon = permGroupInfo.icon;
+    opEntryInfo.groupName = permGroupInfo.group;
+
+  }
 
   public static Single<List<OpEntryInfo>> groupByMode(final Context context,
       List<OpEntryInfo> list) {

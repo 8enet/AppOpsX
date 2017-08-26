@@ -31,6 +31,7 @@ import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.main.backup.BackupActivity;
 import com.zzzmode.appopsx.ui.main.group.PermissionGroupActivity;
+import com.zzzmode.appopsx.ui.main.usagestats.PermsUsageStatsActivity;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.AppOpEntry;
 import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
@@ -151,6 +152,9 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
         ATracker.send(AEvent.C_BACKUP);
         openConfigPerms();
         return true;
+      case R.id.action_stats:
+        openUsageStats();
+        return true;
       default:
         return super.onOptionsItemSelected(item);
     }
@@ -216,6 +220,10 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
     intent.putParcelableArrayListExtra(BackupActivity.EXTRA_APPS,
         new ArrayList<AppInfo>(adapter.getAppInfos()));
     startActivity(intent);
+  }
+
+  private void openUsageStats(){
+    startActivity(new Intent(this, PermsUsageStatsActivity.class));
   }
 
   private void resetAll() {
