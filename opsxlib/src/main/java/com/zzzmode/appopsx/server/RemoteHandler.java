@@ -1,5 +1,6 @@
 package com.zzzmode.appopsx.server;
 
+import android.Manifest;
 import android.app.ActivityThread;
 import android.app.AppOpsManager;
 import android.content.Context;
@@ -207,6 +208,13 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
         for (String permission : packageInfo.requestedPermissions) {
           int code = Helper.permissionToCode(permission);
 
+          if (code <= 0) {
+            //correct OP_WIFI_SCAN code.
+            if (Manifest.permission.ACCESS_WIFI_STATE.equals(permission)) {
+              code = OtherOp.getWifiScanOp();
+            }
+          }
+          
           if (code > 0 && !ops.hasOp(code)) {
             int mode = appOpsService.checkOperation(code, ops.getUid(), ops.getPackageName());
             if (mode != AppOpsManager.MODE_ERRORED) {

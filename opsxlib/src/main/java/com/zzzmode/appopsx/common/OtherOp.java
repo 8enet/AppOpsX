@@ -1,6 +1,7 @@
 package com.zzzmode.appopsx.common;
 
 import android.Manifest;
+import android.app.AppOpsManager;
 import android.util.SparseArray;
 
 /**
@@ -18,6 +19,8 @@ public final class OtherOp {
   public static final String OP_NAME_ACCESS_WIFI_NETWORK = "ACCESS_WIFI_NETWORK";
 
   private static Boolean sSupportCount = null;
+
+  private static Integer s_OP_WIFI_SCAN = null;
 
   private static final SparseArray<String> mData = new SparseArray<>();
   private static final SparseArray<String> mPerms = new SparseArray<>();
@@ -60,5 +63,11 @@ public final class OtherOp {
     return sSupportCount;
   }
 
+  public static int getWifiScanOp() {
+    if (s_OP_WIFI_SCAN == null) {
+      s_OP_WIFI_SCAN = (Integer) ReflectUtils.getFieldValue(AppOpsManager.class, "OP_WIFI_SCAN");
+    }
+    return s_OP_WIFI_SCAN != null ? s_OP_WIFI_SCAN : -1;
+  }
 
 }
