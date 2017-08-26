@@ -103,8 +103,6 @@
   <string name="never_used">(Never used)</string>
   <string name="menu_app_info">App info</string>
   <string name="with_root_network">Display network connections permissions</string>
-
-
   <string name="menu_stats">Usage stats</string>
   <string name="perms_count">%1$s (used %2$d times)</string>
 </resources>
