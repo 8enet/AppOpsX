@@ -20,6 +20,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.text.BidiFormatter;
+import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import com.zzzmode.appopsx.BuildConfig;
@@ -450,6 +451,10 @@ public class Helper {
 
             LocalImageLoader.initAdd(context, info);
 
+            //some of the app name is empty.
+            if(TextUtils.isEmpty(info.appName)){
+              info.appName = info.packageName;
+            }
             final char c = info.appName.charAt(0);
             if (c >= 48 && c <= 122) {
               enAppInfos.add(info);
@@ -463,7 +468,7 @@ public class Helper {
         Collections.sort(enAppInfos, new Comparator<AppInfo>() {
           @Override
           public int compare(AppInfo o1, AppInfo o2) {
-            return o1.appName.compareTo(o2.appName);
+            return o1.appName.compareToIgnoreCase(o2.appName);
           }
         });
 
