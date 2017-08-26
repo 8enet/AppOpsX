@@ -13,8 +13,14 @@ public class OpEntry implements Parcelable {
   private final int mProxyUid;
   private final String mProxyPackageName;
 
+  /**
+   * {@see https://github.com/LineageOS/android_frameworks_base/blob/cm-14.1/core/java/android/app/AppOpsManager.java}
+   */
+  private final int mAllowedCount;
+  private final int mIgnoredCount;
+
   public OpEntry(int op, int mode, long time, long rejectTime, int duration,
-      int proxyUid, String proxyPackage) {
+      int proxyUid, String proxyPackage,int allowedCount,int ignoredCount) {
     mOp = op;
     mMode = mode;
     mTime = time;
@@ -22,6 +28,13 @@ public class OpEntry implements Parcelable {
     mDuration = duration;
     mProxyUid = proxyUid;
     mProxyPackageName = proxyPackage;
+    mAllowedCount = allowedCount;
+    mIgnoredCount = ignoredCount;
+  }
+
+  public OpEntry(int op, int mode, long time, long rejectTime, int duration,
+      int proxyUid, String proxyPackage) {
+    this(op,mode,time,rejectTime,duration,proxyUid,proxyPackage,0,0);
   }
 
   public int getOp() {
@@ -56,6 +69,13 @@ public class OpEntry implements Parcelable {
     return mProxyPackageName;
   }
 
+  public int getAllowedCount() {
+    return mAllowedCount;
+  }
+
+  public int getIgnoredCount() {
+    return mIgnoredCount;
+  }
 
   @Override
   public String toString() {
@@ -84,6 +104,8 @@ public class OpEntry implements Parcelable {
     dest.writeInt(this.mDuration);
     dest.writeInt(this.mProxyUid);
     dest.writeString(this.mProxyPackageName);
+    dest.writeInt(this.mAllowedCount);
+    dest.writeInt(this.mIgnoredCount);
   }
 
   protected OpEntry(Parcel in) {
@@ -94,9 +116,11 @@ public class OpEntry implements Parcelable {
     this.mDuration = in.readInt();
     this.mProxyUid = in.readInt();
     this.mProxyPackageName = in.readString();
+    this.mAllowedCount = in.readInt();
+    this.mIgnoredCount = in.readInt();
   }
 
-  public static final Parcelable.Creator<OpEntry> CREATOR = new Parcelable.Creator<OpEntry>() {
+  public static final Creator<OpEntry> CREATOR = new Creator<OpEntry>() {
     @Override
     public OpEntry createFromParcel(Parcel source) {
       return new OpEntry(source);

@@ -43,9 +43,17 @@ public class ReflectUtils {
         int mDuration = getIntFieldValue(o, "mDuration");
         int mProxyUid = getIntFieldValue(o, "mProxyUid");
         String mProxyPackageName = String.valueOf(getFieldValue(o, "mProxyPackageName"));
+        if(OtherOp.isSupportCount()){
+          // LineageOS
+          int mAllowedCount = getIntFieldValue(o, "mAllowedCount");
+          int mIgnoredCount = getIntFieldValue(o, "mIgnoredCount");
+          entries.add(
+              new OpEntry(mOp, mMode, mTime, mRejectTime, mDuration, mProxyUid, mProxyPackageName,mAllowedCount,mIgnoredCount));
+        }else {
+          entries.add(
+              new OpEntry(mOp, mMode, mTime, mRejectTime, mDuration, mProxyUid, mProxyPackageName));
+        }
 
-        entries.add(
-            new OpEntry(mOp, mMode, mTime, mRejectTime, mDuration, mProxyUid, mProxyPackageName));
       }
     }
 
@@ -170,4 +178,15 @@ public class ReflectUtils {
     return null;
   }
 
+
+
+  public static boolean hasField(Class cls,String fieldName){
+    try {
+      Field field = cls.getDeclaredField(fieldName);
+      return true;
+    } catch (NoSuchFieldException e) {
+      e.printStackTrace();
+    }
+    return false;
+  }
 }

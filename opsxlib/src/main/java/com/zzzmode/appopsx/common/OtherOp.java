@@ -17,6 +17,8 @@ public final class OtherOp {
   public static final String OP_NAME_ACCESS_PHONE_DATA = "ACCESS_PHONE_DATA";
   public static final String OP_NAME_ACCESS_WIFI_NETWORK = "ACCESS_WIFI_NETWORK";
 
+  private static Boolean sSupportCount = null;
+
   private static final SparseArray<String> mData = new SparseArray<>();
   private static final SparseArray<String> mPerms = new SparseArray<>();
 
@@ -44,5 +46,19 @@ public final class OtherOp {
   public static String getOpPermName(int op) {
     return mPerms.get(op);
   }
+
+  public static boolean isSupportCount(){
+    if(sSupportCount == null){
+      try {
+        Class<?> aClass = Class.forName("android.app.AppOpsManager$OpEntry", false,
+            ClassLoader.getSystemClassLoader());
+        sSupportCount = ReflectUtils.hasField(aClass,"mAllowedCount");
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+      }
+    }
+    return sSupportCount;
+  }
+
 
 }
