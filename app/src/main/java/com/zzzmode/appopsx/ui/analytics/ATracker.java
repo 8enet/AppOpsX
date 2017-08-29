@@ -3,7 +3,6 @@ package com.zzzmode.appopsx.ui.analytics;
 import android.app.Activity;
 import android.content.Context;
 
-import com.umeng.analytics.MobclickAgent;
 import com.zzzmode.appopsx.BuildConfig;
 
 import java.util.Map;
@@ -19,7 +18,6 @@ public final class ATracker {
   public static void init(Context context) {
     sContext = context;
 
-    MobclickAgent.setDebugMode(BuildConfig.DEBUG);
   }
 
   public static void send(String id) {
@@ -31,24 +29,14 @@ public final class ATracker {
   }
 
   public static void send(Context context, String id, Map<String, String> param) {
-    if (!BuildConfig.DEBUG && context != null) {
-      if (param != null) {
-        MobclickAgent.onEvent(context, id, param);
-      } else {
-        MobclickAgent.onEvent(context, id);
-      }
-    }
   }
 
   public static void onResume(Activity activity) {
-    if (!BuildConfig.DEBUG) {
-      MobclickAgent.onResume(activity);
-    }
   }
 
   public static void onPause(Activity activity) {
-    if (!BuildConfig.DEBUG) {
-      MobclickAgent.onPause(activity);
-    }
+  }
+
+  public static void reportError(Throwable e){
   }
 }
