@@ -91,10 +91,10 @@
   <string name="sort_by_name_last_letter">Sort by name (letters rear)</string>
   <string name="sort_by_installed_time">Sort by install time</string>
   <string name="sort_by_last_updated_time">Sort by update time</string>
-  <string name="error_no_adb">连接失败！\n解决方法:\n1.在开发者选项中开启ADB调试或者开启网络ADB调试\n2.连接PC端后在终端中输入adb tcpip %1$d \n3.开启USB调试，连接电脑，复制以下命令在终端中执行\nadb shell sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh</string>
-  <string name="error_no_su">连接失败！\n请检查手机是否已Root，没有Root可以在设置中修改使用ADB模式。</string>
+  <string name="error_no_adb">Connection failed! \N solution: \n1. developers enable ADB ADB debugging or open network option debug \n3. turn on USB debugging connected to the computer, copy the following commands execute in Terminal \nadb shell sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh</string>
+  <string name="error_no_su">Error!\nPlease check whether the phone has Root, no Root can be modified in the use of ADB mode settings.</string>
   <string name="error_su_timeout">Error, please check if Root permission is granted.</string>
-  <string name="error_connect_fail">连接失败！\n解决方法:\nA.在设置中开启【Root兼容模式】试试。\nB.使用其他Root授权应用，比如SuperSU试试。\nC.如果还是不行请尝试关闭SElinux(出于安全考虑，请谨慎选择!)\n请查看帮助</string>
+  <string name="error_connect_fail">Error!\nSolution:\nA: Try to open the \"Root compatibility mode\" in the settings.\nB: Use other root permissions manager, e.g SuperSU.\nC:  If you still see the error message, try to disable SElinux(for security reasons, so please choose carefully)</string>
   <string name="shell_start">Use script start server</string>
   <string name="shell_start_description">Started using the command without Root permissions, and set the ADB port</string>
   <string name="copied_hint">Copied to clipboard</string>
