@@ -1,46 +1,21 @@
 language: android
 jdk: oraclejdk8
 
-#Thanks https://gist.github.com/BoD/17ddffed2c66548014a7a4897c9bbfa5
+android:
+  components:
+    - build-tools-26.0.2
+    - android-26
+    - extra-android-support
+    - extra-android-m2repository
 
 before_cache:
-  # Do not cache a few Gradle files/directories (see https://docs.travis-ci.com/user/languages/java/#Caching)
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-  - rm -fr  $HOME/.gradle/caches/4.1/fileHashes/
-  - rm -fr  $HOME/.gradle/caches/4.1/scripts/
-  - rm -fr  $HOME/.gradle/caches/4.1/scripts-remapped/
-  - rm -fr  $HOME/.gradle/caches/4.1/file-changes/
-  - rm -f  $HOME/.gradle/caches/transforms-1/transforms-1.lock
-
 cache:
   directories:
-    # Android SDK
-    - $HOME/android-sdk-dl
-    - $HOME/android-sdk
-
-    # Gradle dependencies
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
-
-    # Android build cache (see http://tools.android.com/tech-docs/build-cache)
     - $HOME/.android/build-cache
 
-install:
-  # Download and unzip the Android SDK tools (if not already there thanks to the cache mechanism)
-  - if test ! -e $HOME/android-sdk-dl/tools_r25.2.5-linux.zip ; then curl https://dl.google.com/android/repository/tools_r25.2.5-linux.zip > $HOME/android-sdk-dl/tools_r25.2.5-linux.zip ; fi
-  - unzip -n $HOME/android-sdk-dl/tools_r25.2.5-linux.zip -d $HOME/android-sdk
-
-  # Install or update Android SDK components (will not do anything if already up to date thanks to the cache mechanism)
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'tools'
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platform-tools'
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;26.0.1'
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-26'
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;android;m2repository'
-  # - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;google_play_services'
-  # - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository'
-
-env:
-  - ANDROID_HOME=$HOME/android-sdk
 
 script: ./gradlew clean build
