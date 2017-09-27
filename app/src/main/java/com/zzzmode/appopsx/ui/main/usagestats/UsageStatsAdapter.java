@@ -20,6 +20,9 @@ import com.zzzmode.appopsx.ui.core.LocalImageLoader;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 import com.zzzmode.appopsx.ui.permission.AppPermissionActivity;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,6 +109,8 @@ import java.util.List;
       Pair<AppInfo, OpEntryInfo> pair = mDatas.get(holder.getAdapterPosition());
 
       Helper.setMode(compoundButton.getContext(),pair.first.packageName,pair.second,b)
+          .observeOn(Schedulers.io())
+          .subscribeOn(AndroidSchedulers.mainThread())
           .subscribe();
 
     }
