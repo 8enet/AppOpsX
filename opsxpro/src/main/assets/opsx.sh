@@ -40,7 +40,6 @@ fi
 args=$type",bgrun:1,token:"$token
 
 echo "AppOpsX args: "$args
-export LD_LIBRARY_PATH="/vendor/lib"$arch":/system/lib"$arch
 export CLASSPATH=$classpath
 exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain "$args" >&2 &
 echo $?

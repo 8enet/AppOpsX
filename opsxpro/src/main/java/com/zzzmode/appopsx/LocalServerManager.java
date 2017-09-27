@@ -110,7 +110,6 @@ class LocalServerManager {
   }
 
   private List<String> getCommonds() {
-    String arch = AssetsUtils.is64Bit() ? "64" : "";
 
     StringBuilder sb = new StringBuilder();
 
@@ -139,8 +138,6 @@ class LocalServerManager {
     Log.e(TAG, "getCommonds --> " + sb);
 
     List<String> cmds = new ArrayList<>();
-    cmds.add(
-        "export LD_LIBRARY_PATH=" + String.format("/vendor/lib%1$s:/system/lib%2$s", arch, arch));
     cmds.add("export CLASSPATH=" + SConfig.getClassPath());
     cmds.add("echo start");
     cmds.add("id");
