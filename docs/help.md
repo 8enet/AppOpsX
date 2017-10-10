@@ -48,11 +48,11 @@
 5. **为什么自动关闭权限有时候在安装完成后没有弹出提示？**   
    应用被完全停止后收不到新安装广播，所以无法弹出提示，请根据实际情况手动添加白名单。
 
-Last Edited on 2017-08-07
+Last Edited on 2017-09-27
 
 [1]: https://github.com/8enet/AppOpsX
 [2]: https://github.com/8enet/AppOpsX/issues
 [3]: https://play.google.com/store/apps/details?id=com.zzzmode.appopsx
-[4]: http://www.coolapk.com/apk/com.zzzmode.appopsx
+[4]: https://www.coolapk.com/apk/com.zzzmode.appopsx
 [5]: mailto:zlcn2200@yeah.net
 [6]: https://crowdin.com/project/appopsx
