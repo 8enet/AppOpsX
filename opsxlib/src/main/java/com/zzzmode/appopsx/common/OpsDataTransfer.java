@@ -16,7 +16,7 @@ public class OpsDataTransfer {
 
   // length+data
 
-  public static final String PROTOCOL_VERSION = "1.2.2";
+  public static final String PROTOCOL_VERSION = "1.2.4";
 
   private DataOutputStream outputStream;
   private DataInputStream inputStream;

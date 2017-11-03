@@ -1,7 +1,5 @@
 package com.zzzmode.appopsx;
 
-import android.net.LocalSocket;
-import android.net.LocalSocketAddress;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
@@ -54,7 +52,8 @@ class LocalServerManager {
   }
 
 
-  private SyncClient mClientThread = null;
+  private ClientSession mSession = null;
+
 
   private LocalServerManager(OpsxManager.Config config) {
     mConfig = config;
@@ -70,44 +69,66 @@ class LocalServerManager {
     return mConfig;
   }
 
-  void start() throws Exception {
-    if (mClientThread == null || !mClientThread.isRunning()) {
-      mClientThread = new SyncClient();
-      if (mClientThread.start(0, false)) {
-        Log.e(TAG, "start --> server alread start !!!!!");
-      } else {
+  private ClientSession getSession() throws Exception {
+    if (mSession == null || !mSession.isRunning()) {
+      try {
+        //try to connect
+        mSession = createSession();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      if (mSession == null) {
+        //server not started
         startServer();
-        if(mClientThread != null) {
-          mClientThread.start(0, true);
-        }
+        mSession = createSession();
       }
     }
+    return mSession;
   }
 
   public boolean isRunning() {
-    return mClientThread != null && mClientThread.isRunning();
+    return mSession != null && mSession.isRunning();
   }
 
-  public void stop() {
+  void stop() {
     try {
-      if(adbStream != null){
+      if (adbStream != null) {
         adbStream.close();
       }
+      adbStream = null;
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    if (mClientThread != null) {
-      mClientThread.exit();
-      mClientThread = null;
+    if (mSession != null) {
+      mSession.close();
+      mSession = null;
     }
 
   }
 
-  public OpsResult exec(OpsCommands.Builder builder) throws Exception {
-    start();
-    return mClientThread.exec(builder);
+
+  void start() throws Exception {
+    getSession();
   }
+
+
+  OpsResult exec(OpsCommands.Builder builder) throws Exception {
+    byte[] bytes = getSession().getTransfer().sendMsgAndRecv(ParcelableUtil.marshall(builder));
+    return ParcelableUtil.unmarshall(bytes, OpsResult.CREATOR);
+  }
+
+  void closeBgServer() {
+    try {
+      OpsCommands.Builder builder = new OpsCommands.Builder();
+      builder.setAction(OpsCommands.ACTION_OTHER);
+      builder.setPackageName("close_server");
+      createSession().getTransfer().sendMsgAndRecv(ParcelableUtil.marshall(builder));
+    } catch (Exception e) {
+      Log.w(TAG, "closeBgServer: "+e.getCause()+"  "+e.getMessage());
+    }
+  }
+
 
   private List<String> getCommonds() {
 
@@ -116,12 +137,12 @@ class LocalServerManager {
     sb.append("type:");
     if (mConfig.useAdb || mConfig.rootOverAdb) {
       sb.append("adb");
-      sb.append(",path:" + SConfig.getPort());
     } else {
       sb.append("root");
-      sb.append(",path:" + SConfig.SOCKET_PATH);
     }
-    sb.append(",token:" + SConfig.getLocalToken());
+    sb.append(",path:").append(SConfig.getPort());
+    sb.append(",token:").append(SConfig.getLocalToken());
+
 
     if (mConfig.allowBgRunning) {
       sb.append(",bgrun:1");
@@ -131,19 +152,13 @@ class LocalServerManager {
       sb.append(",debug:1");
     }
 
-    //if(mConfig.useAdb || mConfig.rootOverAdb){
-    sb.append("   & ");
-    //}
+    AssetsUtils.writeScript(mConfig.context, SConfig.getClassPath(), sb.toString());
 
-    Log.e(TAG, "getCommonds --> " + sb);
+    Log.e(TAG, "classpath --> "+SConfig.getClassPath());
+    Log.e(TAG, "args --> " + sb.toString());
 
     List<String> cmds = new ArrayList<>();
-    cmds.add("export CLASSPATH=" + SConfig.getClassPath());
-    cmds.add("echo start");
-    cmds.add("id");
-    cmds.add(
-        "exec  app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain $@ " + sb.toString());
-
+    cmds.add("sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh");
     return cmds;
   }
 
@@ -254,14 +269,10 @@ class LocalServerManager {
     SystemClock.sleep(100);
     List<String> cmds = getCommonds();
 
-    StringBuilder sb = new StringBuilder();
     for (String cmd : cmds) {
-      sb.append(cmd).append(';');
+      adbStream.write((cmd+"\n").getBytes());
+      SystemClock.sleep(100);
     }
-    sb.deleteCharAt(sb.length() - 1);
-    sb.append("\n");
-    Log.e(TAG, "useAdbStartServer --> " + sb);
-    adbStream.write(sb.toString().getBytes());
     SystemClock.sleep(3000);
 
     Log.e(TAG, "startServer -->ADB server start ----- ");
@@ -320,7 +331,7 @@ class LocalServerManager {
             try {
               Log.e(TAG, "run --> stop adb ");
 
-              List<String> cls=new ArrayList<String>(){
+              List<String> cls = new ArrayList<String>() {
                 {
                   add("echo 'stop adb!!!'");
                   add("setprop service.adb.tcp.port -1");
@@ -330,7 +341,7 @@ class LocalServerManager {
                 }
               };
 
-              writeCmds(cls,waitWriter);
+              writeCmds(cls, waitWriter);
 
             } catch (Exception e) {
               e.printStackTrace();
@@ -347,7 +358,7 @@ class LocalServerManager {
 
       }
 
-      writeCmds(cmds,outputStream);
+      writeCmds(cmds, outputStream);
 
       final BufferedReader inputStream = new BufferedReader(
           new InputStreamReader(exec.getInputStream(), "UTF-8"));
@@ -419,7 +430,7 @@ class LocalServerManager {
       throw e;
     } finally {
       try {
-        if (exec != null && !mConfig.rootOverAdb) {
+        if (exec != null) {
           exec.destroy();
         }
       } catch (Exception e) {
@@ -437,11 +448,11 @@ class LocalServerManager {
     outputStream.flush();
   }
 
-  private boolean startServer() throws Exception {
+  private void startServer() throws Exception {
     if (mConfig.useAdb) {
-      return useAdbStartServer();
+      useAdbStartServer();
     } else {
-      return useRootStartServer();
+      useRootStartServer();
     }
   }
 
@@ -463,9 +474,7 @@ class LocalServerManager {
             new InputStreamReader(process.getInputStream(), "UTF-8"));
         BufferedWriter outputStream = new BufferedWriter(
             new OutputStreamWriter(this.process.getOutputStream(), "UTF-8"));
-
-        outputStream.write("echo Started");
-        outputStream.newLine();
+        outputStream.write("echo U333L\n");
         outputStream.flush();
 
         while (true) {
@@ -476,7 +485,7 @@ class LocalServerManager {
           if ("".equals(line)) {
             continue;
           }
-          if ("Started".equals(line)) {
+          if ("U333L".equals(line)) {
             this.exit = 1;
             break;
           }
@@ -494,141 +503,47 @@ class LocalServerManager {
     }
   }
 
+  private ClientSession createSession() throws IOException {
+    if(isRunning()){
+      return mSession;
+    }
+    Socket socket = new Socket("127.0.0.1", SConfig.getPort());
+    socket.setSoTimeout(1000 * 5);
+    OutputStream os = socket.getOutputStream();
+    InputStream is = socket.getInputStream();
+    String token = SConfig.getLocalToken();
+    if (TextUtils.isEmpty(token)) {
+      throw new RuntimeException("token is null !");
+    }
+    OpsDataTransfer transfer = new OpsDataTransfer(os, is, false);
+    transfer.shakehands(token, false);
+    return new ClientSession(transfer);
+  }
 
-  private class SyncClient {
+  private static class ClientSession {
 
     private volatile boolean isRunning = false;
     private OpsDataTransfer transfer;
 
-    private void connect(int retryCount) throws Exception {
-      if (!isRunning && retryCount >= 0) {
-        try {
-          OutputStream os = null;
-          InputStream is = null;
-          if (mConfig.useAdb || mConfig.rootOverAdb) {
-            Socket socket = new Socket("127.0.0.1", SConfig.getPort());
-            os = socket.getOutputStream();
-            is = socket.getInputStream();
-          } else {
-            LocalSocket localSocket = new LocalSocket();
-            localSocket.connect(new LocalSocketAddress(SConfig.SOCKET_PATH));
-            os = localSocket.getOutputStream();
-            is = localSocket.getInputStream();
-          }
-          String token = SConfig.getLocalToken();
-          if (TextUtils.isEmpty(token)) {
-            throw new RuntimeException("token is null !");
-          }
-          transfer = new OpsDataTransfer(os, is, false);
-          transfer.shakehands(token, false);
-          isRunning = true;
-        } catch (IOException e) {
-          e.printStackTrace();
-          if (retryCount >= 0) {
-            try {
-              isRunning = false;
-              startServer();
-
-              SystemClock.sleep(1000);
-              Log.e(TAG, "connect --> retry " + retryCount);
-              connect(--retryCount);
-            } catch (Exception e1) {
-              //e1.printStackTrace();
-              throw e1;
-            }
-          } else {
-            throw new IOException(e);
-          }
-        }
-      } else {
-        throw new RuntimeException("connect fail !");
-      }
+    ClientSession(OpsDataTransfer transfer) {
+      this.transfer = transfer;
+      isRunning = true;
     }
 
-    boolean start(int retryCount, boolean orThrow) throws Exception {
-      try {
-        connect(retryCount);
-      } catch (Exception e) {
-        if (orThrow) {
-          throw e;
-        }
-        //e.printStackTrace();
-      }
-      return isRunning;
-    }
-
-    OpsResult exec(OpsCommands.Builder builder) throws Exception {
-      if (!isRunning) {
-        connect(5);
-      }
-      try {
-        return ParcelableUtil.unmarshall(execCmd(builder), OpsResult.CREATOR);
-      } catch (IOException e) {
-        isRunning = false;
-        e.printStackTrace();
-        throw e;
-      }
-    }
-
-
-    byte[] execCmd(OpsCommands.Builder builder) throws IOException {
-      return transfer.sendMsgAndRecv(ParcelableUtil.marshall(builder));
-    }
-
-    void exit() {
+    void close() {
       isRunning = false;
       if (transfer != null) {
         transfer.stop();
       }
+      transfer = null;
     }
 
     boolean isRunning() {
-      return isRunning;
+      return isRunning && transfer != null;
     }
 
-  }
-
-
-  public static void closeBgServer() {
-    OutputStream os = null;
-    InputStream is = null;
-    String token = SConfig.getLocalToken();
-    try {
-      LocalSocket localSocket = new LocalSocket();
-      localSocket.connect(new LocalSocketAddress(SConfig.SOCKET_PATH));
-      os = localSocket.getOutputStream();
-      is = localSocket.getInputStream();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    if (os == null || is == null) {
-      try {
-        Socket socket = new Socket("127.0.0.1", SConfig.getPort());
-        os = socket.getOutputStream();
-        is = socket.getInputStream();
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-
-    if (os != null && is != null) {
-      OpsDataTransfer transfer = null;
-      try {
-        transfer = new OpsDataTransfer(os, is, false);
-        transfer.shakehands(token, false);
-
-        OpsCommands.Builder builder = new OpsCommands.Builder();
-        builder.setAction(OpsCommands.ACTION_OTHER);
-        builder.setPackageName("close_server");
-        transfer.sendMsg(ParcelableUtil.marshall(builder));
-      } catch (Exception e) {
-        e.printStackTrace();
-      } finally {
-        if (transfer != null) {
-          transfer.stop();
-        }
-      }
+    OpsDataTransfer getTransfer() {
+      return transfer;
     }
   }
 }

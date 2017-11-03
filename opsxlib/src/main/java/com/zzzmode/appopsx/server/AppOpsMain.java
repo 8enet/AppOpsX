@@ -1,9 +1,14 @@
 package com.zzzmode.appopsx.server;
 
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Process;
 import android.system.Os;
+import android.util.EventLog;
+import android.util.EventLog.Event;
+import android.util.EventLogTags;
+import android.util.Log;
 import com.zzzmode.appopsx.common.FLog;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -69,16 +74,19 @@ public class AppOpsMain {
 
     try {
       mCallHandler = new RemoteHandler(params);
-
+      LifecycleAgent.sParams = new HashMap<>(params);
       System.out.println("AppOpsX server start successful, enjoy it! \uD83D\uDE0E");
       int pid = Process.myPid();
       System.out.println(Helper.getProcessName(pid)+"   pid:"+ pid);
+      LifecycleAgent.onStarted();
       mCallHandler.start();
     } finally {
       destory();
     }
 
+
   }
+
 
   private void destory() {
     try {
@@ -90,6 +98,8 @@ public class AppOpsMain {
       e.printStackTrace();
       FLog.log(e);
     }
+
+    LifecycleAgent.onStoped();
   }
 
 }

@@ -56,16 +56,25 @@ class OpsXServer {
         opsDataTransfer = new OpsDataTransfer(server.getOutputStream(), server.getInputStream(),
             callback);
         opsDataTransfer.shakehands(token, true);
+
+        LifecycleAgent.onConnected();
+
         opsDataTransfer.handleRecv();
       } catch (IOException e) {
         FLog.log(e);
         FLog.log("------- allowBackgroundRun: " + allowBackgroundRun);
+
+        LifecycleAgent.onDisconnected();
+
         if (!allowBackgroundRun) {
           running = false;
           throw e;
         }
       } catch (RuntimeException e) {
         FLog.log(e);
+
+        LifecycleAgent.onDisconnected();
+
         allowBackgroundRun = false;
         running = false;
         throw e;

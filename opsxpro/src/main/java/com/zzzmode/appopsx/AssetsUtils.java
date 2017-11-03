@@ -5,12 +5,16 @@ import android.content.res.AssetFileDescriptor;
 import android.os.Build;
 import android.text.TextUtils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.SecureRandom;
 
 /**
@@ -76,6 +80,118 @@ class AssetsUtils {
       }
     }
   }
+
+
+  public static void copyFile(String src,File destFile, boolean force){
+    FileInputStream fis = null;
+    FileOutputStream fos = null;
+    try {
+      File srcFile=new File(src);
+      if (force) {
+        destFile.delete();
+      } else {
+        if (destFile.exists()) {
+          if (destFile.length() != srcFile.length()) {
+            destFile.delete();
+          } else {
+            return;
+          }
+        }
+      }
+
+      if (!destFile.exists()) {
+        destFile.createNewFile();
+      }
+      destFile.setReadable(true, false);
+      destFile.setExecutable(true, false);
+
+
+      fos = new FileOutputStream(destFile);
+      byte[] buff = new byte[1024 * 16];
+      int len = -1;
+      fis = new FileInputStream(srcFile);
+
+      while ((len = fis.read(buff)) != -1) {
+        fos.write(buff, 0, len);
+      }
+      fos.flush();
+      fos.getFD().sync();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        if (fos != null) {
+          fos.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      try {
+        if (fis != null) {
+          fis.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+
+  static void writeScript(Context context,String classpath,String args){
+    BufferedWriter bw=null;
+    FileInputStream fis=null;
+    try {
+      AssetFileDescriptor openFd = context.getAssets().openFd("opsx.sh");
+      File destFile = new File(context.getExternalFilesDir(null).getParentFile(), "opsx.sh");
+      if(destFile.exists()){
+        destFile.delete();
+      }
+
+      fis = openFd.createInputStream();
+
+      BufferedReader br=new BufferedReader(new InputStreamReader(fis));
+
+      bw=new BufferedWriter(new FileWriter(destFile,false));
+
+      String line=br.readLine();
+      while ( line != null ){
+        String wl=line;
+
+        if(classpath != null && args != null) {
+          if ("classpath=%s".equals(line.trim())) {
+            wl = "classpath=" + classpath;
+          } else if ("args=%s".equals(line.trim())) {
+            wl = "args=" + args;
+          }
+        }
+        bw.write(wl);
+        bw.newLine();
+        line=br.readLine();
+      }
+      bw.flush();
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }finally {
+      try {
+        if(bw != null){
+          bw.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      try {
+        if(fis != null){
+          fis.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
 
   static boolean is64Bit() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

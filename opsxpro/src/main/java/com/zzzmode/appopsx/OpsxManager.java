@@ -3,12 +3,11 @@ package com.zzzmode.appopsx;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.os.Process;
-
 import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
-
+import java.io.File;
 import java.util.List;
 
 /**
@@ -49,6 +48,8 @@ public class OpsxManager {
   private void checkFile() {
     //AssetsUtils.copyFile(mContext,"appopsx",new File(mContext.getDir(DIR_NAME,Context.MODE_PRIVATE),"appopsx"),false);
     AssetsUtils.copyFile(mContext, SConfig.JAR_NAME, SConfig.getDestJarFile(), true);
+    AssetsUtils.copyFile(mContext.getApplicationInfo().nativeLibraryDir+ File.separator+"libopsxstart.so",SConfig.getDestExecuableFile(),true);
+    AssetsUtils.writeScript(mContext,null,null);
   }
 
   private synchronized void checkConnect() throws Exception {
@@ -130,9 +131,10 @@ public class OpsxManager {
 
   public void closeBgServer() {
     if(mLocalServerManager != null){
+      mLocalServerManager.closeBgServer();
       mLocalServerManager.stop();
     }
-    LocalServerManager.closeBgServer();
+
   }
 
   public static boolean isEnableSELinux() {

@@ -1,47 +1,34 @@
 #!/system/bin/sh
 
-function queryconfig(){
-out=$(content query --uri content://com.zzzmode.appopsx.provider.local/$1)
-local retvar=$1
-if [[ $out == Row* ]] ; then
-  value=${out##*=}
-	echo "get "$1" "$value
-	eval $retvar="'$value'"
-else
-	echo "get "$1" error"
-	echo $out
-	exit 1
-fi	
+classpath=%s
+args=%s
 
-}
-
-queryconfig token
-
-queryconfig classpath
-
-arch=""
-prop=$(getprop ro.product.cpu.abi)
-if [[ $prop == arm64* ]] ; then
-	arch="64"
+if [ "$classpath" == "$args" ]; then
+    sh `pwd`/opsx-auto.sh
+    exit 0
 fi
 
-echo "device arch "$prop
+echo start
 
-type=""
+id
+#export CLASSPATH=$classpath
+#app_process /system/bin --nice-name=appopsx_local_server com.zzzmode.appopsx.server.AppOpsMain "$args" >&2 &
 
-if [[ $(id) == uid=0* ]] ; then
-    queryconfig socketPath
-    type="type:root,path:"$socketPath
+cp -f /sdcard/Android/data/com.zzzmode.appopsx/opsxstart /data/local/tmp/opsxstart
+
+chmod 755 /data/local/tmp/opsxstart
+chown shell:shell /data/local/tmp/opsxstart
+
+echo "classpath --> $classpath"
+echo "args --->  $args"
+/data/local/tmp/opsxstart --env CLASSPATH=$classpath --args /system/bin/app_process /system/bin --nice-name=appopsx_local_server com.zzzmode.appopsx.server.AppOpsMain $args
+
+ret=$?
+if [ $ret -ne 0 ]; then
+    echo "start error,return code  $ret \n"
 else
-    queryconfig adbPort
-    type="type:adb,path:"$adbPort
+    echo "start success."
+    echo "\n\nUse Ctrl+C to exit. \n\n"
 fi
 
-args=$type",bgrun:1,token:"$token
-
-echo "AppOpsX args: "$args
-export CLASSPATH=$classpath
-exec app_process /system/bin com.zzzmode.appopsx.server.AppOpsMain "$args" >&2 &
-echo $?
-echo "\n\nUse Ctrl+C to exit. \n\n"
-exit 0
+ps |grep appopsx
