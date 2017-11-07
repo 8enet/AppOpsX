@@ -4,7 +4,7 @@ classpath=%s
 args=%s
 
 if [ "$classpath" == "$args" ]; then
-    sh `pwd`/opsx-auto.sh
+    sh $(dirname $0)"/opsx-auto.sh"
     exit 0
 fi
 
