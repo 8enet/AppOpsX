@@ -8,10 +8,10 @@ import android.os.Build;
 import android.os.LocaleList;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-
 import com.zzzmode.appopsx.R;
-
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by zl on 2017/6/16.
@@ -20,6 +20,25 @@ import java.util.Locale;
 public class LangHelper {
 
   private static final String TAG = "LangHelper";
+
+  private static Map<String,Locale> sLocalMap = new HashMap<>();
+  private static Locale sDefaultLocal = null;
+  static {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      sDefaultLocal = LocaleList.getDefault().get(0);
+    }else {
+      sDefaultLocal = Locale.getDefault();
+    }
+
+    sLocalMap.put("zh-cn",Locale.SIMPLIFIED_CHINESE);
+    sLocalMap.put("zh-tw",Locale.TRADITIONAL_CHINESE);
+    sLocalMap.put("en",Locale.ENGLISH);
+    sLocalMap.put("cs",new Locale("cs","CZ"));
+    sLocalMap.put("es",new Locale("es"));
+  }
+
+
+
 
   public static void updateLanguage(Context context) {
 
@@ -47,17 +66,12 @@ public class LangHelper {
   }
 
   public static Locale getLocaleByLanguage(Context context) {
-    String language = SpHelper.getSharedPreferences(context).getString("pref_app_language", "");
-    switch (language) {
-      case "zh-cn":
-        return Locale.SIMPLIFIED_CHINESE;
-      case "zh-tw":
-        return Locale.TRADITIONAL_CHINESE;
-      case "en":
-        return Locale.ENGLISH;
-      default:
-        return Locale.getDefault();
+    String language = SpHelper.getSharedPreferences(context).getString("pref_app_language", null);
+    if(language == null){
+      return sDefaultLocal;
     }
+    Locale locale = null;
+    return (locale = sLocalMap.get(language)) != null ? locale : sDefaultLocal;
   }
 
 
