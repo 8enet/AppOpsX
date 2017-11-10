@@ -32,9 +32,9 @@
   <string name="show_sys_apps">Display system application</string>
   <string name="show_sys_apps_summary">Display system apps in the list</string>
   <string name="use_adb_mode">Use ADB mode</string>
-  <string name="use_adb_mode_summary">Using ADB mode without Root permissions, turn on [ADB over network] in the developer options \r\n or connected to the computer to execute adb tcpip %1$d in terminal</string>
-  <string name="use_adb_port">Choose ADB port</string>
-  <string name="use_adb_port_summary">Current ABD port: %1$d</string>
+  <string name="use_adb_mode_summary">Using ADB mode without Root permissions, turn on [ADB over network] in the developer options \n or connected to the computer to execute adb tcpip %1$d in terminal</string>
+  <string name="use_adb_port">Choose Adb port</string>
+  <string name="use_adb_port_summary">Current ADB port: %1$d</string>
   <string name="app_sort_type">Sort by</string>
   <string name="app_sort_type_summary">Current sort order: %1$s</string>
   <string name="app_sort_type_title">Sort By</string>
@@ -105,4 +105,6 @@
   <string name="with_root_network">Display network connections permissions</string>
   <string name="menu_stats">Usage stats</string>
   <string name="perms_count">%1$s (used %2$d times)</string>
+  <string name="lang_auto">Auto</string>
+  <string name="bg_closed">Closed</string>
 </resources>

@@ -10,7 +10,7 @@ android {
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
         signingConfig signingConfigs.debug
-        resConfigs "en","zh-rCN","zh-rTW"
+        //resConfigs "en","zh-rCN","zh-rTW","cs"
         vectorDrawables.useSupportLibrary = true
     }
 

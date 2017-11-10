@@ -32,7 +32,7 @@
   <string name="show_sys_apps">顯示系統應用</string>
   <string name="show_sys_apps_summary">在應用清單中顯示系統應用</string>
   <string name="use_adb_mode">使用ADB模式</string>
-  <string name="use_adb_mode_summary">使用ADB模式無需Root許可權，只要在開發者選項中開啟[網路ADB調試]即可\r\n或者連接電腦後輸入adb tcpip %1$d</string>
+  <string name="use_adb_mode_summary">使用ADB模式無需Root許可權，只要在開發者選項中開啟[網路ADB調試]即可\n或者連接電腦後輸入adb tcpip %1$d</string>
   <string name="use_adb_port">選擇ADB埠</string>
   <string name="use_adb_port_summary">當前選擇連接的adb埠:%1$d</string>
   <string name="app_sort_type">應用排序方式</string>
@@ -42,7 +42,7 @@
   <string name="app_daynight_mode_summary">該設置在下次啟動時生效</string>
   <string name="app_language">切換語言</string>
   <string name="close_bg_server_summary">關閉後臺服務</string>
-  <string name="close_bg_server_title">部分情況下點擊此選項可以改善連接失敗的問題\r\n如果使用正常請不要點擊此項</string>
+  <string name="close_bg_server_title">部分情況下點擊此選項可以改善連接失敗的問題\n如果使用正常請不要點擊此項</string>
   <string name="root_over_adb_mode">Root相容模式</string>
   <string name="root_over_adb_mode_summary">Root模式不能正常使用時可以開啟此選型</string>
   <string name="disable_toast">已忽略[ %1$s ]的 %2$d 許可權</string>
@@ -105,4 +105,6 @@
   <string name="with_root_network">顯示網路許可權</string>
   <string name="menu_stats">許可權使用情況</string>
   <string name="perms_count">%1$s (已使用 %2$d 次)</string>
+  <string name="lang_auto">默认</string>
+  <string name="bg_closed">已關閉</string>
 </resources>

@@ -230,7 +230,7 @@ public class SettingsActivity extends BaseActivity {
         public void onSuccess(Boolean value) {
           Activity activity = getActivity();
           if (activity != null) {
-            Toast.makeText(activity, "已关闭", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, R.string.bg_closed, Toast.LENGTH_SHORT).show();
           }
         }
 
@@ -372,10 +372,18 @@ public class SettingsActivity extends BaseActivity {
       builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          String language = getResources().getStringArray(R.array.languages_key)[selected[0]];
-          PreferenceManager.getDefaultSharedPreferences(getActivity()).edit()
-              .putString(preference.getKey(), language).apply();
-          preference.setSummary(getResources().getStringArray(R.array.languages)[selected[0]]);
+          int index = selected[0];
+          String language = null;
+          if(index == 0){
+            PreferenceManager.getDefaultSharedPreferences(getActivity()).edit()
+                .remove(preference.getKey()).apply();
+            language = "auto";
+          }else {
+            language = getResources().getStringArray(R.array.languages_key)[index];
+            PreferenceManager.getDefaultSharedPreferences(getActivity()).edit()
+                .putString(preference.getKey(), language).apply();
+          }
+          preference.setSummary(getResources().getStringArray(R.array.languages)[index]);
           ATracker.send(AEvent.C_LANG, Collections.singletonMap("lang", language));
           switchLanguage();
         }

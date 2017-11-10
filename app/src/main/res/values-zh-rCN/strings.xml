@@ -23,7 +23,7 @@
   <string name="experience">实验性功能</string>
   <string name="others">其他</string>
   <string name="auto_ignore_premission">自动关闭权限</string>
-  <string name="auto_ignore_summary">应用安装后自动关闭(忽略)所有权限。\r\n部分机型上AppOpsX被关闭后可能收不到应用安装广播，请酌情添加白名单。</string>
+  <string name="auto_ignore_summary">应用安装后自动关闭(忽略)所有权限。\n部分机型上AppOpsX被关闭后可能收不到应用安装广播，请酌情添加白名单。</string>
 
 
   <string name="auto_ignore_permission_title">自动关闭权限模板</string>
@@ -40,7 +40,7 @@
   <string name="show_sys_apps_summary">在应用列表中显示系统应用</string>
 
   <string name="use_adb_mode">使用ADB模式</string>
-  <string name="use_adb_mode_summary">使用ADB模式无需Root权限，只要在开发者选项中开启[网络ADB调试]即可\r\n或者连接电脑后输入adb tcpip %1$d</string>
+  <string name="use_adb_mode_summary">使用ADB模式无需Root权限，只要在开发者选项中开启[网络ADB调试]即可\n或者连接电脑后输入adb tcpip %1$d</string>
 
   <string name="use_adb_port">选择ADB端口</string>
   <string name="use_adb_port_summary">当前选择连接的adb端口:%1$d</string>
@@ -56,7 +56,7 @@
   <string name="app_language">切换语言</string>
 
   <string name="close_bg_server_summary">关闭后台服务</string>
-  <string name="close_bg_server_title">部分情况下点击此选项可以改善连接失败的问题\r\n如果使用正常请不要点击此项</string>
+  <string name="close_bg_server_title">部分情况下点击此选项可以改善连接失败的问题\n如果使用正常请不要点击此项</string>
 
   <string name="root_over_adb_mode">Root兼容模式</string>
   <string name="root_over_adb_mode_summary">Root模式不能正常使用时可以开启此选型</string>
@@ -139,4 +139,8 @@
 
   <string name="menu_stats">权限使用情况</string>
   <string name="perms_count">%1$s (已使用 %2$d 次)</string>
+
+
+  <string name="lang_auto">默认</string>
+  <string name="bg_closed">已关闭</string>
 </resources>
