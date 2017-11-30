@@ -49,7 +49,7 @@ public class OpsxManager {
     //AssetsUtils.copyFile(mContext,"appopsx",new File(mContext.getDir(DIR_NAME,Context.MODE_PRIVATE),"appopsx"),false);
     AssetsUtils.copyFile(mContext, SConfig.JAR_NAME, SConfig.getDestJarFile(), true);
     AssetsUtils.copyFile(mContext.getApplicationInfo().nativeLibraryDir+ File.separator+"libopsxstart.so",SConfig.getDestExecuableFile(),true);
-    AssetsUtils.writeScript(mContext,null,null);
+    AssetsUtils.writeScript(getConfig());
   }
 
   private synchronized void checkConnect() throws Exception {

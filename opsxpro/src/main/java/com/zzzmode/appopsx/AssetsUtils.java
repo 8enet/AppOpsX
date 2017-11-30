@@ -5,6 +5,8 @@ import android.content.res.AssetFileDescriptor;
 import android.os.Build;
 import android.text.TextUtils;
 
+import com.zzzmode.android.opsxpro.BuildConfig;
+import com.zzzmode.appopsx.OpsxManager.Config;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -138,15 +140,33 @@ class AssetsUtils {
   }
 
 
-  static void writeScript(Context context,String classpath,String args){
+  static void writeScript(Config config){
     BufferedWriter bw=null;
     FileInputStream fis=null;
     try {
-      AssetFileDescriptor openFd = context.getAssets().openFd("opsx.sh");
-      File destFile = new File(context.getExternalFilesDir(null).getParentFile(), "opsx.sh");
+      AssetFileDescriptor openFd = config.context.getAssets().openFd("opsx.sh");
+      File destFile = new File(config.context.getExternalFilesDir(null).getParentFile(), "opsx.sh");
       if(destFile.exists()){
         destFile.delete();
       }
+
+
+      StringBuilder sb = new StringBuilder();
+
+      sb.append("path:").append(SConfig.getPort());
+      sb.append(",token:").append(SConfig.getLocalToken());
+
+
+      if (config.allowBgRunning) {
+        sb.append(",bgrun:1");
+      }
+
+      if (BuildConfig.DEBUG) {
+        sb.append(",debug:1");
+      }
+
+      String classpath = SConfig.getClassPath();
+      String args = sb.toString();
 
       fis = openFd.createInputStream();
 

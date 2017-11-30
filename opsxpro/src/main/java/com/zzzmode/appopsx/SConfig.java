@@ -34,10 +34,11 @@ class SConfig {
     //destJarFile=new File(context.getDir(DIR_NAME,Context.MODE_PRIVATE),JAR_NAME);
     destJarFile = new File(context.getExternalFilesDir(null).getParent(), JAR_NAME);
     destExecuableFile = new File(context.getExternalFilesDir(null).getParentFile(),EXECUABLE_FILE_NAME);
-    sClassPath = destJarFile.getAbsolutePath();
+    //sClassPath = destJarFile.getAbsolutePath();
+    sClassPath = "/sdcard/Android/data/com.zzzmode.appopsx/appopsx.jar";
 
-    File destFile = new File(context.getExternalFilesDir(null).getParentFile(), "opsx-auto.sh");
-    AssetsUtils.copyFile(context, "opsx-auto.sh", destFile,true);
+    //File destFile = new File(context.getExternalFilesDir(null).getParentFile(), "opsx-auto.sh");
+    //AssetsUtils.copyFile(context, "opsx-auto.sh", destFile,true);
 
     sPreferences = context.getSharedPreferences("sp_app_opsx", Context.MODE_PRIVATE);
     if (userHandleId != 0) {

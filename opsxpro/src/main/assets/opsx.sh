@@ -3,25 +3,28 @@
 classpath=%s
 args=%s
 
-if [ "$classpath" == "$args" ]; then
-    sh $(dirname $0)"/opsx-auto.sh"
-    exit 0
+echo start
+id
+ls -l /sdcard/Android/data/com.zzzmode.appopsx/
+
+ncls=/data/local/tmp/appopsx.jar
+cp -f $classpath $ncls
+
+ret=$?
+if [ $ret -ne 0 ]; then
+  classpath=/sdcard/Android/data/com.zzzmode.appopsx/appopsx.jar
+  cp -f $classpath $ncls
 fi
 
-echo start
-
-id
-#export CLASSPATH=$classpath
-#app_process /system/bin --nice-name=appopsx_local_server com.zzzmode.appopsx.server.AppOpsMain "$args" >&2 &
-
-cp -f /sdcard/Android/data/com.zzzmode.appopsx/opsxstart /data/local/tmp/opsxstart
-
-chmod 755 /data/local/tmp/opsxstart
-chown shell:shell /data/local/tmp/opsxstart
+chmod 755 $ncls
+chown shell:shell $ncls
 
 echo "classpath --> $classpath"
 echo "args --->  $args"
-/data/local/tmp/opsxstart --env CLASSPATH=$classpath --args /system/bin/app_process /system/bin --nice-name=appopsx_local_server com.zzzmode.appopsx.server.AppOpsMain $args
+
+
+export CLASSPATH=$ncls
+exec app_process /system/bin --nice-name=appopsx_local_server com.zzzmode.appopsx.server.AppOpsMain "$args"  &
 
 ret=$?
 if [ $ret -ne 0 ]; then

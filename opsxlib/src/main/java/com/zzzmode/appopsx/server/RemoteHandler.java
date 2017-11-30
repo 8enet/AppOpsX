@@ -57,12 +57,6 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
     boolean allowBg = TextUtils.equals(params.get("bgrun"), "1");
     boolean debug = TextUtils.equals(params.get("debug"), "1");
 
-    List<Class> paramsType = new ArrayList<>(1);
-    paramsType.add(String.class);
-    List<Object> v0params = new ArrayList<>(1);
-    v0params.add("appopsx_local_server");
-    ReflectUtils.invokMethod(Process.class, "setArgV0", paramsType, v0params);
-
     server = new OpsXServer(path, token, this);
     server.allowBackgroundRun = this.allowBg = allowBg;
 

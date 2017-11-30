@@ -1,14 +1,9 @@
 package com.zzzmode.appopsx.server;
 
 
-import android.content.Intent;
 import android.os.Build;
 import android.os.Process;
 import android.system.Os;
-import android.util.EventLog;
-import android.util.EventLog.Event;
-import android.util.EventLogTags;
-import android.util.Log;
 import com.zzzmode.appopsx.common.FLog;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +28,7 @@ public class AppOpsMain {
         String[] param = s.split(":");
         params.put(param[0], param[1]);
       }
+      params.put("type",Process.myUid() == 0?"root":"adb");
       new AppOpsMain(params);
 
     } catch (Throwable e) {

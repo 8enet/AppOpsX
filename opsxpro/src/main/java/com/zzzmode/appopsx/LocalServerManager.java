@@ -114,7 +114,16 @@ class LocalServerManager {
 
 
   OpsResult exec(OpsCommands.Builder builder) throws Exception {
-    byte[] bytes = getSession().getTransfer().sendMsgAndRecv(ParcelableUtil.marshall(builder));
+    ClientSession session = getSession();
+    if(session == null){
+      throw new RuntimeException("create session error ------");
+    }
+    OpsDataTransfer transfer = session.getTransfer();
+    if(transfer == null){
+      throw new RuntimeException("get transfer error -----");
+    }
+
+    byte[] bytes = transfer.sendMsgAndRecv(ParcelableUtil.marshall(builder));
     return ParcelableUtil.unmarshall(bytes, OpsResult.CREATOR);
   }
 
@@ -132,30 +141,11 @@ class LocalServerManager {
 
   private List<String> getCommonds() {
 
-    StringBuilder sb = new StringBuilder();
 
-    sb.append("type:");
-    if (mConfig.useAdb || mConfig.rootOverAdb) {
-      sb.append("adb");
-    } else {
-      sb.append("root");
-    }
-    sb.append(",path:").append(SConfig.getPort());
-    sb.append(",token:").append(SConfig.getLocalToken());
-
-
-    if (mConfig.allowBgRunning) {
-      sb.append(",bgrun:1");
-    }
-
-    if (BuildConfig.DEBUG) {
-      sb.append(",debug:1");
-    }
-
-    AssetsUtils.writeScript(mConfig.context, SConfig.getClassPath(), sb.toString());
+    AssetsUtils.writeScript(mConfig);
 
     Log.e(TAG, "classpath --> "+SConfig.getClassPath());
-    Log.e(TAG, "args --> " + sb.toString());
+
 
     List<String> cmds = new ArrayList<>();
     cmds.add("sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh");
@@ -358,6 +348,7 @@ class LocalServerManager {
 
       }
 
+      //cmds.add(0,"supolicy --live \'allow qti_init_shell zygote_exec file execute\'");
       writeCmds(cmds, outputStream);
 
       final BufferedReader inputStream = new BufferedReader(
@@ -418,9 +409,6 @@ class LocalServerManager {
         Log.e(TAG, "startServer --- use root over adb,open adb server----");
         return useAdbStartServer();
       }
-
-      Log.e(TAG, "startServer -->ROOT server start ----- ");
-
       return true;
     } catch (Exception e) {
       e.printStackTrace();
@@ -431,7 +419,7 @@ class LocalServerManager {
     } finally {
       try {
         if (exec != null) {
-          exec.destroy();
+          //exec.destroy();
         }
       } catch (Exception e) {
         e.printStackTrace();
@@ -454,6 +442,7 @@ class LocalServerManager {
     } else {
       useRootStartServer();
     }
+    Log.e(TAG, "startServer --> end ---");
   }
 
 
