@@ -40,6 +40,9 @@ class PermGroupPresenter {
         .getBoolean("show_sysapp", false);
     boolean reqNet = PreferenceManager.getDefaultSharedPreferences(context)
         .getBoolean("key_g_show_net", false);
+
+    boolean showIgnored = PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean("key_g_show_ignored", false);
     
     subscriber = new ResourceSingleObserver<List<PermissionGroup>>() {
       @Override
@@ -55,7 +58,7 @@ class PermGroupPresenter {
 
     };
 
-    Helper.getPermissionGroup(context,showSysApp,reqNet)
+    Helper.getPermissionGroup(context,showSysApp,reqNet,showIgnored)
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(subscriber);

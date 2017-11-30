@@ -786,7 +786,7 @@ public class Helper {
   }
 
   public static Single<List<PermissionGroup>> getPermissionGroup(final Context context,
-      final boolean loadSysapp, final boolean reqNet) {
+      final boolean loadSysapp, final boolean reqNet,final boolean showIgnored) {
     return getAllAppPermissions(context, loadSysapp, reqNet)
         .collect(new Callable<Map<String, List<AppPermissions>>>() {
           @Override
@@ -830,13 +830,16 @@ public class Helper {
                 PermissionChildItem item = new PermissionChildItem();
                 item.appInfo = appPermissions.appInfo;
 
-                group.apps.add(item);
+
+                boolean skip = false;
                 if (appPermissions.opEntries != null) {
                   for (OpEntryInfo opEntry : appPermissions.opEntries) {
                     if (group.opName.equals(opEntry.opName)) {
                       item.opEntryInfo = opEntry;
                       if (opEntry.opEntry.getMode() == AppOpsManager.MODE_ALLOWED) {
                         group.grants += 1;
+                      }else if(!showIgnored){
+                        skip = true;
                       }
                       group.opPermsName = opEntry.opPermsName;
                       group.opPermsDesc = opEntry.opPermsDesc;
@@ -846,6 +849,9 @@ public class Helper {
                   }
                 }
 
+                if(!skip){
+                  group.apps.add(item);
+                }
 
               }
 

@@ -109,4 +109,6 @@
   <string name="bg_closed">Closed</string>
   <string name="other_op_hint">This action modifies the non-standard appops permission, this item restarts will invalid, please note that backup!</string>
   <string name="other_op_stop_show">Don\'t show again</string>
+
+  <string name="show_ignored_app">Display ignored apps</string>
 </resources>

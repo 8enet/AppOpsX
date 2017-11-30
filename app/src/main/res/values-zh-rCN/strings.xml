@@ -148,4 +148,5 @@
   <string name="other_op_hint">此操作修改的是非标准appops权限，该项重启后会失效，请注意备份!</string>
   <string name="other_op_stop_show">不再提示</string>
 
+  <string name="show_ignored_app">显示已忽略的应用</string>
 </resources>

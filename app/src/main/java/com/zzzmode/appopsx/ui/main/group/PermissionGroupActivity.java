@@ -182,6 +182,7 @@ public class PermissionGroupActivity extends BaseActivity implements
       getMenuInflater().inflate(R.menu.group_menu,menu);
 
       MenuItem menuShowNet = menu.findItem(R.id.action_with_net);
+      MenuItem mendShowHided = menu.findItem(R.id.action_show_ignored);
 
       final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -189,7 +190,15 @@ public class PermissionGroupActivity extends BaseActivity implements
         @Override
         public boolean onMenuItemClick(MenuItem item) {
           item.setChecked(!item.isChecked());
-          sp.edit().putBoolean("key_g_show_net", item.isChecked()).apply();
+          switch (item.getItemId()){
+            case R.id.action_with_net:
+              sp.edit().putBoolean("key_g_show_net", item.isChecked()).apply();
+              break;
+            case R.id.action_show_ignored:
+              sp.edit().putBoolean("key_g_show_ignored", item.isChecked()).apply();
+              break;
+          }
+
           ActivityCompat.invalidateOptionsMenu(PermissionGroupActivity.this);
           return true;
         }
@@ -197,6 +206,9 @@ public class PermissionGroupActivity extends BaseActivity implements
 
       menuShowNet.setChecked(sp.getBoolean("key_g_show_net", false));
       menuShowNet.setOnMenuItemClickListener(itemClickListener);
+
+      mendShowHided.setChecked(sp.getBoolean("key_g_show_ignored",false));
+      mendShowHided.setOnMenuItemClickListener(itemClickListener);
     }
     return super.onCreateOptionsMenu(menu);
   }
