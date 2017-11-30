@@ -22,4 +22,13 @@ public class SpHelper {
     return AppCompatDelegate.MODE_NIGHT_NO;
   }
 
+
+  public static boolean isIgnoredNetOps(Context context,int op){
+    return getSharedPreferences(context).getBoolean("pref_ignore_op_code_"+op,false);
+  }
+
+  public static void ignoredNetOps(Context context,int op){
+    getSharedPreferences(context).edit().putBoolean("pref_ignore_op_code_"+op,true).apply();
+  }
+
 }

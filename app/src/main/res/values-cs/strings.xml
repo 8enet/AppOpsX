@@ -46,7 +46,7 @@
   <string name="root_over_adb_mode">Režim root kompatibility</string>
   <string name="root_over_adb_mode_summary">Povolte tuto možnost máte-li problémy s root režimem</string>
   <string name="disable_toast">Oprávnění ignorována (%1$s z %2$d)</string>
-  <string name="permission_count">Autorizovaný %1$d aplikace (celkem %2$d)</string>
+  <string name="permission_count">Autorizováno %1$d z celkem %2$d aplikací</string>
   <string name="acknowledgments_list">Poděkování</string>
   <string name="error_msg">%1$s\n\n%2$s</string>
   <string name="permlab_POST_NOTIFICATION">Vytvoření oznámení</string>
@@ -91,7 +91,6 @@
   <string name="sort_by_name_last_letter">Název (sestupně)</string>
   <string name="sort_by_installed_time">Čas instalace</string>
   <string name="sort_by_last_updated_time">Čas aktualizace</string>
-  <string name="error_no_adb">Připojení se nezdařilo! \ n řešení: $literal. otevřené adb ladění ladění v možnost vývojář nebo otevřít síť adb $literal. po připojení k PC, zadejte ADB tcpip %1$d \n3 v terminálu. zapnout ladění USB, připojte počítač a zkopírujte následující příkaz Spustit \NADB shell v terminálu SH/sdcard/android/data/com.zzzmode.appopsx/opsx.sh</string>
   <string name="error_no_su">Chyba!\nUjistěte se, že má zařízení root přstup. Zařízení bez root přístupu mohou být upravena pomocí ADB režimu (viz nastavení).</string>
   <string name="error_su_timeout">Chyba – ujistěte se, že bylo aplikaci uděleno oprávnění k root operacím.</string>
   <string name="error_connect_fail">Chyba!\nŘešení:\nA) Zkuste zapnout režim root kompatibility v nastavení.\nB) Zkuste použít jiného správce root oprávnění (např. SuperSU).\nC)Vidíte-li stále tuto chybu, můžete zkusit vypnout SElinux (bezpečnostní systém řízení přístupu). S tímto řešením buďte opatrní.</string>

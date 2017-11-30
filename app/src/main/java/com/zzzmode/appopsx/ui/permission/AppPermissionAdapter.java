@@ -1,5 +1,9 @@
 package com.zzzmode.appopsx.ui.permission;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.text.format.DateUtils;
@@ -10,6 +14,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.zzzmode.appopsx.R;
+import com.zzzmode.appopsx.common.OtherOp;
+import com.zzzmode.appopsx.ui.core.SpHelper;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,10 +126,47 @@ class AppPermissionAdapter extends RecyclerView.Adapter<AppPermissionAdapter.Vie
   }
 
   @Override
-  public void onClick(View v) {
+  public void onClick(final View v) {
     if (v.getTag() instanceof ViewHolder) {
-      ((ViewHolder) v.getTag()).switchCompat.toggle();
+      int position = ((ViewHolder) v.getTag()).getAdapterPosition();
+      OpEntryInfo opEntryInfo = datas.get(position);
+      if(OtherOp.isOtherOp(opEntryInfo.opEntry.getOp()) && !SpHelper.isIgnoredNetOps(v.getContext(),opEntryInfo.opEntry.getOp())){
+
+
+        Runnable runnable = new Runnable() {
+          @Override
+          public void run() {
+            ((ViewHolder) v.getTag()).switchCompat.toggle();
+          }
+        };
+        showWarning(v.getContext(),opEntryInfo,runnable);
+
+      }else {
+        ((ViewHolder) v.getTag()).switchCompat.toggle();
+      }
+
     }
+  }
+
+  private void showWarning(final Context context,final OpEntryInfo opEntryInfo,final Runnable runnable){
+    AlertDialog alertDialog=new AlertDialog.Builder(context)
+        .setTitle(android.R.string.dialog_alert_title)
+        .setMessage(R.string.other_op_hint)
+        .setPositiveButton(android.R.string.ok, new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            runnable.run();
+          }
+        })
+        .setNegativeButton(android.R.string.cancel,null)
+        .setNeutralButton(R.string.other_op_stop_show, new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            SpHelper.ignoredNetOps(context,opEntryInfo.opEntry.getOp());
+          }
+        })
+        .create();
+    alertDialog.show();
   }
 
   @Override

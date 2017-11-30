@@ -107,4 +107,6 @@
   <string name="perms_count">%1$s (used %2$d times)</string>
   <string name="lang_auto">Auto</string>
   <string name="bg_closed">Closed</string>
+  <string name="other_op_hint">This action modifies the non-standard appops permission, this item restarts will invalid, please note that backup!</string>
+  <string name="other_op_stop_show">Don\'t show again</string>
 </resources>
