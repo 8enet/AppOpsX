@@ -42,8 +42,6 @@
       android:id="@android:id/title"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:ellipsize="marquee"
-      android:singleLine="true"
       android:textColor="?android:attr/textColorPrimary"
       android:textAppearance="?android:attr/textAppearanceListItem"/>
 
