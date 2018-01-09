@@ -2,8 +2,12 @@ package com.zzzmode.appopsx.ui.core;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.UserInfo;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+import android.os.UserHandle;
 import android.support.v4.util.LruCache;
 import android.widget.ImageView;
 
@@ -64,7 +68,15 @@ public class LocalImageLoader {
     Drawable drawable = sLruCache.get(appInfo.packageName);
 
     if (drawable == null && appInfo.applicationInfo != null) {
-      drawable = appInfo.applicationInfo.loadIcon(context.getPackageManager());
+      if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP_MR1) {
+        drawable = appInfo.applicationInfo.loadUnbadgedIcon(context.getPackageManager());
+      }else {
+        drawable = appInfo.applicationInfo.loadIcon(context.getPackageManager());
+      }
+      UserInfo currentUser = Users.getInstance().getCurrentUser();
+      if(currentUser != null && currentUser.isManagedProfile()){
+        drawable = context.getPackageManager().getUserBadgedIcon(drawable,currentUser.getUserHandle());
+      }
       sLruCache.put(appInfo.packageName, drawable);
     }
     return drawable;
@@ -76,6 +88,10 @@ public class LocalImageLoader {
       sLruCache
           .put(appInfo.packageName, appInfo.applicationInfo.loadIcon(context.getPackageManager()));
     }
+  }
+
+  public static void clear(){
+    sLruCache.evictAll();
   }
 
 }

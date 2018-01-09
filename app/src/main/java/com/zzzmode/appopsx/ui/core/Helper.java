@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -45,11 +46,11 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiConsumer;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.internal.operators.single.SingleJust;
@@ -436,7 +437,14 @@ public class Helper {
       @Override
       public void subscribe(final ObservableEmitter<List<AppInfo>> e) throws Exception {
         PackageManager packageManager = context.getPackageManager();
-        List<PackageInfo> installedPackages = packageManager.getInstalledPackages(0);
+        int uid = Users.getInstance().getCurrentUid();
+        List<PackageInfo> installedPackages = null;
+        if(uid == 0){
+          installedPackages = packageManager.getInstalledPackages(0);
+        }else {
+          installedPackages = AppOpsx.getInstance(context).getApiSupporter().getInstalledPackages(0,uid);
+        }
+
 
         List<AppInfo> zhAppInfos = new ArrayList<AppInfo>();
         List<AppInfo> enAppInfos = new ArrayList<AppInfo>();
@@ -1290,6 +1298,16 @@ public class Helper {
           }
         }
         return ret;
+      }
+    });
+  }
+
+
+  public static Single<List<UserInfo>> getUsers(final Context context,final boolean excludeDying){
+    return Single.create(new SingleOnSubscribe<List<UserInfo>>() {
+      @Override
+      public void subscribe(SingleEmitter<List<UserInfo>> emitter) throws Exception {
+        emitter.onSuccess(AppOpsx.getInstance(context).getApiSupporter().getUsers(excludeDying));
       }
     });
   }

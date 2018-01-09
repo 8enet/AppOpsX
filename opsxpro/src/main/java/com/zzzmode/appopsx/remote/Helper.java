@@ -1,4 +1,4 @@
-package com.zzzmode.appopsx.server;
+package com.zzzmode.appopsx.remote;
 
 import android.app.ActivityThread;
 import android.app.AppOpsManager;
@@ -7,8 +7,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.UserHandle;
 import com.zzzmode.appopsx.common.ReflectUtils;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,37 +76,4 @@ class Helper {
     return -1;
   }
 
-
-
-
-
-  static String getProcessName(int pid){
-    FileInputStream fis = null;
-    try {
-      byte[] buff = new byte[512];
-      fis = new FileInputStream("/proc/"+pid+"/cmdline");
-      int len = fis.read(buff);
-      if (len > 0) {
-        int i;
-        for (i=0; i<len; i++) {
-          if (buff[i] == '\0') {
-            break;
-          }
-        }
-        return new String(buff,0,i);
-      }
-    }catch (Exception e){
-      e.printStackTrace();
-    }finally {
-      try {
-        if (fis != null) {
-          fis.close();
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-
-    return null;
-  }
 }

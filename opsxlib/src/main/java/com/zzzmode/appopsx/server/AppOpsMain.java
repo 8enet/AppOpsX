@@ -1,10 +1,14 @@
 package com.zzzmode.appopsx.server;
 
 
+import android.app.ActivityThread;
 import android.os.Build;
+import android.os.Looper;
 import android.os.Process;
 import android.system.Os;
 import com.zzzmode.appopsx.common.FLog;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,21 +20,43 @@ public class AppOpsMain {
   public static void main(String[] args) {
 
     try {
-      FLog.writeLog = false;
+      FLog.writeLog = true;
       FLog.log("start ops server args:" + Arrays.toString(args));
       if (args == null) {
         return;
       }
 
+      Looper.prepareMainLooper();
+      ActivityThread.systemMain();
+
       String[] split = args[0].split(",");
-      Map<String, String> params = new HashMap<>();
+      final Map<String, String> params = new HashMap<>();
       for (String s : split) {
         String[] param = s.split(":");
         params.put(param[0], param[1]);
       }
       params.put("type",Process.myUid() == 0?"root":"adb");
-      new AppOpsMain(params);
+      System.out.println("type ---> "+params.get("type")+"    uid: "+Process.myUid());
+      System.out.println("params ---> "+params);
 
+      Thread thread=new Thread(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            new AppOpsMain(params);
+          } catch (Exception e) {
+            e.printStackTrace();
+            FLog.log(e);
+          }finally {
+            FLog.close();
+            stop();
+          }
+        }
+      });
+      thread.setName("IPC-appopsx");
+      thread.start();
+
+      Looper.loop();
     } catch (Throwable e) {
       e.printStackTrace();
       FLog.log(e);
@@ -73,7 +99,7 @@ public class AppOpsMain {
       LifecycleAgent.sParams = new HashMap<>(params);
       System.out.println("AppOpsX server start successful, enjoy it! \uD83D\uDE0E");
       int pid = Process.myPid();
-      System.out.println(Helper.getProcessName(pid)+"   pid:"+ pid);
+      System.out.println(getProcessName(pid)+"   pid:"+ pid);
       LifecycleAgent.onStarted();
       mCallHandler.start();
     } finally {
@@ -96,6 +122,37 @@ public class AppOpsMain {
     }
 
     LifecycleAgent.onStoped();
+  }
+
+
+  static String getProcessName(int pid){
+    FileInputStream fis = null;
+    try {
+      byte[] buff = new byte[512];
+      fis = new FileInputStream("/proc/"+pid+"/cmdline");
+      int len = fis.read(buff);
+      if (len > 0) {
+        int i;
+        for (i=0; i<len; i++) {
+          if (buff[i] == '\0') {
+            break;
+          }
+        }
+        return new String(buff,0,i);
+      }
+    }catch (Exception e){
+      e.printStackTrace();
+    }finally {
+      try {
+        if (fis != null) {
+          fis.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
+    return null;
   }
 
 }

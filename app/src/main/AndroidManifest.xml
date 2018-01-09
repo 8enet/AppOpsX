@@ -14,7 +14,7 @@
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
     <activity
-      android:configChanges="keyboardHidden|orientation"
+      android:configChanges="keyboardHidden|orientation|screenSize"
       android:name=".ui.main.MainActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
@@ -22,7 +22,7 @@
       </intent-filter>
     </activity>
     <activity
-      android:configChanges="keyboardHidden|orientation"
+      android:configChanges="keyboardHidden|orientation|screenSize"
       android:exported="true"
       android:name=".ui.permission.AppPermissionActivity">
       <intent-filter>
@@ -38,13 +38,14 @@
 
 
     <activity
-      android:configChanges="keyboardHidden|orientation"
+      android:configChanges="keyboardHidden|orientation|screenSize"
       android:name=".ui.main.SettingsActivity"
       android:theme="@style/SettingsTheme"/>
     <activity
-      android:configChanges="keyboardHidden|orientation"
+      android:configChanges="keyboardHidden|orientation|screenSize"
       android:name=".ui.main.group.PermissionGroupActivity"/>
     <activity
+      android:configChanges="keyboardHidden|orientation|screenSize"
       android:excludeFromRecents="true"
       android:exported="true"
       android:name=".ui.permission.AlertInstalledPremActivity"

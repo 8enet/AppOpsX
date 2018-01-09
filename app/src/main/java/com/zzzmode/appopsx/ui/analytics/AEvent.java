@@ -40,6 +40,7 @@ public class AEvent {
   public static final String C_GROUP_OPEN_ALL = "group_open_all";
 
   public static final String U_AUTO_IGNORE = "auto_ignore";
+  public static final String C_USAGE_STATUS = "main_usage_status";
 
   public static final String A_EXPORT = "perm_export";
   public static final String A_DELETE_BACKFILE = "delete_back_file";

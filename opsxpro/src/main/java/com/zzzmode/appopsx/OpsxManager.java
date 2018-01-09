@@ -2,11 +2,18 @@ package com.zzzmode.appopsx;
 
 import android.app.AppOpsManager;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.os.Bundle;
 import android.os.Process;
+import android.util.Log;
+import com.zzzmode.appopsx.common.CallerResult;
+import com.zzzmode.appopsx.common.ClassCaller;
 import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
+import com.zzzmode.appopsx.common.SystemServiceCaller;
+import com.zzzmode.appopsx.remote.AppOpsHandler;
 import java.io.File;
 import java.util.List;
 
@@ -24,6 +31,12 @@ public class OpsxManager {
 
   private int mUserHandleId;
 
+  private int userId;
+
+  private static String pkgName;
+
+  private ApiSupporter apiSupporter;
+
   public OpsxManager(Context context) {
     this(context, new Config());
   }
@@ -33,8 +46,15 @@ public class OpsxManager {
     config.context = mContext;
     mUserHandleId = Process.myUid() / 100000; //android.os.UserHandle.myUserId()
     SConfig.init(context, mUserHandleId);
+    userId = mUserHandleId;
     mLocalServerManager = LocalServerManager.getInstance(config);
+    apiSupporter = new ApiSupporter(mLocalServerManager);
+    pkgName = context.getPackageName();
     checkFile();
+  }
+
+  public void setUserHandleId(int uid) {
+    this.userId = uid;
   }
 
   public void updateConfig(Config config) {
@@ -61,8 +81,20 @@ public class OpsxManager {
     OpsCommands.Builder builder = new OpsCommands.Builder();
     builder.setAction(OpsCommands.ACTION_GET);
     builder.setPackageName(packageName);
-    builder.setUserHandleId(mUserHandleId);
-    return mLocalServerManager.exec(builder);
+    builder.setUserHandleId(userId);
+
+
+    return wrapOps(builder);
+  }
+
+
+  private OpsResult wrapOps(OpsCommands.Builder builder) throws Exception {
+    Bundle bundle = new Bundle();
+    bundle.putParcelable("args",builder);
+    ClassCaller classCaller = new ClassCaller(pkgName,AppOpsHandler.class.getName(),bundle);
+    CallerResult result = mLocalServerManager.execNew(classCaller);
+    Bundle replyBundle = result.getReplyBundle();
+    return replyBundle.getParcelable("return");
   }
 
   public OpsResult getPackagesForOps(int[] ops,boolean reqNet)throws Exception{
@@ -71,8 +103,8 @@ public class OpsxManager {
     builder.setAction(OpsCommands.ACTION_GET_FOR_OPS);
     builder.setOps(ops);
     builder.setReqNet(reqNet);
-    builder.setUserHandleId(mUserHandleId);
-    return mLocalServerManager.exec(builder);
+    builder.setUserHandleId(userId);
+    return wrapOps(builder);
   }
 
   public OpsResult setOpsMode(String packageName, int opInt, int modeInt) throws Exception {
@@ -82,16 +114,22 @@ public class OpsxManager {
     builder.setPackageName(packageName);
     builder.setOpInt(opInt);
     builder.setModeInt(modeInt);
-    builder.setUserHandleId(mUserHandleId);
-    return mLocalServerManager.exec(builder);
+    builder.setUserHandleId(userId);
+    return wrapOps(builder);
   }
 
   public OpsResult resetAllModes(String packageName) throws Exception {
     OpsCommands.Builder builder = new OpsCommands.Builder();
     builder.setAction(OpsCommands.ACTION_RESET);
     builder.setPackageName(packageName);
-    builder.setUserHandleId(mUserHandleId);
-    return mLocalServerManager.exec(builder);
+    builder.setUserHandleId(userId);
+    return wrapOps(builder);
+  }
+
+
+
+  public ApiSupporter getApiSupporter() {
+    return apiSupporter;
   }
 
   public void destory() {

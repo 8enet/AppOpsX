@@ -19,6 +19,7 @@ public class OpsCommands {
   public static final String ACTION_SET = "set";
   public static final String ACTION_RESET = "reset";
   public static final String ACTION_GET_FOR_OPS ="get_f_ops";
+  public static final String ACTION_GET_APPS = "get_apps";
   public static final String ACTION_OTHER = "other";
 
   public static class Builder implements Parcelable {

@@ -111,4 +111,5 @@
   <string name="other_op_stop_show">Don\'t show again</string>
 
   <string name="show_ignored_app">Display ignored apps</string>
+  <string name="action_users">Users</string>
 </resources>

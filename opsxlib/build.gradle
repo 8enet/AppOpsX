@@ -46,7 +46,8 @@ ext{
 
 dependencies {
 //    compile project(":opsdeps")
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    compileOnly project(":apicompat")
 }
 
 build.doLast {

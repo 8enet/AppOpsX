@@ -7,10 +7,10 @@ import com.cgutman.adblib.AdbConnection;
 import com.cgutman.adblib.AdbStream;
 import com.zzzmode.adblib.AdbConnector;
 import com.zzzmode.adblib.LineReader;
-import com.zzzmode.android.opsxpro.BuildConfig;
-import com.zzzmode.appopsx.common.OpsCommands;
+import com.zzzmode.appopsx.common.BaseCaller;
+import com.zzzmode.appopsx.common.CallerMethod;
+import com.zzzmode.appopsx.common.CallerResult;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
-import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.ParcelableUtil;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -112,8 +112,7 @@ class LocalServerManager {
     getSession();
   }
 
-
-  OpsResult exec(OpsCommands.Builder builder) throws Exception {
+  private byte[] execPre(byte[] params)throws Exception{
     ClientSession session = getSession();
     if(session == null){
       throw new RuntimeException("create session error ------");
@@ -123,16 +122,22 @@ class LocalServerManager {
       throw new RuntimeException("get transfer error -----");
     }
 
-    byte[] bytes = transfer.sendMsgAndRecv(ParcelableUtil.marshall(builder));
-    return ParcelableUtil.unmarshall(bytes, OpsResult.CREATOR);
+    return transfer.sendMsgAndRecv(params);
+  }
+
+
+  CallerResult execNew(CallerMethod method) throws Exception {
+    byte[] result = execPre(ParcelableUtil.marshall(new BaseCaller(method.wrapParams())));
+
+    return ParcelableUtil.unmarshall(
+        result, CallerResult.CREATOR);
   }
 
   void closeBgServer() {
     try {
-      OpsCommands.Builder builder = new OpsCommands.Builder();
-      builder.setAction(OpsCommands.ACTION_OTHER);
-      builder.setPackageName("close_server");
-      createSession().getTransfer().sendMsgAndRecv(ParcelableUtil.marshall(builder));
+
+      BaseCaller baseCaller=new BaseCaller(BaseCaller.TYPE_CLOSE);
+      createSession().getTransfer().sendMsgAndRecv(ParcelableUtil.marshall(baseCaller));
     } catch (Exception e) {
       Log.w(TAG, "closeBgServer: "+e.getCause()+"  "+e.getMessage());
     }
@@ -497,7 +502,7 @@ class LocalServerManager {
       return mSession;
     }
     Socket socket = new Socket("127.0.0.1", SConfig.getPort());
-    socket.setSoTimeout(1000 * 5);
+    socket.setSoTimeout(1000 * 30);
     OutputStream os = socket.getOutputStream();
     InputStream is = socket.getInputStream();
     String token = SConfig.getLocalToken();

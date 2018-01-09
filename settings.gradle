@@ -1,1 +1,1 @@
-include ':app', ':opsxlib', ':opsxpro', ':AdbLib'
+include ':app', ':opsxlib', ':opsxpro', ':AdbLib', ':apicompat'

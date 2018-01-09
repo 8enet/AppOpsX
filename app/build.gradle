@@ -1,3 +1,5 @@
+import java.util.zip.ZipFile
+
 apply plugin: 'com.android.application'
 
 android {
@@ -38,17 +40,42 @@ android {
 def supportVersion=rootProject.ext.supportLibVersion
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(":opsxpro")
-    compile "com.android.support:appcompat-v7:$supportVersion"
-    compile "com.android.support:recyclerview-v7:$supportVersion"
-    compile "com.android.support:preference-v7:$supportVersion"
-    compile "com.android.support:preference-v14:$supportVersion"
-    compile "com.android.support:design:$supportVersion"
-    compile 'io.reactivex.rxjava2:rxjava:2.1.1'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'com.github.promeg:tinypinyin:2.0.3'
-    compile ('com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.10.6@aar'){
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    compileOnly fileTree(include: ['*.jar'], dir: 'deps')
+    implementation project(":opsxpro")
+    implementation "com.android.support:appcompat-v7:$supportVersion"
+    implementation "com.android.support:recyclerview-v7:$supportVersion"
+    implementation "com.android.support:preference-v7:$supportVersion"
+    implementation "com.android.support:preference-v14:$supportVersion"
+    implementation "com.android.support:design:$supportVersion"
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.8'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'com.github.promeg:tinypinyin:2.0.3'
+    implementation ('com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.11.0@aar'){
         transitive=true
     }
+
+    releaseImplementation 'com.umeng.analytics:analytics:latest.integration'
 }
+
+
+task providedApiCompat <<{
+    println("------------- providedApiCompat ")
+
+    new ZipFile("${rootProject.project("apicompat").buildDir}/outputs/aar/apicompat-debug.aar").withCloseable {
+
+        it.getInputStream(it.getEntry("classes.jar")).withStream{
+            def ins = it
+            def target = file("${project.projectDir}/deps/hidden.jar")
+            target.getParentFile().mkdirs()
+            target.withOutputStream {
+                it << ins
+            }
+        }
+    }
+
+}
+
+
+
+preBuild.dependsOn(":apicompat:build",providedApiCompat)

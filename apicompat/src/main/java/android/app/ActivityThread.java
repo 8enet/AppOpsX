@@ -38,5 +38,8 @@ public class ActivityThread {
   public void installSystemApplicationInfo(ApplicationInfo info, ClassLoader classLoader) {
 
   }
+
+
+
 }
 

@@ -1,33 +1,33 @@
 package com.zzzmode.appopsx.server;
 
-import android.Manifest;
 import android.app.ActivityThread;
-import android.app.AppOpsManager;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Build;
+import android.content.pm.ParceledListSlice;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.Message;
-import android.os.Process;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.ServiceManager;
 import android.text.TextUtils;
 import android.util.Log;
-import com.android.internal.app.IAppOpsService;
+import android.util.LruCache;
+import com.zzzmode.appopsx.common.BaseCaller;
+import com.zzzmode.appopsx.common.CallerMethod;
+import com.zzzmode.appopsx.common.CallerResult;
+import com.zzzmode.appopsx.common.ClassCaller;
+import com.zzzmode.appopsx.common.ClassCallerProcessor;
 import com.zzzmode.appopsx.common.FLog;
-import com.zzzmode.appopsx.common.OpEntry;
-import com.zzzmode.appopsx.common.OpsCommands;
+import com.zzzmode.appopsx.common.MethodUtils;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
-import com.zzzmode.appopsx.common.OpsResult;
-import com.zzzmode.appopsx.common.OtherOp;
-import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.common.ParcelableUtil;
-import com.zzzmode.appopsx.common.ReflectUtils;
-import com.zzzmode.appopsx.common.Shell;
+import com.zzzmode.appopsx.common.SystemServiceCaller;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -46,8 +46,6 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
   private int timeOut = DEFAULT_TIME_OUT_TIME;
   private volatile boolean allowBg = false;
 
-  private Shell mShell;
-  private IptablesController mIptablesController;
 
   RemoteHandler(Map<String, String> params) throws IOException {
     System.out.println("params --> " + params);
@@ -60,16 +58,6 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
     server = new OpsXServer(path, token, this);
     server.allowBackgroundRun = this.allowBg = allowBg;
 
-    try {
-
-      if (isRoot) {
-        mShell = Shell.getShell();
-        mIptablesController = new IptablesController(mShell);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      mIptablesController = null;
-    }
 
     if (!allowBg) {
       HandlerThread thread1 = new HandlerThread("watcher-ups");
@@ -87,7 +75,6 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
       };
       handler.sendEmptyMessageDelayed(MSG_TIMEOUT, timeOut);
     }
-
   }
 
 
@@ -106,14 +93,6 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
       e.printStackTrace();
     }
 
-    if (mShell != null) {
-      try {
-        mShell.close();
-        mShell.destroyShell();
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
     try {
       isDeath = true;
       server.setStop();
@@ -122,7 +101,7 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
     }
   }
 
-  private void sendOpResult(OpsResult result) {
+  private void sendOpResult(Parcelable result) {
     try {
       server.sendResult(ParcelableUtil.marshall(result));
     } catch (IOException e) {
@@ -130,166 +109,8 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
     }
   }
 
-  private void handleCommand(OpsCommands.Builder builder) throws Throwable {
-    String s = builder.getAction();
-    if (OpsCommands.ACTION_GET.equals(s)) {
-      runGet(builder);
-    } else if (OpsCommands.ACTION_SET.equals(s)) {
-      runSet(builder);
-    } else if (OpsCommands.ACTION_RESET.equals(s)) {
-      runReset(builder);
-    } else if (OpsCommands.ACTION_GET_FOR_OPS.equals(s)) {
-      runGetForOps(builder);
-    } else {
-      runOther(builder);
-    }
-  }
-
-  private void runGet(OpsCommands.Builder getBuilder) throws Throwable {
-
-    FLog.log("runGet sdk:" + Build.VERSION.SDK_INT);
-
-    final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-        ServiceManager.getService(Context.APP_OPS_SERVICE));
-    String packageName = getBuilder.getPackageName();
-
-    int uid = Helper.getPackageUid(packageName, getBuilder.getUserHandleId());
-
-    List opsForPackage = appOpsService.getOpsForPackage(uid, packageName, null);
-    List<PackageOps> packageOpses = new ArrayList<>();
-    if (opsForPackage != null) {
-      for (Object o : opsForPackage) {
-        PackageOps packageOps = ReflectUtils.opsConvert(o);
-        addSupport(appOpsService, packageOps, getBuilder.getUserHandleId());
-        packageOpses.add(packageOps);
-      }
-    } else {
-      PackageOps packageOps = new PackageOps(packageName, uid, new ArrayList<OpEntry>());
-      addSupport(appOpsService, packageOps, getBuilder.getUserHandleId());
-      packageOpses.add(packageOps);
-    }
-
-    sendOpResult(new OpsResult(packageOpses, null));
-
-  }
 
 
-  private void addSupport(IAppOpsService appOpsService, PackageOps ops, int userHandleId) {
-    addSupport(appOpsService, ops, userHandleId, true);
-  }
-
-  private void addSupport(IAppOpsService appOpsService, PackageOps ops, int userHandleId, boolean checkNet) {
-    try {
-      if (checkNet && mIptablesController != null) {
-        int mode = mIptablesController.isMobileDataEnable(ops.getUid()) ? AppOpsManager.MODE_ALLOWED
-            : AppOpsManager.MODE_IGNORED;
-        OpEntry opEntry = new OpEntry(OtherOp.OP_ACCESS_PHONE_DATA, mode, 0, 0, 0, 0, null);
-        ops.getOps().add(opEntry);
-
-        mode = mIptablesController.isWifiDataEnable(ops.getUid()) ? AppOpsManager.MODE_ALLOWED
-            : AppOpsManager.MODE_IGNORED;
-        opEntry = new OpEntry(OtherOp.OP_ACCESS_WIFI_NETWORK, mode, 0, 0, 0, 0, null);
-        ops.getOps().add(opEntry);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println(Log.getStackTraceString(e));
-    }
-    try {
-      PackageInfo packageInfo = ActivityThread.getPackageManager()
-          .getPackageInfo(ops.getPackageName(), PackageManager.GET_PERMISSIONS, userHandleId);
-      if (packageInfo != null && packageInfo.requestedPermissions != null) {
-        for (String permission : packageInfo.requestedPermissions) {
-          int code = Helper.permissionToCode(permission);
-
-          if (code <= 0) {
-            //correct OP_WIFI_SCAN code.
-            if (Manifest.permission.ACCESS_WIFI_STATE.equals(permission)) {
-              code = OtherOp.getWifiScanOp();
-            }
-          }
-          
-          if (code > 0 && !ops.hasOp(code)) {
-            int mode = appOpsService.checkOperation(code, ops.getUid(), ops.getPackageName());
-            if (mode != AppOpsManager.MODE_ERRORED) {
-              //
-              ops.getOps().add(new OpEntry(code, mode, 0, 0, 0, 0, null));
-            }
-          }
-        }
-      }
-
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void runSet(OpsCommands.Builder builder) throws Throwable {
-
-    final int uid = Helper.getPackageUid(builder.getPackageName(), builder.getUserHandleId());
-    if (OtherOp.isOtherOp(builder.getOpInt())) {
-      setOther(builder, uid);
-    } else {
-      final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-          ServiceManager.getService(Context.APP_OPS_SERVICE));
-      appOpsService
-          .setMode(builder.getOpInt(), uid, builder.getPackageName(), builder.getModeInt());
-    }
-
-    sendOpResult(new OpsResult(null, null));
-
-  }
-
-  private void setOther(OpsCommands.Builder builder, int uid) {
-    if (mIptablesController != null) {
-      boolean enable = builder.getModeInt() == AppOpsManager.MODE_ALLOWED;
-      switch (builder.getOpInt()) {
-        case OtherOp.OP_ACCESS_PHONE_DATA:
-          mIptablesController.setMobileData(uid, enable);
-          break;
-        case OtherOp.OP_ACCESS_WIFI_NETWORK:
-          mIptablesController.setWifiData(uid, enable);
-          break;
-      }
-    }
-  }
-
-  private void runOther(OpsCommands.Builder builder) {
-    String packageName = builder.getPackageName();
-    if ("close_server".equals(packageName)) {
-      destory();
-    }
-  }
-
-  private void runReset(OpsCommands.Builder builder) throws Throwable {
-    final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-        ServiceManager.getService(Context.APP_OPS_SERVICE));
-
-    appOpsService.resetAllModes(builder.getUserHandleId(), builder.getPackageName());
-    sendOpResult(new OpsResult(null, null));
-  }
-
-  private void runGetForOps(OpsCommands.Builder builder) throws Throwable {
-
-    final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
-        ServiceManager.getService(Context.APP_OPS_SERVICE));
-
-    List opsForPackage = appOpsService.getPackagesForOps(builder.getOps());
-    List<PackageOps> packageOpses = new ArrayList<>();
-
-    if (opsForPackage != null) {
-      for (Object o : opsForPackage) {
-        PackageOps packageOps = ReflectUtils.opsConvert(o);
-        addSupport(appOpsService, packageOps, builder.getUserHandleId(), builder.isReqNet());
-        packageOpses.add(packageOps);
-      }
-
-      FLog.log("runGetForOps ---- "+packageOpses.size());
-    }
-
-    sendOpResult(new OpsResult(packageOpses, null));
-
-  }
 
   @Override
   public void onMessage(byte[] bytes) {
@@ -303,19 +124,205 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
         handler.sendEmptyMessageDelayed(MSG_TIMEOUT, BG_TIME_OUT);
       }
 
-      OpsCommands.Builder unmarshall = ParcelableUtil
-          .unmarshall(bytes, OpsCommands.Builder.CREATOR);
+//
 
-      FLog.log("onMessage ---> !!!! " + unmarshall);
-
+      CallerResult result = null;
       try {
-        handleCommand(unmarshall);
-      } catch (Throwable throwable) {
-        throwable.printStackTrace();
-        sendOpResult(new OpsResult(null, throwable));
+        BaseCaller baseCaller = ParcelableUtil.unmarshall(bytes, BaseCaller.CREATOR);
+
+        int type = baseCaller.getType();
+
+        if(type == BaseCaller.TYPE_CLOSE){
+          destory();
+          return;
+        }
+
+        if(type == BaseCaller.TYPE_SYSTEM_SERVICE){
+          SystemServiceCaller callerMethod = ParcelableUtil.unmarshall(baseCaller.getRawBytes(),SystemServiceCaller.CREATOR);
+          callerMethod.unwrapParams();
+          result = callServiceMethod(callerMethod);
+        }else if(type == BaseCaller.TYPE_CLASS){
+          ClassCaller callerMethod = ParcelableUtil.unmarshall(baseCaller.getRawBytes(),ClassCaller.CREATOR);
+          callerMethod.unwrapParams();
+
+          result = callClass(callerMethod);
+        }
+
+
+
+      }catch (Throwable e){
+        FLog.log(e);
+        result = new CallerResult();
+        result.setThrowable(e);
+      }finally {
+        if (result == null) {
+          result = new CallerResult();
+        }
+        sendOpResult(result);
+      }
+    }
+  }
+
+
+  private static class FindValue {
+    private Object receiver;
+    private Method method;
+
+    void put(Object receiver, Method method) {
+      this.method = method;
+      this.receiver = receiver;
+    }
+
+    boolean founded() {
+      return method != null && receiver != null;
+    }
+
+    void recycle() {
+      receiver = null;
+      method = null;
+    }
+  }
+
+  private static final FindValue sFindValue = new FindValue();
+
+
+  private void findFromService(SystemServiceCaller caller) {
+    try {
+      IBinder service = ServiceManager.getService(caller.getServiceName());
+      String aidl = service.getInterfaceDescriptor();
+
+      Class aClass = sClassCache.get(aidl);
+      if (aClass == null) {
+        aClass = Class.forName(aidl + "$Stub", false, null);
+        sClassCache.put(aidl, aClass);
+      }
+      Object asInterface = MethodUtils.invokeStaticMethod(aClass, "asInterface", new Object[]{service}, new Class[]{IBinder.class});
+      Method method = MethodUtils.getAccessibleMethod(aClass, caller.getMethodName(), caller.getParamsType());
+      if (method != null && asInterface != null) {
+        sFindValue.recycle();
+        sFindValue.put(asInterface, method);
+      }
+    } catch (Throwable e) {
+      e.printStackTrace();
+      FLog.log(e);
+    }
+  }
+
+  private CallerResult callServiceMethod(SystemServiceCaller caller) {
+    CallerResult callerResult = new CallerResult();
+    try {
+      sFindValue.recycle();
+      findFromService(caller);
+
+      if (sFindValue.founded()) {
+        callMethod(sFindValue.receiver, sFindValue.method, caller, callerResult);
+        sFindValue.recycle();
+      } else {
+        throw new NoSuchMethodException("not found service " + caller.getServiceName() + "  method " + caller.getMethodName() + " params: " + Arrays
+            .toString(caller.getParamsType()));
+      }
+    } catch (Throwable e) {
+      e.printStackTrace();
+      FLog.log(e);
+      if(callerResult.getThrowable() != null) {
+        callerResult.setThrowable(e);
+      }
+    }
+    return callerResult;
+  }
+
+  private void callMethod(Object obj, Method method, CallerMethod caller, CallerResult result) {
+    try {
+
+      result.setReturnType(method.getReturnType());
+      Object ret = method.invoke(obj, caller.getParams());
+      writeResult(result, ret);
+    } catch (Throwable e) {
+      e.printStackTrace();
+      FLog.log("callMethod --> "+Log.getStackTraceString(e));
+      result.setThrowable(e);
+    }
+  }
+
+  private static final LruCache<String, Class> sClassCache = new LruCache<>(16);
+  private static final LruCache<String, WeakReference<Context>> sLocalContext = new LruCache<>(16);
+
+  private CallerResult callClass(ClassCaller caller){
+    CallerResult result = new CallerResult();
+    try {
+      ActivityThread activityThread = ActivityThread.currentActivityThread();
+      Context context = activityThread.getSystemContext();
+      Context packageContext = null;
+
+      //create or from cache get context
+      WeakReference<Context> contextWeakReference = sLocalContext.get(caller.getPackageName());
+      if (contextWeakReference != null && contextWeakReference.get() != null) {
+        packageContext = contextWeakReference.get();
+      }
+      if (packageContext == null) {
+        packageContext = context.createPackageContext(caller.getPackageName(), Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+        sLocalContext.put(caller.getPackageName(), new WeakReference<Context>(packageContext));
       }
 
+      //load class
+      Class<?> aClass = sClassCache.get(caller.getClassName());
+      if (aClass == null) {
+
+        aClass = Class.forName(caller.getClassName(), false, packageContext.getClassLoader());
+        Class<?> processer=Class.forName(ClassCallerProcessor.class.getName(),false,packageContext.getClassLoader());
+        if (processer.isAssignableFrom(aClass)) {
+          sClassCache.put(caller.getClassName(), aClass);
+        }else {
+          throw new ClassCastException("class "+aClass.getName()+"  need extends ClassCallerProcessor !");
+        }
+      }
+
+      //if found class,invoke proxyInvoke method
+      if (aClass != null) {
+
+        Object o = aClass.newInstance();
+        MethodUtils.invokeExactMethod(o, "setPackageContext", new Object[]{packageContext}, new Class[]{Context.class});
+        MethodUtils.invokeExactMethod(o, "setSystemContext", new Object[]{context}, new Class[]{Context.class});
+        Object[] params = caller.getParams();
+        if(params != null){
+          for (Object param : params) {
+            if(param instanceof Bundle){
+              ((Bundle) param).setClassLoader(packageContext.getClassLoader());
+            }
+          }
+        }
+        Object ret = MethodUtils.invokeExactMethod(o, "proxyInvoke", params,new Class[]{Bundle.class});
+        if (ret != null && ret instanceof Bundle) {
+          writeResult(result, ret);
+        } else {
+          writeResult(result, Bundle.EMPTY);
+        }
+
+      } else {
+        throw new ClassNotFoundException("not found class " + caller.getClassName() + "  in package: " + caller.getPackageName());
+      }
+
+    } catch (Throwable e) {
+      e.printStackTrace();
+      FLog.log(e);
+      result.setThrowable(e);
     }
+
+    return result;
+  }
+
+  private  void writeResult(CallerResult result, Object object) {
+    Parcel parcel = Parcel.obtain();
+
+
+    if(object instanceof ParceledListSlice){
+      parcel.writeValue(((ParceledListSlice) object).getList());
+    }else {
+      parcel.writeValue(object);
+    }
+    result.setReply(parcel.marshall());
+
+    parcel.recycle();
   }
 
 }

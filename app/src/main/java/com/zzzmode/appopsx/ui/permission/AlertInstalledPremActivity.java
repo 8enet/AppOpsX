@@ -86,6 +86,8 @@ public class AlertInstalledPremActivity extends BaseActivity implements IPermVie
         .setView(inflate)
         .setPositiveButton(android.R.string.ok, clickListener)
         .create();
+
+    alertDialog.setCanceledOnTouchOutside(false);
     alertDialog.show();
     Window window = alertDialog.getWindow();
     if (window != null) {

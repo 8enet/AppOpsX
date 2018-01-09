@@ -40,8 +40,11 @@ class LifecycleAgent {
 
   private static Intent makeIntent(String action){
     Intent intent = new Intent(action);
-    intent.putExtra("token",sParams.get("token"));
-    intent.putExtra("type",sParams.get("type"));
+    if(sParams != null){
+      intent.putExtra("token",sParams.get("token"));
+      intent.putExtra("type",sParams.get("type"));
+    }
+
     return intent;
   }
 
