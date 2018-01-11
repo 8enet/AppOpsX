@@ -5,6 +5,7 @@
 [![Software License](https://img.shields.io/github/license/8enet/AppOpsX.svg)][license]
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/appopsx/localized.svg)][crowdin]
 [![coolapk](https://img.shields.io/badge/coolapk-download-blue.svg)][coolapk]
+[![preview version](https://img.shields.io/badge/preview%20version-download-orange.svg)][preview]
 
 AppOpsX is a front-end application for the Android AppOpsService. It allows you to restrict app permissions.
 
@@ -46,3 +47,4 @@ AppOpsX is released under the [MIT License][license].
 [ci]: https://travis-ci.org/8enet/AppOpsX
 [releases]: https://github.com/8enet/AppOpsX/releases
 [coolapk]: http://www.coolapk.com/apk/com.zzzmode.appopsx
+[preview]: https://www.zzzmode.com/AppOpsX/apk/

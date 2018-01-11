@@ -5,6 +5,7 @@
 [![Software License](https://img.shields.io/github/license/8enet/AppOpsX.svg)][4]
 [![Crowdin](https://d322cqt584bo4o.cloudfront.net/appopsx/localized.svg)][5]
 [![coolapk](https://img.shields.io/badge/coolapk-download-blue.svg)][6]
+[![preview version](https://img.shields.io/badge/preview%20version-download-orange.svg)][8]
 
 一个使用appops的GUI权限管理器，能方便的控制权限，避免权限滥用。
 
@@ -56,3 +57,4 @@
 [5]: https://crowdin.com/project/appopsx
 [6]: http://www.coolapk.com/apk/com.zzzmode.appopsx
 [7]: mailto:zlcn2200@yeah.net
+[8]: https://www.zzzmode.com/AppOpsX/apk/
