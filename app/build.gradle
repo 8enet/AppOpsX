@@ -2,6 +2,8 @@ import java.util.zip.ZipFile
 
 apply plugin: 'com.android.application'
 
+apply from: "../private/privateResource.gradle"
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -28,11 +30,21 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
+    signingConfigs {
+        release{
+            storeFile JEK_FILE_DECRYPTED
+            keyAlias project.myEnv.KEY_ALIAS
+            storePassword project.myEnv.STORE_PASSWORD
+            keyPassword project.myEnv.KEY_PASSWORD
+        }
+    }
+
     buildTypes {
         release {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -54,28 +66,33 @@ dependencies {
     implementation ('com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.11.0@aar'){
         transitive=true
     }
-
-    releaseImplementation 'com.umeng.analytics:analytics:latest.integration'
 }
 
 
-task providedApiCompat <<{
-    println("------------- providedApiCompat ")
+task providedApiCompat  {
 
-    new ZipFile("${rootProject.project("apicompat").buildDir}/outputs/aar/apicompat-debug.aar").withCloseable {
+    doLast {
 
-        it.getInputStream(it.getEntry("classes.jar")).withStream{
-            def ins = it
-            def target = file("${project.projectDir}/deps/hidden.jar")
-            target.getParentFile().mkdirs()
-            target.withOutputStream {
-                it << ins
+        println("------------- providedApiCompat ")
+
+        new ZipFile("${rootProject.project("apicompat").buildDir}/outputs/aar/apicompat-debug.aar").withCloseable {
+
+            it.getInputStream(it.getEntry("classes.jar")).withStream{
+                def ins = it
+                def target = file("${project.projectDir}/deps/hidden.jar")
+                target.getParentFile().mkdirs()
+                target.withOutputStream {
+                    it << ins
+                }
             }
         }
+
     }
 
 }
 
 
+providedApiCompat.dependsOn(':apicompat:build')
+preBuild.dependsOn(providedApiCompat)
 
-preBuild.dependsOn(":apicompat:build",providedApiCompat)
+

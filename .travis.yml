@@ -23,4 +23,4 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-script: ./gradlew clean assembleDebug
+script: ./gradlew clean assembleRelease
