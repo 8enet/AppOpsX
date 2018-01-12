@@ -110,4 +110,5 @@
   <string name="other_op_hint">此操作修改的是非標準appops許可權，該項重啟後會失效，請注意備份!</string>
   <string name="other_op_stop_show">不再詢問</string>
   <string name="show_ignored_app">顯示已忽略的應用</string>
+  <string name="action_users">用戶</string>
 </resources>

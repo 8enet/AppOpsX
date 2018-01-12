@@ -106,4 +106,7 @@
   <string name="perms_count">%1$s (použito %2$dkrát)</string>
   <string name="lang_auto">Automaticky</string>
   <string name="bg_closed">Uzavřeno</string>
+  <string name="other_op_stop_show">Nepřipomínej znovu</string>
+  <string name="show_ignored_app">Zobrazit opomíjené aplikací</string>
+  <string name="action_users">Uživatelé</string>
 </resources>

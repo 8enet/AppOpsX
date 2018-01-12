@@ -149,4 +149,5 @@
   <string name="other_op_stop_show">不再提示</string>
 
   <string name="show_ignored_app">显示已忽略的应用</string>
+  <string name="action_users">用户</string>
 </resources>

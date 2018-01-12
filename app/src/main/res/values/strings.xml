@@ -29,17 +29,17 @@
   <string name="allow_bg_remote_summary">Allows running in the background can reduce the number of applications granted by the ROOT.</string>
   <string name="show_log">Show Logs</string>
   <string name="log_empty">No logs</string>
-  <string name="show_sys_apps">Display system application</string>
-  <string name="show_sys_apps_summary">Display system apps in the list</string>
+  <string name="show_sys_apps">Show system apps</string>
+  <string name="show_sys_apps_summary">Show system apps in the list</string>
   <string name="use_adb_mode">Use ADB mode</string>
-  <string name="use_adb_mode_summary">Using ADB mode without Root permissions, turn on [ADB over network] in the developer options \n or connected to the computer to execute adb tcpip %1$d in terminal</string>
-  <string name="use_adb_port">Choose Adb port</string>
+  <string name="use_adb_mode_summary">Use Adb mode if you have no Root permissions. Enable \"Adb over network\" in the developer options, or connect to a computer and execute adb tcpip %1$d in Terminal</string>
+  <string name="use_adb_port">Select ADB port</string>
   <string name="use_adb_port_summary">Current ADB port: %1$d</string>
   <string name="app_sort_type">Sort by</string>
   <string name="app_sort_type_summary">Current sort order: %1$s</string>
   <string name="app_sort_type_title">Sort By</string>
   <string name="app_daynight_mode">Night mode</string>
-  <string name="app_daynight_mode_summary">It will take effect after restart</string>
+  <string name="app_daynight_mode_summary">These setting will take effect after re-launch</string>
   <string name="app_language">Language</string>
   <string name="close_bg_server_summary">Turn off background services</string>
   <string name="close_bg_server_title">Click this option to improve the connection when connection failure</string>
@@ -109,7 +109,6 @@
   <string name="bg_closed">Closed</string>
   <string name="other_op_hint">This action modifies the non-standard appops permission, this item restarts will invalid, please note that backup!</string>
   <string name="other_op_stop_show">Don\'t show again</string>
-
   <string name="show_ignored_app">Display ignored apps</string>
   <string name="action_users">Users</string>
 </resources>

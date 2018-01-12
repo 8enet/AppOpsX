@@ -35,6 +35,7 @@ public class LangHelper {
     sLocalMap.put("en",Locale.ENGLISH);
     sLocalMap.put("cs",new Locale("cs","CZ"));
     sLocalMap.put("es",new Locale("es"));
+    sLocalMap.put("ru",new Locale("ru"));
   }
 
 

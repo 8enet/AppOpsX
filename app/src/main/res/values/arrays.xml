@@ -30,6 +30,7 @@
     <item>English</item>
     <item>Čeština</item>
     <item>Español</item>
+    <item>Русский</item>
   </string-array>
   <string-array name="languages_key">
     <item/>
@@ -38,6 +39,7 @@
     <item>en</item>
     <item>cs</item>
     <item>es</item>
+    <item>ru</item>
   </string-array>
 
 </resources>
