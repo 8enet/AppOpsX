@@ -2,6 +2,7 @@ package com.zzzmode.appopsx.server;
 
 import android.content.Intent;
 import com.zzzmode.appopsx.common.Actions;
+import com.zzzmode.appopsx.common.ServerRunInfo;
 import java.util.Map;
 
 /**
@@ -11,6 +12,8 @@ import java.util.Map;
 class LifecycleAgent {
 
   static volatile Map<String, String> sParams;
+
+  static ServerRunInfo serverRunInfo = new ServerRunInfo();
 
   static void onStarted(){
     Intent intent = makeIntent(Actions.ACTION_SERVER_STARTED);

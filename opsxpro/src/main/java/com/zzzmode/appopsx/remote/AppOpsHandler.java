@@ -22,6 +22,7 @@ import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.OtherOp;
 import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.common.ReflectUtils;
+import com.zzzmode.appopsx.common.ServerRunInfo;
 import com.zzzmode.appopsx.common.Shell;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +39,11 @@ public class AppOpsHandler extends ClassCallerProcessor {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public AppOpsHandler(Context mPackageContext, Context mSystemContext,
+      byte[] bytes) {
+    super(mPackageContext, mSystemContext, bytes);
   }
 
   @Override

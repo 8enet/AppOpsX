@@ -23,9 +23,11 @@ import com.zzzmode.appopsx.common.FLog;
 import com.zzzmode.appopsx.common.MethodUtils;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
 import com.zzzmode.appopsx.common.ParcelableUtil;
+import com.zzzmode.appopsx.common.ServerRunInfo;
 import com.zzzmode.appopsx.common.SystemServiceCaller;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
@@ -124,7 +126,8 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
         handler.sendEmptyMessageDelayed(MSG_TIMEOUT, BG_TIME_OUT);
       }
 
-//
+
+      LifecycleAgent.serverRunInfo.recvBytes += bytes.length;
 
       CallerResult result = null;
       try {
@@ -149,11 +152,14 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
         }
 
 
-
+        LifecycleAgent.serverRunInfo.successCount++;
       }catch (Throwable e){
         FLog.log(e);
         result = new CallerResult();
         result.setThrowable(e);
+
+        LifecycleAgent.serverRunInfo.errorCount++;
+
       }finally {
         if (result == null) {
           result = new CallerResult();
@@ -245,6 +251,7 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
   }
 
   private static final LruCache<String, Class> sClassCache = new LruCache<>(16);
+  private static final LruCache<String, Constructor> sConstructorCache = new LruCache<>(16);
   private static final LruCache<String, WeakReference<Context>> sLocalContext = new LruCache<>(16);
 
   private CallerResult callClass(ClassCaller caller){
@@ -266,12 +273,15 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
 
       //load class
       Class<?> aClass = sClassCache.get(caller.getClassName());
-      if (aClass == null) {
+      Constructor<?> aConstructor = sConstructorCache.get(caller.getClassName());
+      if (aClass == null || aConstructor == null) {
 
         aClass = Class.forName(caller.getClassName(), false, packageContext.getClassLoader());
         Class<?> processer=Class.forName(ClassCallerProcessor.class.getName(),false,packageContext.getClassLoader());
+
         if (processer.isAssignableFrom(aClass)) {
           sClassCache.put(caller.getClassName(), aClass);
+          sConstructorCache.put(caller.getClassName(),aClass.getConstructor(Context.class,Context.class,byte[].class));
         }else {
           throw new ClassCastException("class "+aClass.getName()+"  need extends ClassCallerProcessor !");
         }
@@ -280,9 +290,12 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
       //if found class,invoke proxyInvoke method
       if (aClass != null) {
 
-        Object o = aClass.newInstance();
-        MethodUtils.invokeExactMethod(o, "setPackageContext", new Object[]{packageContext}, new Class[]{Context.class});
-        MethodUtils.invokeExactMethod(o, "setSystemContext", new Object[]{context}, new Class[]{Context.class});
+        Object o = null;
+        if(aConstructor != null){
+
+          o = aConstructor.newInstance(packageContext,context,ParcelableUtil.marshall(LifecycleAgent.serverRunInfo));
+        }
+
         Object[] params = caller.getParams();
         if(params != null){
           for (Object param : params) {
@@ -291,6 +304,9 @@ class RemoteHandler implements OpsDataTransfer.OnRecvCallback {
             }
           }
         }
+
+        FLog.log("------new object "+o+"  params "+Arrays.toString(params)+"    "+aClass);
+
         Object ret = MethodUtils.invokeExactMethod(o, "proxyInvoke", params,new Class[]{Bundle.class});
         if (ret != null && ret instanceof Bundle) {
           writeResult(result, ret);

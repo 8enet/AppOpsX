@@ -24,7 +24,7 @@ echo "args --->  $args"
 
 
 export CLASSPATH=$ncls
-exec app_process /system/bin --nice-name=appopsx_local_server com.zzzmode.appopsx.server.AppOpsMain "$args"  &
+exec app_process /system/bin --nice-name=appopsx_local_server com.zzzmode.appopsx.server.AppOpsMain "$args" $@  &
 
 ret=$?
 if [ $ret -ne 0 ]; then

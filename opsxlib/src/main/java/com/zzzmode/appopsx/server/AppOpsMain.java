@@ -5,8 +5,11 @@ import android.app.ActivityThread;
 import android.os.Build;
 import android.os.Looper;
 import android.os.Process;
+import android.os.SystemClock;
 import android.system.Os;
+import android.text.TextUtils;
 import com.zzzmode.appopsx.common.FLog;
+import com.zzzmode.appopsx.common.OpsDataTransfer;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -36,8 +39,19 @@ public class AppOpsMain {
         params.put(param[0], param[1]);
       }
       params.put("type",Process.myUid() == 0?"root":"adb");
+
+      LifecycleAgent.serverRunInfo.startArgs = args[0];
+      LifecycleAgent.serverRunInfo.startTime = System.currentTimeMillis();
+      LifecycleAgent.serverRunInfo.startRealTime = SystemClock.elapsedRealtime();
+
       System.out.println("type ---> "+params.get("type")+"    uid: "+Process.myUid());
       System.out.println("params ---> "+params);
+
+      if(args.length > 1 && !TextUtils.isEmpty(args[1])){
+        killOld(args[1]);
+        SystemClock.sleep(1000);
+      }
+
 
       Thread thread=new Thread(new Runnable() {
         @Override
@@ -68,10 +82,30 @@ public class AppOpsMain {
   }
 
 
+  private static void killOld(String pid){
+    try{
+      int oldPid = Integer.parseInt(pid);
+      String processName = getProcessName(oldPid);
+      if("appopsx_local_server".equals(processName)){
+        Process.killProcess(oldPid);
+
+        FLog.log("killed pid : "+pid);
+      }
+    }catch (Throwable throwable){
+      FLog.log(throwable);
+    }
+  }
+
   private static void stop(){
     int pid = Process.myPid();
+    System.out.println(" STOP: kill myself ---- pid: " + pid);
+    killProcess(pid);
+  }
+
+
+  private static void killProcess(int pid){
     try {
-      System.out.println(" STOP: kill myself ---- pid: " + pid);
+
       Process.killProcess(pid);
     } catch (Throwable e) {
       e.printStackTrace();
@@ -102,7 +136,15 @@ public class AppOpsMain {
       System.out.println(getProcessName(pid)+"   pid:"+ pid);
       LifecycleAgent.onStarted();
       mCallHandler.start();
-    } finally {
+    }catch (OpsDataTransfer.ProtocolVersionException e){
+      // TODO: 2018/1/12 hard code !!!
+      // server side is old version, restart server
+      Runtime.getRuntime().exec("sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh "+ Process.myPid());
+      SystemClock.sleep(1000);
+
+    }catch (Throwable throwable){
+      FLog.log(throwable);
+    }finally {
       destory();
     }
 

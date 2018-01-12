@@ -90,6 +90,13 @@ class LocalServerManager {
     return mSession != null && mSession.isRunning();
   }
 
+  void closeSession(){
+    if (mSession != null) {
+      mSession.close();
+      mSession = null;
+    }
+  }
+
   void stop() {
     try {
       if (adbStream != null) {
@@ -112,7 +119,7 @@ class LocalServerManager {
     getSession();
   }
 
-  private byte[] execPre(byte[] params)throws Exception{
+  private OpsDataTransfer getSessionTransfer() throws Exception {
     ClientSession session = getSession();
     if(session == null){
       throw new RuntimeException("create session error ------");
@@ -121,8 +128,21 @@ class LocalServerManager {
     if(transfer == null){
       throw new RuntimeException("get transfer error -----");
     }
+    return transfer;
+  }
 
-    return transfer.sendMsgAndRecv(params);
+  private byte[] execPre(byte[] params)throws Exception{
+    try {
+      return getSessionTransfer().sendMsgAndRecv(params);
+    } catch (IOException e) {
+      e.printStackTrace();
+      if(e.getMessage().contains("pipe")){
+        closeSession();
+        return getSessionTransfer().sendMsgAndRecv(params);
+      }else {
+        throw e;
+      }
+    }
   }
 
 

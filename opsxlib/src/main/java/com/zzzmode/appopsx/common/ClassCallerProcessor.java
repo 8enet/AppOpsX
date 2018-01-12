@@ -11,16 +11,17 @@ import android.os.Parcelable;
 public abstract class ClassCallerProcessor {
     private Context mPackageContext;
     private Context mSystemContext;
+    private ServerRunInfo mServerRunInfo;
 
-    public ClassCallerProcessor() {
-    }
+  public ClassCallerProcessor(Context mPackageContext, Context mSystemContext,
+      byte[] bytes) {
+    this.mPackageContext = mPackageContext;
+    this.mSystemContext = mSystemContext;
+    this.mServerRunInfo = ParcelableUtil.unmarshall(bytes,ServerRunInfo.CREATOR);
+  }
 
-    public void setPackageContext(Context packageContext) {
-        this.mPackageContext = packageContext;
-    }
-
-    public void setSystemContext(Context systemContext) {
-        this.mSystemContext = systemContext;
+  protected ServerRunInfo getServerRunInfo() {
+        return mServerRunInfo;
     }
 
     protected Context getSystemContext(){

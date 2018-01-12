@@ -2,10 +2,10 @@ package com.zzzmode.appopsx.server;
 
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
-
+import android.os.Process;
+import android.os.SystemClock;
 import com.zzzmode.appopsx.common.FLog;
 import com.zzzmode.appopsx.common.OpsDataTransfer;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -60,7 +60,9 @@ class OpsXServer {
         LifecycleAgent.onConnected();
 
         opsDataTransfer.handleRecv();
-      } catch (IOException e) {
+      }catch (OpsDataTransfer.ProtocolVersionException e){
+        throw e;
+      }catch (IOException e) {
         FLog.log(e);
         FLog.log("------- allowBackgroundRun: " + allowBackgroundRun);
 
@@ -82,14 +84,12 @@ class OpsXServer {
     }
   }
 
-  public void sendResult(String str) throws IOException {
-    if (running && opsDataTransfer != null) {
-      opsDataTransfer.sendMsg(str.getBytes());
-    }
-  }
 
   public void sendResult(byte[] bytes) throws IOException {
     if (running && opsDataTransfer != null) {
+
+      LifecycleAgent.serverRunInfo.sentBytes += bytes.length;
+
       opsDataTransfer.sendMsg(bytes);
     }
   }

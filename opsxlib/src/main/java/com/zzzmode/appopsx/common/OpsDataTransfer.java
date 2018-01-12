@@ -100,12 +100,9 @@ public class OpsDataTransfer {
 
       String[] split = auth.split(",");
 
-      String ver = split[0];
+
       String recvToken = split[1];
-      if (!TextUtils.equals(ver, PROTOCOL_VERSION)) {
-        throw new RuntimeException(
-            "client protocol version:" + ver + "  ,server protocol version:" + PROTOCOL_VERSION);
-      }
+
       if (TextUtils.equals(token, recvToken)) {
         //auth success,pass
         FLog.log("shakehands --> hands success ");
@@ -113,6 +110,13 @@ public class OpsDataTransfer {
         FLog.log("shakehands --> unknow token ");
         throw new RuntimeException("Unauthorized client, token:" + token);
       }
+
+      String ver = split[0];
+      if (!TextUtils.equals(ver, PROTOCOL_VERSION)) {
+        throw new ProtocolVersionException(
+            "client protocol version:" + ver + "  ,server protocol version:" + PROTOCOL_VERSION);
+      }
+
     } else {
       //client
       sendMsg(PROTOCOL_VERSION + "," + token);
@@ -160,4 +164,19 @@ public class OpsDataTransfer {
     }
   }
 
+
+  public static class ProtocolVersionException extends IOException{
+
+    public ProtocolVersionException(String message) {
+      super(message);
+    }
+
+    public ProtocolVersionException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public ProtocolVersionException(Throwable cause) {
+      super(cause);
+    }
+  }
 }
