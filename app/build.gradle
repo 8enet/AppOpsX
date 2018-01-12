@@ -16,6 +16,7 @@ android {
         signingConfig signingConfigs.debug
         //resConfigs "en","zh-rCN","zh-rTW","cs"
         vectorDrawables.useSupportLibrary = true
+        manifestPlaceholders = [gitCommitId:"${GIT_COMMIT_ID}"]
     }
 
     aaptOptions {
@@ -92,7 +93,7 @@ task providedApiCompat  {
 }
 
 
-providedApiCompat.dependsOn(':apicompat:build')
+providedApiCompat.dependsOn(':apicompat:assembleDebug')
 preBuild.dependsOn(providedApiCompat)
 
 

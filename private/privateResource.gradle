@@ -5,8 +5,19 @@ import javax.crypto.spec.SecretKeySpec
 import java.nio.file.Files
 import java.security.MessageDigest
 
+
+def getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
 ext{
     JEK_FILE_DECRYPTED = rootProject.file("private/myapp.jks")
+    GIT_COMMIT_ID = getGitHash()
 }
 
 
@@ -67,7 +78,7 @@ task pushApkFile {
             return
         }
 
-        def apk = project.file("appopsx-v${VERSION_NAME}-${new Date().format("yyyyMMddHHssmm")}.apk")
+        def apk = project.file("appopsx-v${VERSION_NAME}-${new Date().format("yyyyMMdd")}-${GIT_COMMIT_ID}.apk")
 
         Files.copy(sourceApk.toPath(), apk.toPath())
 

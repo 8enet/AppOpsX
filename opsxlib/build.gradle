@@ -144,6 +144,14 @@ def jar2dex(){
     println("dx binary file:${dxFile}")
 
     def cmdArgs=['--dex',"--output=$appopsxJar",appopsxOrigJar]
+
+
+    def libsDir = file("${rootProject.projectDir.absolutePath}/opsxpro/libs")
+    def assetsDir = file("${rootProject.projectDir.absolutePath}/opsxpro/src/main/assets")
+
+    libsDir.mkdirs()
+    assetsDir.mkdirs()
+
     exec{
         workingDir=project.buildDir.absolutePath
         executable=dxFile
@@ -151,11 +159,11 @@ def jar2dex(){
     }
     copy {
         from commonJar
-        into "${rootProject.projectDir.absolutePath}/opsxpro/libs"
+        into libsDir
     }
     copy {
         from appopsxJar
-        into "${rootProject.projectDir.absolutePath}/opsxpro/src/main/assets"
+        into assetsDir
     }
     println("----jar2dex success,exec end----")
 }
