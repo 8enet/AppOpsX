@@ -68,7 +68,7 @@
     </receiver>
 
 
-    <meta-data android:name="GIT_COMMIT_ID" android:value="${gitCommitId}"/>
+    <meta-data android:name="GIT_COMMIT_ID" android:value="${gitCommitId}\"/>
   </application>
 
 </manifest>
