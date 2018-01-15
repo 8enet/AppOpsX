@@ -3,9 +3,12 @@ package com.zzzmode.appopsx;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.UserInfo;
+import android.os.Bundle;
 import android.util.Log;
 import com.zzzmode.appopsx.common.CallerResult;
+import com.zzzmode.appopsx.common.ClassCaller;
 import com.zzzmode.appopsx.common.SystemServiceCaller;
+import com.zzzmode.appopsx.remote.RestartHandler;
 import java.util.List;
 
 public class ApiSupporter {
@@ -54,6 +57,13 @@ public class ApiSupporter {
       }
     }
     return null;
+  }
+
+
+  public void restartServer(Context context) throws Exception {
+    ClassCaller classCaller = new ClassCaller(context.getPackageName(), RestartHandler.class.getName(),new Bundle());
+    CallerResult result = localServerManager.execNew(classCaller);
+    Log.e(TAG, "restartServer --> "+result);
   }
 
 }

@@ -2,16 +2,14 @@ package com.zzzmode.appopsx.ui.core;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
 import com.zzzmode.appopsx.OpsxManager;
 import com.zzzmode.appopsx.R;
-
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -66,6 +64,17 @@ public class AppOpsx {
     if (OpsxManager.isEnableSELinux()) {
       sb.append("Enforcing");
     }
+    sb.append("\n");
+
+    try {
+      PackageInfo packageInfo = context.getPackageManager()
+          .getPackageInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+      sb.append("GitCommitId:").append(packageInfo.applicationInfo.metaData.getString("GIT_COMMIT_ID"));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+
     sb.append("\n\n");
 
     File file = context.getFileStreamPath(LOG_FILE);

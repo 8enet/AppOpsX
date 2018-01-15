@@ -220,7 +220,7 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
     menu.findItem(R.id.action_backup).setVisible(adapter != null && adapter.getItemCount() > 0);
 
     final Users users = Users.getInstance();
-    if(users.isLoaded() && users.getUsers().size() > 1){
+    if(users.isLoaded() && !users.getUsers().isEmpty()){
       SubMenu userSub = menu.addSubMenu(R.id.action_users,Menu.NONE,Menu.NONE,R.string.action_users);
 
       userSub.getItem().setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);

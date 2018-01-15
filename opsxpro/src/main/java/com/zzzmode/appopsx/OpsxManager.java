@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.os.Process;
 import android.util.Log;
+import com.zzzmode.android.opsxpro.BuildConfig;
 import com.zzzmode.appopsx.common.CallerResult;
 import com.zzzmode.appopsx.common.ClassCaller;
 import com.zzzmode.appopsx.common.OpEntry;
@@ -67,8 +68,7 @@ public class OpsxManager {
 
   private void checkFile() {
     //AssetsUtils.copyFile(mContext,"appopsx",new File(mContext.getDir(DIR_NAME,Context.MODE_PRIVATE),"appopsx"),false);
-    AssetsUtils.copyFile(mContext, SConfig.JAR_NAME, SConfig.getDestJarFile(), true);
-    AssetsUtils.copyFile(mContext.getApplicationInfo().nativeLibraryDir+ File.separator+"libopsxstart.so",SConfig.getDestExecuableFile(),true);
+    AssetsUtils.copyFile(mContext, SConfig.JAR_NAME, SConfig.getDestJarFile(), BuildConfig.DEBUG);
     AssetsUtils.writeScript(getConfig());
   }
 

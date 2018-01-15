@@ -1165,6 +1165,16 @@ public class Helper {
     });
   }
 
+  public static Single<Boolean> restartServer(Context context) {
+    return SingleJust.just(context).map(new Function<Context, Boolean>() {
+      @Override
+      public Boolean apply(@NonNull Context context) throws Exception {
+        AppOpsx.getInstance(context).getApiSupporter().restartServer(context);
+        return true;
+      }
+    });
+  }
+
   public static Function<List<AppInfo>, List<AppInfo>> getSortComparator(final Context context) {
     return new Function<List<AppInfo>, List<AppInfo>>() {
       @Override
