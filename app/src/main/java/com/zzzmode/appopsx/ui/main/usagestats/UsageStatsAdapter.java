@@ -109,8 +109,8 @@ import java.util.List;
       Pair<AppInfo, OpEntryInfo> pair = mDatas.get(holder.getAdapterPosition());
 
       Helper.setMode(compoundButton.getContext(),pair.first.packageName,pair.second,b)
-          .observeOn(Schedulers.io())
-          .subscribeOn(AndroidSchedulers.mainThread())
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
           .subscribe();
 
     }
