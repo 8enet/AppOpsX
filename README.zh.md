@@ -21,7 +21,6 @@
 * 多用户支持
 * WiFi/移动数据联网控制
 * 支持ROOT/ADB两种使用模式
-* Android 4.4+
 * ...
 
 ### 使用方法:
@@ -34,7 +33,7 @@
 #### 使用ADB模式:
   * 部分支持网络ADB调试手机，在开发者选项中开启，选择端口为5555即可。
   * 对于不支持网络ADB调试的手机，将手机连接电脑，推荐使用命令方式启动
-  `adb shell sh /sdcard/Android/com.zzzmode.appopsx/opsx.sh`
+  `adb shell sh /sdcard/Android/data/com.zzzmode.appopsx/opsx.sh`
 
 
 ### 翻译
