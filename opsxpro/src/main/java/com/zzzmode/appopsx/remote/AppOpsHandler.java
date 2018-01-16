@@ -56,6 +56,9 @@ public class AppOpsHandler extends ClassCallerProcessor {
       args.clear();
       FLog.log(" appops "+builder);
       result = handleCommand(builder);
+      if(result == null){
+        result = new OpsResult(null,null);
+      }
     } catch (Throwable throwable) {
       throwable.printStackTrace();
       result = new OpsResult(null,throwable);
