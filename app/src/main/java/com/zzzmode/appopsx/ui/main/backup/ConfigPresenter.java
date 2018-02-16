@@ -230,14 +230,15 @@ class ConfigPresenter {
     final AtomicInteger progress = new AtomicInteger();
     mView.showProgress(true, size);
 
-    Observable.fromIterable(model.preAppInfos).observeOn(Schedulers.io())
+    Observable.fromIterable(model.preAppInfos)
         .flatMap(new Function<PreAppInfo, ObservableSource<OpsResult>>() {
           @Override
           public ObservableSource<OpsResult> apply(@NonNull PreAppInfo appInfo) throws Exception {
             return Helper.setModes(context, appInfo.getPackageName(), AppOpsManager.MODE_IGNORED,
                 appInfo.getOps());
           }
-        }).observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<OpsResult>() {
+        }).subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread()).subscribe(new ResourceObserver<OpsResult>() {
       @Override
       public void onNext(@NonNull OpsResult opsResult) {
         mView.setProgress(progress.incrementAndGet());
