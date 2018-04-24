@@ -78,7 +78,7 @@ public class OpsxManager {
 
   public OpsResult getOpsForPackage(final String packageName) throws Exception {
     checkConnect();
-    OpsCommands.Builder builder = new OpsCommands.Builder();
+    OpsCommands builder = new OpsCommands();
     builder.setAction(OpsCommands.ACTION_GET);
     builder.setPackageName(packageName);
     builder.setUserHandleId(userId);
@@ -88,7 +88,7 @@ public class OpsxManager {
   }
 
 
-  private OpsResult wrapOps(OpsCommands.Builder builder) throws Exception {
+  private OpsResult wrapOps(OpsCommands builder) throws Exception {
     Bundle bundle = new Bundle();
     bundle.putParcelable("args",builder);
     ClassCaller classCaller = new ClassCaller(pkgName,AppOpsHandler.class.getName(),bundle);
@@ -99,7 +99,7 @@ public class OpsxManager {
 
   public OpsResult getPackagesForOps(int[] ops,boolean reqNet)throws Exception{
     checkConnect();
-    OpsCommands.Builder builder = new OpsCommands.Builder();
+    OpsCommands builder = new OpsCommands();
     builder.setAction(OpsCommands.ACTION_GET_FOR_OPS);
     builder.setOps(ops);
     builder.setReqNet(reqNet);
@@ -109,7 +109,7 @@ public class OpsxManager {
 
   public OpsResult setOpsMode(String packageName, int opInt, int modeInt) throws Exception {
     checkConnect();
-    OpsCommands.Builder builder = new OpsCommands.Builder();
+    OpsCommands builder = new OpsCommands();
     builder.setAction(OpsCommands.ACTION_SET);
     builder.setPackageName(packageName);
     builder.setOpInt(opInt);
@@ -119,7 +119,7 @@ public class OpsxManager {
   }
 
   public OpsResult resetAllModes(String packageName) throws Exception {
-    OpsCommands.Builder builder = new OpsCommands.Builder();
+    OpsCommands builder = new OpsCommands();
     builder.setAction(OpsCommands.ACTION_RESET);
     builder.setPackageName(packageName);
     builder.setUserHandleId(userId);

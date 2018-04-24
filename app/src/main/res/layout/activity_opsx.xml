@@ -1,43 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   android:layout_width="match_parent"
-  android:layout_height="match_parent">
+  android:layout_height="match_parent"
+  android:orientation="vertical">
 
+  <include layout="@layout/layout_appbar"/>
 
-  <android.support.v7.widget.RecyclerView
-    android:id="@+id/recyclerView"
+  <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:overScrollMode="never"
-    android:scrollbars="vertical"/>
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    >
 
-  <TextView
-    android:id="@+id/tv_error"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:scrollbars="vertical"
-    android:textIsSelectable="true"
-    android:visibility="gone"
-    android:clickable="true"
-    android:longClickable="true"
-    android:focusable="true"
-    android:enabled="true"
-    android:focusableInTouchMode="true"
-    android:textAppearance="?android:attr/textAppearanceMedium"
-    android:text=""
-    />
+    <android.support.v7.widget.RecyclerView
+      android:id="@+id/recyclerView"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:overScrollMode="never"
+      android:scrollbars="vertical"/>
 
-  <ProgressBar
-    android:id="@+id/progressBar"
-    style="@style/Widget.AppCompat.ProgressBar"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:maxHeight="48dp"
-    android:maxWidth="48dp"
-    android:minHeight="24dp"
-    android:minWidth="24dp"
-    android:visibility="invisible"/>
+    <TextView
+      android:id="@+id/tv_error"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:clickable="true"
+      android:enabled="true"
+      android:focusable="true"
+      android:focusableInTouchMode="true"
+      android:longClickable="true"
+      android:scrollbars="vertical"
+      android:text=""
+      android:textAppearance="?android:attr/textAppearanceMedium"
+      android:textIsSelectable="true"
+      android:visibility="gone"
+      />
 
-</FrameLayout>
+    <ProgressBar
+      android:id="@+id/progressBar"
+      style="@style/Widget.AppCompat.ProgressBar"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:maxHeight="48dp"
+      android:maxWidth="48dp"
+      android:minHeight="24dp"
+      android:minWidth="24dp"
+      android:visibility="invisible"/>
+
+  </FrameLayout>
+</android.support.design.widget.CoordinatorLayout>
 

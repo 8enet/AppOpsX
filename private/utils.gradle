@@ -1,0 +1,101 @@
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
+import java.nio.file.Files
+import java.security.MessageDigest
+
+def static checkEmpty(String... str) {
+    if (str == null) {
+        return true
+    }
+    for (String s : str) {
+        if (s == null || s.isEmpty()) {
+            return true
+        }
+    }
+    return false
+}
+
+def static md5File(filePath){
+    return filePath.newInputStream().withStream {
+        MessageDigest digest = MessageDigest.getInstance("MD5")
+        byte[] buff = new byte[1024 * 256]
+        int l = -1
+        while ((l = it.read(buff, 0, buff.length)) != -1) {
+            digest.update(buff, 0, l)
+        }
+        def checksum = new BigInteger(1, digest.digest()).toString(16).padLeft(32, "0")
+        println("${filePath} md5:" + checksum)
+        return checksum
+    }
+}
+
+def postFile(filePath){
+
+    def server = project.myEnv.P_FILE_SERVER
+    def pwd = project.myEnv.P_SERVER_PWD
+    def auth = project.myEnv.P_SERVER_AUTH
+    if (checkEmpty(server, pwd, auth)) {
+        println("config error!!")
+        return
+    }
+
+
+    String CRLF = "\r\n";
+
+    HttpURLConnection connection = new URL(server).openConnection()
+    connection.setRequestMethod("POST")
+    connection.setDoInput(true)
+    connection.setDoOutput(true)
+    String boundary = "------------${Long.toHexString(System.nanoTime())}${Integer.toHexString(hashCode())}"
+
+    connection.addRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary.substring(2))
+
+    def text = new StringBuilder(boundary).append(CRLF)
+            .append("Content-Disposition: form-data; name=\"pwd\"").append(CRLF)
+            .append("Content-Type: text/plain; charset=utf-8").append(CRLF)
+            .append(CRLF)
+            .append(pwd)
+            .append(CRLF)
+            .append(boundary)
+            .append(CRLF)
+            .append("Content-Disposition: form-data; name=\"file\"; filename=\"" + filePath.getName() + "\"").append(CRLF)
+            .append("Content-Type: application/vnd.android.package-archive").append(CRLF)
+            .append("Content-Transfer-Encoding: binary").append(CRLF)
+            .append(CRLF).toString().bytes
+
+    def end = (CRLF + boundary + "--" + CRLF).toString().bytes
+
+    connection.addRequestProperty("Authorization", "Basic " + auth.bytes.encodeBase64())
+
+    connection.outputStream.write(text)
+    connection.outputStream.flush()
+    Files.copy(filePath.toPath(), connection.outputStream)
+    connection.outputStream.flush()
+    connection.outputStream.write(end)
+    connection.outputStream.flush()
+
+    if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+        println("server success response: " + connection.inputStream.newReader().text)
+    } else {
+        println("server ERROR response: " + connection.errorStream.newReader().text)
+    }
+    connection.disconnect()
+}
+
+def static aesDecrypt(bytes,skBytes){
+    try {
+        def cipher = Cipher.getInstance("AES")
+        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(skBytes, "AES"))
+        return cipher.doFinal(bytes)
+    } catch (Throwable throwable) {
+        throwable.printStackTrace()
+        return null
+    }
+}
+
+ext{
+    checkEmpty = this.&checkEmpty
+    md5File = this.&md5File
+    postFile = this.&postFile
+    aesDecrypt = this.&aesDecrypt
+}

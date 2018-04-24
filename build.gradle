@@ -7,8 +7,8 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-
+        classpath 'com.android.tools.build:gradle:3.1.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${KOTLIN_VERSION}"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -22,6 +22,7 @@ project.ext {
     versionCode = APP_VERSION_CODE.toInteger();
     versionName = "${VERSION_NAME}"
     supportLibVersion = "${SUPPORT_LIB_VERSION}"
+    kotlinVersion = "${KOTLIN_VERSION}"
 }
 
 allprojects {

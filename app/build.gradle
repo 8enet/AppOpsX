@@ -1,6 +1,8 @@
 import java.util.zip.ZipFile
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 apply from: "../private/privateResource.gradle"
 
@@ -17,6 +19,10 @@ android {
         //resConfigs "en","zh-rCN","zh-rTW","cs"
         vectorDrawables.useSupportLibrary = true
         manifestPlaceholders = [gitCommitId:"${GIT_COMMIT_ID}"]
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
     }
 
     aaptOptions {
@@ -50,6 +56,10 @@ android {
     }
 }
 
+androidExtensions {
+    experimental = true
+}
+
 def supportVersion=rootProject.ext.supportLibVersion
 
 dependencies {
@@ -61,12 +71,14 @@ dependencies {
     implementation "com.android.support:preference-v7:$supportVersion"
     implementation "com.android.support:preference-v14:$supportVersion"
     implementation "com.android.support:design:$supportVersion"
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.8'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.10'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'
     implementation 'com.github.promeg:tinypinyin:2.0.3'
     implementation ('com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:0.11.0@aar'){
         transitive=true
     }
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 }
 
 

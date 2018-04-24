@@ -52,7 +52,7 @@ public class AppOpsHandler extends ClassCallerProcessor {
     OpsResult result = null;
 
     try {
-      OpsCommands.Builder builder = args.getParcelable("args");
+      OpsCommands builder = args.getParcelable("args");
       args.clear();
       FLog.log(" appops "+builder);
       result = handleCommand(builder);
@@ -67,7 +67,7 @@ public class AppOpsHandler extends ClassCallerProcessor {
     return args;
   }
 
-  private OpsResult handleCommand(OpsCommands.Builder builder) throws Throwable {
+  private OpsResult handleCommand(OpsCommands builder) throws Throwable {
     String s = builder.getAction();
     OpsResult result = null;
     if (OpsCommands.ACTION_GET.equals(s)) {
@@ -83,7 +83,7 @@ public class AppOpsHandler extends ClassCallerProcessor {
   }
 
 
-  private OpsResult runGet(OpsCommands.Builder getBuilder) throws Throwable {
+  private OpsResult runGet(OpsCommands getBuilder) throws Throwable {
 
 
     final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
@@ -162,7 +162,7 @@ public class AppOpsHandler extends ClassCallerProcessor {
     }
   }
 
-  private void runSet(OpsCommands.Builder builder) throws Throwable {
+  private void runSet(OpsCommands builder) throws Throwable {
 
     final int uid = Helper.getPackageUid(builder.getPackageName(), builder.getUserHandleId());
     if (OtherOp.isOtherOp(builder.getOpInt())) {
@@ -177,7 +177,7 @@ public class AppOpsHandler extends ClassCallerProcessor {
 
   }
 
-  private void setOther(OpsCommands.Builder builder, int uid) {
+  private void setOther(OpsCommands builder, int uid) {
     if (mIptablesController != null) {
       boolean enable = builder.getModeInt() == AppOpsManager.MODE_ALLOWED;
       switch (builder.getOpInt()) {
@@ -191,7 +191,7 @@ public class AppOpsHandler extends ClassCallerProcessor {
     }
   }
 
-  private void runReset(OpsCommands.Builder builder) throws Throwable {
+  private void runReset(OpsCommands builder) throws Throwable {
     final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
         ServiceManager.getService(Context.APP_OPS_SERVICE));
 
@@ -199,7 +199,7 @@ public class AppOpsHandler extends ClassCallerProcessor {
 
   }
 
-  private OpsResult runGetForOps(OpsCommands.Builder builder) throws Throwable {
+  private OpsResult runGetForOps(OpsCommands builder) throws Throwable {
 
     final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
         ServiceManager.getService(Context.APP_OPS_SERVICE));

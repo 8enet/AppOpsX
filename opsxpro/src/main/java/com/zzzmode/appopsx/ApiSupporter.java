@@ -9,6 +9,7 @@ import com.zzzmode.appopsx.common.CallerResult;
 import com.zzzmode.appopsx.common.ClassCaller;
 import com.zzzmode.appopsx.common.SystemServiceCaller;
 import com.zzzmode.appopsx.remote.RestartHandler;
+import java.util.Collections;
 import java.util.List;
 
 public class ApiSupporter {
@@ -56,7 +57,7 @@ public class ApiSupporter {
         return ((List<UserInfo>) replyObj);
       }
     }
-    return null;
+    return Collections.emptyList();
   }
 
 

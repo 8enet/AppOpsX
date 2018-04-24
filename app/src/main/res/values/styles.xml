@@ -1,21 +1,36 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-  <style name="BaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+  <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
     <!-- Customize your theme here. -->
     <item name="colorPrimary">@color/colorPrimary</item>
     <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     <item name="colorAccent">@color/colorAccent</item>
-    <item name="android:windowAnimationStyle">@style/ActivityInOutAnimation</item>
-
+    <!--<item name="android:windowAnimationStyle">@style/ActivityInOutAnimation</item>-->
+    <!--<item name="android:windowAllowEnterTransitionOverlap">true</item>-->
+    <!--<item name="android:windowAllowReturnTransitionOverlap">true</item>-->
   </style>
+
 
   <!-- Base application theme. -->
   <style name="AppTheme" parent="BaseTheme">
+    <item name="actionOverflowButtonStyle">@style/OverFlow</item>
+    <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+  </style>
 
+
+
+  <style name="OverFlow" parent="Widget.AppCompat.ActionButton.Overflow">
+    <item name="android:src">@drawable/ic_md_menu</item>
   </style>
 
   <style name="SettingsTheme" parent="AppTheme">
     <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+  </style>
+
+
+  <style name="Toolbar.Theme" parent="@style/Theme.AppCompat.Light">
+    <item name="colorAccent">@color/colorAccent</item>
   </style>
 
   <style name="alert.perm" parent="Theme.AppCompat.Light.NoActionBar">
@@ -28,6 +43,7 @@
     <item name="android:windowBackground">@android:color/transparent</item>
     <item name="android:backgroundDimEnabled">false</item>
     <item name="android:windowAnimationStyle">@style/nullAnim</item>
+
   </style>
 
   <style name="nullAnim" parent="@android:style/Animation.Activity">
