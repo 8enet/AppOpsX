@@ -2,9 +2,11 @@ package com.zzzmode.appopsx.ui.core
 
 import android.app.Activity
 import android.app.Application
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -29,14 +31,25 @@ class AppGlobal : Application(), Application.ActivityLifecycleCallbacks {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             Helper.updataShortcuts(this)
         }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            registerReceiver(AppInstalledRevicer(), IntentFilter().apply {
-                addAction(Intent.ACTION_PACKAGE_ADDED)
-                addAction(Intent.ACTION_PACKAGE_REPLACED)
-            })
-        }
+        installReceiver()
         ATracker.init(this)
         AppOpsx.getInstance(applicationContext)
+    }
+
+    private fun installReceiver(){
+        //Android O broadcast limitations, maybe it's not a good idea.
+        //hardcode and always receive
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            registerReceiver(AppInstalledReceiver(), IntentFilter().apply {
+                addAction(Intent.ACTION_PACKAGE_ADDED)
+                addDataScheme("package")
+            })
+        }else{
+           ComponentName(this,AppInstalledReceiver::class.java).run {
+               packageManager.setComponentEnabledSetting(this, PackageManager.COMPONENT_ENABLED_STATE_ENABLED,PackageManager.DONT_KILL_APP)
+           }
+
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

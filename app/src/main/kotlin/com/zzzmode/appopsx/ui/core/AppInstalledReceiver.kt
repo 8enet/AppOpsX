@@ -27,7 +27,7 @@ import io.reactivex.schedulers.Schedulers
  * Created by zl on 2017/1/16.
  */
 
-class AppInstalledRevicer : BroadcastReceiver() {
+class AppInstalledReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
@@ -36,11 +36,10 @@ class AppInstalledRevicer : BroadcastReceiver() {
         if (intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
             return
         }
-        val sp = PreferenceManager.getDefaultSharedPreferences(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             Helper.updataShortcuts(context.applicationContext)
         }
-        if (sp.getBoolean("ignore_premission", true)) {
+        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("ignore_premission", true)) {
             try {
                 intent.data?.encodedSchemeSpecificPart?.let {
                     showDlg(context.applicationContext, it)
@@ -62,11 +61,15 @@ class AppInstalledRevicer : BroadcastReceiver() {
                     }
 
                     override fun onSuccess(value: AppInfo) {
-                        val intent = Intent(context, AlertInstalledPremActivity::class.java)
-                        intent.putExtra(AlertInstalledPremActivity.EXTRA_APP, value)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        context.startActivity(intent)
+
+                        Intent(context, AlertInstalledPremActivity::class.java).apply {
+                            putExtra(AlertInstalledPremActivity.EXTRA_APP, value)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        }.run {
+                            context.startActivity(this)
+                        }
+
                     }
 
                     override fun onError(e: Throwable) {
@@ -112,6 +115,6 @@ class AppInstalledRevicer : BroadcastReceiver() {
 
     companion object {
 
-        private val TAG = "AppInstalledRevicer"
+        private const val TAG = "AppInstalledRevicer"
     }
 }
