@@ -263,9 +263,9 @@ class PermissionGroupActivity : BaseActivity(), RecyclerViewExpandableItemManage
 
     companion object {
 
-        private val SAVED_STATE_EXPANDABLE_ITEM_MANAGER = "RecyclerViewExpandableItemManager"
+        private const val SAVED_STATE_EXPANDABLE_ITEM_MANAGER = "RecyclerViewExpandableItemManager"
 
-        private val TAG = "PermissionGroupActivity"
+        private const val TAG = "PermissionGroupActivity"
     }
 
 }

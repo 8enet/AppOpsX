@@ -18,7 +18,7 @@ import com.zzzmode.appopsx.ui.core.LocalImageLoader
 import com.zzzmode.appopsx.ui.model.AppInfo
 import com.zzzmode.appopsx.ui.model.OpEntryInfo
 import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator
-import kotlinx.android.synthetic.main.layout_appbar.*
+import kotlinx.android.synthetic.main.activity_alert_opsx.*
 
 /**
  * Created by zl on 2017/5/1.
@@ -43,7 +43,7 @@ class AlertInstalledPremActivity : BaseActivity(), IPermView {
             appInfo?.apply {
                 LocalImageLoader.load(icon, this)
                 tvTitle.text = appName
-                tvInfo.text = packageName
+                tvInfo.text = "$packageName ($versionName)"
             }
 
 
@@ -53,7 +53,7 @@ class AlertInstalledPremActivity : BaseActivity(), IPermView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        appInfo = intent.getParcelableExtra(EXTRA_APP)
+        appInfo = intent?.getParcelableExtra(EXTRA_APP)
         if (appInfo == null) {
             finish()
             return
@@ -68,8 +68,7 @@ class AlertInstalledPremActivity : BaseActivity(), IPermView {
     }
 
     private fun initView() {
-        val inflate = layoutInflater.inflate(R.layout.activity_opsx,null)
-        inflate.findViewById<View>(R.id.appBar).visibility = View.GONE
+        val inflate = layoutInflater.inflate(R.layout.activity_alert_opsx,null)
         tvError = inflate.findViewById<View>(R.id.tv_error) as TextView
         mProgressBar = inflate.findViewById<View>(R.id.progressBar) as ProgressBar
 

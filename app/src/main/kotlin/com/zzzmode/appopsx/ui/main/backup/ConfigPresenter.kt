@@ -35,7 +35,6 @@ internal class ConfigPresenter(private val context: Context, private val mView: 
             val backFiles = BFileUtils.getBackFiles(context)
             if (!backFiles.isEmpty()) {
                 val models = backFiles.mapNotNull { readModel(it) }
-
                 Collections.sort(models) { o1, o2 ->
                     when {
                         o1.createTime < o2.createTime -> 1
@@ -204,7 +203,7 @@ internal class ConfigPresenter(private val context: Context, private val mView: 
 
     companion object {
 
-        private val TAG = "ConfigPresenter"
+        private const val TAG = "ConfigPresenter"
     }
 
 

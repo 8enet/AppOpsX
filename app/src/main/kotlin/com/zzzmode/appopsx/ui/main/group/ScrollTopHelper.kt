@@ -132,6 +132,6 @@ internal class ScrollTopHelper(private val recyclerView: RecyclerView,
 
     companion object {
 
-        private val TAG = "ScrollTopHelper"
+        private const val TAG = "ScrollTopHelper"
     }
 }

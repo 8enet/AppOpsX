@@ -14,7 +14,7 @@ import java.util.*
 
 object LangHelper {
 
-    private val TAG = "LangHelper"
+    private const val TAG = "LangHelper"
 
     private val sLocalMap = HashMap<String, Locale>()
     private var sDefaultLocal: Locale

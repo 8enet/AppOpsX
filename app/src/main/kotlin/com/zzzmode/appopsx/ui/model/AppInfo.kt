@@ -14,6 +14,8 @@ class AppInfo(var appName: String="",
               var installTime: Long = 0,
               var updateTime: Long = 0,
               var pinyin: String? = null,
+              var versionCode :Int= 0,
+              var versionName : String?=null,
               var applicationInfo: ApplicationInfo? = null) : Parcelable {
 
 
@@ -25,9 +27,9 @@ class AppInfo(var appName: String="",
             return false
         }
 
-        val appInfo = other as AppInfo?
-
-        return packageName == appInfo!!.packageName
+        return (other as AppInfo?)?.let {
+            packageName == it.packageName
+        } ?: false
 
     }
 

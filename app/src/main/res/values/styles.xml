@@ -53,11 +53,5 @@
     <item name="android:activityCloseExitAnimation">@null</item>
   </style>
 
-  <style name="ActivityInOutAnimation" parent="@android:style/Animation.Activity">
-    <item name="android:activityOpenEnterAnimation">@anim/translate_activity_open_in</item>
-    <item name="android:activityOpenExitAnimation">@anim/translate_activity_open_out</item>
-    <item name="android:activityCloseEnterAnimation">@anim/translate_activity_close_in</item>
-    <item name="android:activityCloseExitAnimation">@anim/translate_activity_close_out</item>
-  </style>
 
 </resources>

@@ -48,10 +48,11 @@ internal class ExportAdapter(private val appInfos: List<AppInfo>) : RecyclerView
     }
 
     override fun onClick(v: View) {
-        val tag = v.tag
-        if (tag is ExportViewHolder) {
-            handleCheck(tag, true)
+
+        (v.tag as? ExportViewHolder)?.let {
+            handleCheck(it, true)
         }
+
     }
 
     private fun handleCheck(holder: ExportViewHolder, change: Boolean) {
@@ -74,9 +75,9 @@ internal class ExportAdapter(private val appInfos: List<AppInfo>) : RecyclerView
     }
 
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-        val tag = buttonView.tag
-        if (tag is ExportViewHolder) {
-            handleCheck(tag, false)
+
+        (buttonView.tag as? ExportViewHolder)?.let {
+            handleCheck(it, false)
         }
     }
 

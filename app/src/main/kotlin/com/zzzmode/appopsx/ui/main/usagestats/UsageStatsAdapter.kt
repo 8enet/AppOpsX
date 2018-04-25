@@ -81,9 +81,9 @@ internal class UsageStatsAdapter : RecyclerView.Adapter<UsageStatsAdapter.ViewHo
     }
 
     override fun onClick(view: View) {
-        val tag = view.tag
-        if (tag is ViewHolder) {
-            val pair = mDatas[tag.adapterPosition]
+
+        (view.tag as? ViewHolder)?.let {
+            val pair = mDatas[it.adapterPosition]
 
             val intent = Intent(view.context, AppPermissionActivity::class.java)
             intent.putExtra(AppPermissionActivity.EXTRA_APP, pair.first)
@@ -126,6 +126,6 @@ internal class UsageStatsAdapter : RecyclerView.Adapter<UsageStatsAdapter.ViewHo
 
     companion object {
 
-        private val TAG = "UsageStatsAdapter"
+        private const val TAG = "UsageStatsAdapter"
     }
 }

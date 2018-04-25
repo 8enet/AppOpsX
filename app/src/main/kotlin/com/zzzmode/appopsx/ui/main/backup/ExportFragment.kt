@@ -64,7 +64,7 @@ class ExportFragment : BaseConfigFragment(), View.OnClickListener {
 
     companion object {
 
-        private val TAG = "ExportFragment"
+        private const val TAG = "ExportFragment"
     }
 
 }

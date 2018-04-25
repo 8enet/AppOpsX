@@ -53,7 +53,7 @@ object Helper {
     private val OTHER_PERM_INFO = PermGroupInfo(null,
             permission_group.OTHER, R.drawable.perm_group_other)
 
-    private val TAG = "Helper"
+    private const val TAG = "Helper"
 
     private val sPermI18N = object : HashMap<String, Int>() {
         init {
@@ -220,7 +220,7 @@ object Helper {
     fun updataShortcuts(context: Context) {
         getInstalledApps(context, false)
                 .concatMap { appInfos -> Observable.fromIterable(appInfos) }.filter { info -> BuildConfig.APPLICATION_ID != info.packageName }.collect({ ArrayList<AppInfo>() }, { appInfos, info -> appInfos.add(info) }).map { appInfos ->
-            Collections.sort(appInfos) { o1, o2 -> if (o1.time > o2.time) -1 else 1 }
+            appInfos.sortWith(Comparator { o1, o2 -> if (o1.time > o2.time) -1 else 1 })
             appInfos
         }.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : ResourceSingleObserver<List<AppInfo>>() {
@@ -305,15 +305,24 @@ object Helper {
             val packageInfo = packageManager.getPackageInfo(s, 0)
 
 
-            val info = AppInfo(packageName = packageInfo.packageName)
-            info.appName = BidiFormatter.getInstance()
-                    .unicodeWrap(packageInfo.applicationInfo.loadLabel(packageManager)).toString()
-            info.time = Math.max(packageInfo.lastUpdateTime, packageInfo.firstInstallTime)
-            info.installTime = packageInfo.firstInstallTime
-            info.updateTime = packageInfo.lastUpdateTime
-            info.applicationInfo = packageInfo.applicationInfo
+            val info = AppInfo(packageName = packageInfo.packageName).apply {
+                versionCode = packageInfo.versionCode
+                versionName = packageInfo.versionName
+                appName = BidiFormatter.getInstance()
+                        .unicodeWrap(packageInfo.applicationInfo.loadLabel(packageManager)).toString()
+                time = Math.max(packageInfo.lastUpdateTime, packageInfo.firstInstallTime)
+                installTime = packageInfo.firstInstallTime
+                updateTime = packageInfo.lastUpdateTime
+                applicationInfo = packageInfo.applicationInfo
 
-            LocalImageLoader.initAdd(context, info)
+                LocalImageLoader.initAdd(context, this)
+
+                if(TextUtils.isEmpty(appName)){
+                    appName = pkgName
+                }
+            }
+
+
             info
         }
 
@@ -337,22 +346,27 @@ object Helper {
             val enAppInfos = ArrayList<AppInfo>()
             for (installedPackage in installedPackages!!) {
                 if (loadSysapp || installedPackage.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0) {
-                    val info = AppInfo(packageName =  installedPackage.packageName)
-                    info.appName = BidiFormatter.getInstance()
-                            .unicodeWrap(installedPackage.applicationInfo.loadLabel(packageManager))
-                            .toString()
-                    info.time = Math
-                            .max(installedPackage.lastUpdateTime, installedPackage.firstInstallTime)
-                    info.installTime = installedPackage.firstInstallTime
-                    info.updateTime = installedPackage.lastUpdateTime
-                    info.applicationInfo = installedPackage.applicationInfo
+                    val info = AppInfo(packageName =  installedPackage.packageName).apply {
+                        versionCode = installedPackage.versionCode
+                        versionName = installedPackage.versionName
+                        appName = BidiFormatter.getInstance()
+                                .unicodeWrap(installedPackage.applicationInfo.loadLabel(packageManager))
+                                .toString()
+                        time = Math
+                                .max(installedPackage.lastUpdateTime, installedPackage.firstInstallTime)
+                        installTime = installedPackage.firstInstallTime
+                        updateTime = installedPackage.lastUpdateTime
+                        applicationInfo = installedPackage.applicationInfo
 
-                    LocalImageLoader.initAdd(context, info)
+                        LocalImageLoader.initAdd(context, this)
 
-                    //some of the app name is empty.
-                    if (TextUtils.isEmpty(info.appName)) {
-                        info.appName = info.packageName
+                        //some of the app name is empty.
+                        if (TextUtils.isEmpty(appName)) {
+                            appName = packageName
+                        }
                     }
+
+
                     val c = info.appName[0]
                     if (c.toInt() in 48..122) {
                         enAppInfos.add(info)
@@ -363,9 +377,9 @@ object Helper {
                 }
             }
 
-            Collections.sort(enAppInfos) { o1, o2 -> o1.appName.compareTo(o2.appName, ignoreCase = true) }
+            enAppInfos.sortWith(Comparator { o1, o2 -> o1.appName.compareTo(o2.appName, ignoreCase = true) })
 
-            Collections.sort(zhAppInfos) { o1, o2 -> o2.appName.compareTo(o1.appName) }
+            zhAppInfos.sortWith(Comparator { o1, o2 -> o2.appName.compareTo(o1.appName) })
             val ret = ArrayList<AppInfo>()
 
             val type = PreferenceManager.getDefaultSharedPreferences(context)

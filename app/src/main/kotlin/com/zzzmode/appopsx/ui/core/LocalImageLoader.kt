@@ -42,11 +42,9 @@ object LocalImageLoader {
 
     fun load(view: ImageView, appInfo: AppInfo?) {
 
-        val drawable = getDrawable(view.context, appInfo)
-
-        if (drawable != null) {
-            view.setImageDrawable(drawable)
-        } else {
+        getDrawable(view.context, appInfo)?.let {
+            view.setImageDrawable(it)
+        } ?:kotlin.run {
             view.setImageResource(R.mipmap.ic_launcher)
         }
     }
@@ -57,6 +55,7 @@ object LocalImageLoader {
             return null
         }
         init(context)
+
         var drawable: Drawable? = sLruCache.get(appInfo.packageName)
 
         if (drawable == null && appInfo.applicationInfo != null) {
@@ -65,10 +64,12 @@ object LocalImageLoader {
             } else {
                 appInfo.applicationInfo?.loadIcon(context.packageManager)
             }
-            val currentUser = Users.instance.currentUser
-            if (currentUser != null && currentUser.isManagedProfile) {
-                drawable = context.packageManager.getUserBadgedIcon(drawable, currentUser.userHandle)
+            Users.instance.currentUser?.let {
+                if (it.isManagedProfile){
+                    drawable = context.packageManager.getUserBadgedIcon(drawable, it.userHandle)
+                }
             }
+
             sLruCache.put(appInfo.packageName, drawable!!)
         }
         return drawable

@@ -2,11 +2,9 @@ package com.zzzmode.appopsx.ui.main.backup
 
 import kotlinx.android.synthetic.main.activity_backup.*
 import android.os.Bundle
-import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.util.SparseArrayCompat
-import android.support.v4.view.ViewPager
 import com.zzzmode.appopsx.R
 import com.zzzmode.appopsx.ui.BaseActivity
 import kotlinx.android.synthetic.main.layout_appbar.*
@@ -71,6 +69,6 @@ class BackupActivity : BaseActivity() {
 
     companion object {
 
-        val EXTRA_APPS = "extra.list.app"
+        const val EXTRA_APPS = "extra.list.app"
     }
 }

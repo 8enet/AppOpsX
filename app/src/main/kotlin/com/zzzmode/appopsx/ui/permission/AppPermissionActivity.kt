@@ -87,15 +87,19 @@ class AppPermissionActivity : BaseActivity(), IPermView {
         if (appInfo == null) {
             //find from extra
             var pkgName = intent.getStringExtra(EXTRA_APP_PKGNAME)
-            if (TextUtils.isEmpty(pkgName) && intent.data != null) {
-                pkgName = intent.data!!.getQueryParameter("id")
+
+
+            if(TextUtils.isEmpty(pkgName)){
+                pkgName= intent.data?.run {
+                    getQueryParameter("id")
+                }
             }
             if (!TextUtils.isEmpty(pkgName)) {
                 appInfo = AppInfo(packageName = pkgName)
 
             }
-
         }
+
         return appInfo
     }
 

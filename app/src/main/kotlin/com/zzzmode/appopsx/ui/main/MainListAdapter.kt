@@ -62,10 +62,11 @@ internal open class MainListAdapter : RecyclerView.Adapter<AppItemViewHolder>(),
     }
 
     override fun onClick(v: View) {
-        if (v.tag is AppInfo) {
 
+
+        (v.tag as? AppInfo)?.let {
             val intent = Intent(v.context, AppPermissionActivity::class.java)
-            intent.putExtra(AppPermissionActivity.EXTRA_APP, v.tag as AppInfo)
+            intent.putExtra(AppPermissionActivity.EXTRA_APP, it)
             v.context.startActivity(intent)
             ATracker.send(aEventId)
         }

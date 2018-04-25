@@ -4,9 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.ViewGroup
-import android.webkit.WebView
-import android.widget.FrameLayout
+import com.zzzmode.appopsx.R
 import com.zzzmode.appopsx.ui.BaseActivity
+import kotlinx.android.synthetic.main.activity_html.*
+import kotlinx.android.synthetic.main.layout_appbar.*
 
 /**
  * Created by zl on 2017/5/21.
@@ -14,12 +15,11 @@ import com.zzzmode.appopsx.ui.BaseActivity
 
 class HtmlActionActivity : BaseActivity() {
 
-    private lateinit var webView: WebView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initView()
+        setContentView(R.layout.activity_html)
 
+        setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         title = intent?.getStringExtra(Intent.EXTRA_TITLE)
@@ -38,14 +38,6 @@ class HtmlActionActivity : BaseActivity() {
         }
     }
 
-    private fun initView() {
-        val layout = FrameLayout(this)
-        webView = WebView(this)
-        layout.addView(webView, FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT)
-        setContentView(layout, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT))
-    }
 
     override fun onDestroy() {
         try {
@@ -61,6 +53,6 @@ class HtmlActionActivity : BaseActivity() {
 
     companion object {
 
-        val EXTRA_URL = "extra.url"
+        const val EXTRA_URL = "extra.url"
     }
 }

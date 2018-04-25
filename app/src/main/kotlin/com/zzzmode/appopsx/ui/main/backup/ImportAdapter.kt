@@ -66,10 +66,11 @@ internal class ImportAdapter : RecyclerView.Adapter<ImportAdapter.ViewHolder>(),
         } else {
             //item
             if (tag is ViewHolder) {
-                if (itemClickListener != null) {
+
+                itemClickListener?.let {
                     val position = tag.adapterPosition
                     val model = mDatas[position]
-                    itemClickListener!!.onItemClick(model)
+                    it.onItemClick(model)
                 }
 
                 ATracker.send(AEvent.A_RESTORE)

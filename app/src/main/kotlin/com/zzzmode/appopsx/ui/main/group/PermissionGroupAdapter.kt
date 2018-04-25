@@ -33,7 +33,7 @@ internal class PermissionGroupAdapter(expandableItemManager: RecyclerViewExpanda
 
     private var mExpandableItemManager: RecyclerViewExpandableItemManager =  expandableItemManager
 
-    var data: List<PermissionGroup> = ArrayList<PermissionGroup>()
+    var data: List<PermissionGroup> = ArrayList()
         set(value) {
 
             if(field is MutableList){
