@@ -38,8 +38,8 @@ public class ReflectUtils {
       for (Object o : list) {
         int mOp = getIntFieldValue(o, "mOp");
         int mMode = getIntFieldValue(o, "mMode");
-        long mTime = getLongFieldValue(o, "mTime");
-        long mRejectTime = getLongFieldValue(o, "mRejectTime");
+        long mTime = (long) invokMethod(o, "getTime", null, null);
+        long mRejectTime = (long) invokMethod(o, "getRejectTime", null, null);
         int mDuration = getIntFieldValue(o, "mDuration");
         int mProxyUid = getIntFieldValue(o, "mProxyUid");
         String mProxyPackageName = String.valueOf(getFieldValue(o, "mProxyPackageName"));
