@@ -57,8 +57,8 @@
     <activity android:name=".ui.main.usagestats.PermsUsageStatsActivity"/>
 
     <receiver
-      android:enabled="true"
-      android:name=".ui.core.AppInstalledRevicer">
+      android:enabled="false"
+      android:name=".ui.core.AppInstalledReceiver">
       <intent-filter>
         <action android:name="android.intent.action.PACKAGE_INSTALL"/>
         <action android:name="android.intent.action.PACKAGE_ADDED"/>

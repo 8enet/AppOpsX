@@ -3,7 +3,7 @@ package com.zzzmode.appopsx.ui.core;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatDelegate;
+import androidx.appcompat.app.AppCompatDelegate;
 
 /**
  * Created by zl on 2017/4/19.

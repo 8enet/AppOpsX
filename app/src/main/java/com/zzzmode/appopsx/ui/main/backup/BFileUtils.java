@@ -22,7 +22,7 @@ class BFileUtils {
   private static final String DIR_NAME = "backup";
   private static final String SUFFIX = ".bak";
 
-  public static File getBackupDir(Context context) {
+  static File getBackupDir(Context context) {
     File externalFilesDir = context.getExternalFilesDir(DIR_NAME);
     if (externalFilesDir != null) {
       if (externalFilesDir.exists()) {
@@ -37,7 +37,7 @@ class BFileUtils {
     return context.getDir(DIR_NAME, Context.MODE_PRIVATE);
   }
 
-  public static File generateDefaultFile(Context context) {
+  private static File generateDefaultFile(Context context) {
     File file = new File(getBackupDir(context),
         System.currentTimeMillis() + "_" + new Random().nextInt(1000) + SUFFIX);
     try {
@@ -48,7 +48,7 @@ class BFileUtils {
     return file;
   }
 
-  public static List<File> getBackFiles(Context context) {
+  static List<File> getBackFiles(Context context) {
     List<File> files = new ArrayList<>();
 
     FilenameFilter filenameFilter = new FilenameFilter() {
@@ -77,7 +77,7 @@ class BFileUtils {
     return null;
   }
 
-  public static File saveBackup(Context context, String config) throws IOException {
+  static File saveBackup(Context context, String config) throws IOException {
     File file = generateDefaultFile(context);
     FileOutputStream fos = null;
     int len = 0;
@@ -109,7 +109,7 @@ class BFileUtils {
     }
   }
 
-  public static String read2String(File file) {
+  static String read2String(File file) {
     FileInputStream fis = null;
     ByteArrayOutputStream baos = null;
     try {

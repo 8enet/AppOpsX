@@ -1,8 +1,9 @@
 package com.zzzmode.appopsx.ui.main.group;
 
-import android.support.annotation.IntRange;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -36,7 +37,7 @@ class PermissionGroupAdapter extends
   private List<PermissionGroup> mData;
 
 
-  private RecyclerViewExpandableItemManager mExpandableItemManager = null;
+  private RecyclerViewExpandableItemManager mExpandableItemManager;
 
 
   PermissionGroupAdapter(RecyclerViewExpandableItemManager expandableItemManager) {
@@ -86,21 +87,23 @@ class PermissionGroupAdapter extends
   }
 
   @Override
-  public GroupViewHolder onCreateGroupViewHolder(ViewGroup parent,
+  @NonNull
+  public GroupViewHolder onCreateGroupViewHolder(@NonNull ViewGroup parent,
       @IntRange(from = -8388608L, to = 8388607L) int viewType) {
     return new GroupViewHolder(LayoutInflater.from(parent.getContext())
         .inflate(R.layout.layout_permission_group_item, parent, false));
   }
 
   @Override
-  public ChildViewHolder onCreateChildViewHolder(ViewGroup parent,
+  @NonNull
+  public ChildViewHolder onCreateChildViewHolder(@NonNull ViewGroup parent,
       @IntRange(from = -8388608L, to = 8388607L) int viewType) {
     return new ChildViewHolder(LayoutInflater.from(parent.getContext())
         .inflate(R.layout.layout_permission_child_item, parent, false));
   }
 
   @Override
-  public void onBindGroupViewHolder(GroupViewHolder holder, int groupPosition,
+  public void onBindGroupViewHolder(@NonNull GroupViewHolder holder, int groupPosition,
       @IntRange(from = -8388608L, to = 8388607L) int viewType) {
     PermissionGroup permissionGroup = mData.get(groupPosition);
     if (TextUtils.isEmpty(permissionGroup.opPermsLab)) {
@@ -135,7 +138,7 @@ class PermissionGroupAdapter extends
   }
 
   @Override
-  public void onBindChildViewHolder(ChildViewHolder holder, int groupPosition, int childPosition,
+  public void onBindChildViewHolder(@NonNull ChildViewHolder holder, int groupPosition, int childPosition,
       @IntRange(from = -8388608L, to = 8388607L) int viewType) {
     PermissionChildItem appPermissions = mData.get(groupPosition).apps.get(childPosition);
 
@@ -168,7 +171,7 @@ class PermissionGroupAdapter extends
   }
 
   @Override
-  public boolean onCheckCanExpandOrCollapseGroup(GroupViewHolder holder, int groupPosition, int x,
+  public boolean onCheckCanExpandOrCollapseGroup(@NonNull GroupViewHolder holder, int groupPosition, int x,
       int y, boolean expand) {
     return false;
   }
@@ -187,8 +190,8 @@ class PermissionGroupAdapter extends
       long expandablePosition = mExpandableItemManager.getExpandablePosition(flatPosition);
       int groupPosition = RecyclerViewExpandableItemManager
           .getPackedPositionGroup(expandablePosition);
-      int childPosition = RecyclerViewExpandableItemManager
-          .getPackedPositionChild(expandablePosition);
+//      int childPosition = RecyclerViewExpandableItemManager
+//          .getPackedPositionChild(expandablePosition);
 
       switch (v.getId()) {
         case R.id.layout_group_item:
@@ -209,8 +212,6 @@ class PermissionGroupAdapter extends
 
     if (v.getTag() instanceof ChildViewHolder) {
       ((ChildViewHolder) v.getTag()).switchCompat.toggle();
-    } else if (v.getId() == R.id.img_menu_ups) {
-
     }
   }
 
@@ -233,13 +234,13 @@ class PermissionGroupAdapter extends
     ExpandableItemIndicator indicator;
     ImageView imgMenu;
 
-    public GroupViewHolder(View itemView) {
+    GroupViewHolder(View itemView) {
       super(itemView);
-      tvPermName = (TextView) itemView.findViewById(R.id.tv_permission_name);
-      tvCount = (TextView) itemView.findViewById(R.id.tv_permission_count);
-      indicator = (ExpandableItemIndicator) itemView.findViewById(R.id.indicator);
-      groupIcon = (ImageView) itemView.findViewById(R.id.img_group);
-      imgMenu = (ImageView) itemView.findViewById(R.id.img_menu_ups);
+      tvPermName = itemView.findViewById(R.id.tv_permission_name);
+      tvCount =itemView.findViewById(R.id.tv_permission_count);
+      indicator = itemView.findViewById(R.id.indicator);
+      groupIcon = itemView.findViewById(R.id.img_group);
+      imgMenu = itemView.findViewById(R.id.img_menu_ups);
     }
   }
 
@@ -250,12 +251,12 @@ class PermissionGroupAdapter extends
     TextView tvLastTime;
     SwitchCompat switchCompat;
 
-    public ChildViewHolder(View itemView) {
+    ChildViewHolder(View itemView) {
       super(itemView);
-      imgIcon = (ImageView) itemView.findViewById(R.id.app_icon);
-      tvName = (TextView) itemView.findViewById(R.id.app_name);
-      switchCompat = (SwitchCompat) itemView.findViewById(R.id.switch_compat);
-      tvLastTime = (TextView) itemView.findViewById(R.id.perm_last_time);
+      imgIcon = itemView.findViewById(R.id.app_icon);
+      tvName = itemView.findViewById(R.id.app_name);
+      switchCompat =  itemView.findViewById(R.id.switch_compat);
+      tvLastTime = itemView.findViewById(R.id.perm_last_time);
     }
   }
 

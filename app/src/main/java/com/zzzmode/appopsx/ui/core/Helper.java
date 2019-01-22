@@ -19,21 +19,19 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.RequiresApi;
-import android.support.v4.text.BidiFormatter;
-import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import androidx.annotation.RequiresApi;
+import androidx.core.text.BidiFormatter;
+import androidx.core.util.Pair;
 import com.zzzmode.appopsx.BuildConfig;
 import com.zzzmode.appopsx.R;
+import com.zzzmode.appopsx.common.FixCompat;
 import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.OtherOp;
 import com.zzzmode.appopsx.common.PackageOps;
-import com.zzzmode.appopsx.common.ReflectUtils;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.AppPermissions;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
@@ -944,7 +942,6 @@ public class Helper {
     Map<String, String> map = new HashMap<String, String>(2);
     map.put("new_mode", String.valueOf(opEntryInfo.mode));
     map.put("op_name", opEntryInfo.opName);
-    ATracker.send(AEvent.C_PERM_ITEM, map);
     return setMode(context, pkgName, opEntryInfo);
   }
 
@@ -1107,9 +1104,9 @@ public class Helper {
 
   public static List<OpEntryInfo> getLocalOpEntryInfos(Context context) {
     if (sOpEntryInfoList.isEmpty()) {
-      int[] sOpToSwitch = (int[]) ReflectUtils.getFieldValue(AppOpsManager.class, "sOpToSwitch");
-      String[] sOpNames = (String[]) ReflectUtils.getFieldValue(AppOpsManager.class, "sOpNames");
-      String[] sOpPerms = (String[]) ReflectUtils.getFieldValue(AppOpsManager.class, "sOpPerms");
+      int[] sOpToSwitch = FixCompat.sOpToSwitch();
+      String[] sOpNames = FixCompat.sOpNames();
+      String[] sOpPerms = FixCompat.sOpPerms();
       int len = sOpPerms.length;
       PackageManager pm = context.getPackageManager();
       for (int i = 0; i < len; i++) {

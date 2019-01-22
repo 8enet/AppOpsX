@@ -7,20 +7,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.BaseActivity;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
@@ -61,6 +60,9 @@ public class AppPermissionActivity extends BaseActivity implements IPermView {
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_opsx);
+
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
 
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -163,11 +165,9 @@ public class AppPermissionActivity extends BaseActivity implements IPermView {
         return true;
       case R.id.action_open_all:
         changeAll(AppOpsManager.MODE_ALLOWED);
-        ATracker.send(AEvent.C_APP_OPEN_ALL);
         break;
       case R.id.action_close_all:
         changeAll(AppOpsManager.MODE_IGNORED);
-        ATracker.send(AEvent.C_APP_IGNOR_ALL);
         break;
       case R.id.action_app_info:
         startAppinfo();

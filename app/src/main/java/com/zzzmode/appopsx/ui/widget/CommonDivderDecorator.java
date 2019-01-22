@@ -2,8 +2,8 @@ package com.zzzmode.appopsx.ui.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.DividerItemDecoration;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import com.zzzmode.appopsx.R;
 
 /**

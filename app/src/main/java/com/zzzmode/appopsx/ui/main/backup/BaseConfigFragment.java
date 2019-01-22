@@ -2,10 +2,11 @@ package com.zzzmode.appopsx.ui.main.backup;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator;
 import com.zzzmode.appopsx.R;
@@ -20,10 +21,10 @@ public class BaseConfigFragment extends Fragment implements IConfigView {
   RecyclerView recyclerView;
 
   @Override
-  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+    recyclerView =  view.findViewById(R.id.recyclerView);
     if (recyclerView != null) {
       recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
       recyclerView.addItemDecoration(new CommonDivderDecorator(getContext()));

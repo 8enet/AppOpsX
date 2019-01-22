@@ -1,12 +1,14 @@
 package com.zzzmode.appopsx.ui.main.backup;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.util.SparseArrayCompat;
-import android.support.v4.view.ViewPager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.tabs.TabLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.collection.SparseArrayCompat;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.widget.Toolbar;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.BaseActivity;
 
@@ -25,10 +27,14 @@ public class BackupActivity extends BaseActivity {
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_backup);
+
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     setTitle(R.string.menu_backup);
-    tabLayout = (TabLayout) findViewById(R.id.tabs);
-    viewPager = (ViewPager) findViewById(R.id.viewpager);
+    tabLayout = findViewById(R.id.tabs);
+    viewPager = findViewById(R.id.viewpager);
     initView();
   }
 
@@ -45,9 +51,10 @@ public class BackupActivity extends BaseActivity {
 
     viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
 
-      private SparseArrayCompat<Fragment> mFragments = new SparseArrayCompat<Fragment>();
+      private SparseArrayCompat<Fragment> mFragments = new SparseArrayCompat<>();
 
       @Override
+      @NonNull
       public Fragment getItem(int position) {
         Fragment fragment = mFragments.get(position);
         if (fragment == null) {

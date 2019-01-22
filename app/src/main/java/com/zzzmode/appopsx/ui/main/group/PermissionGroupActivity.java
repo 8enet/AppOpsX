@@ -5,23 +5,21 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandableItemManager;
 import com.h6ah4i.android.widget.advrecyclerview.utils.WrapperAdapterUtils;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.BaseActivity;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.model.PermissionChildItem;
 import com.zzzmode.appopsx.ui.model.PermissionGroup;
 import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
@@ -64,14 +62,17 @@ public class PermissionGroupActivity extends BaseActivity implements
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_prems_group);
 
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     setTitle(R.string.menu_permission_sort);
 
-    recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+    recyclerView =  findViewById(R.id.recyclerView);
     coordinatorLayout = findViewById(R.id.coordinator_layout);
-    tvError = (TextView) findViewById(R.id.tv_error);
-    progressBar = (ProgressBar) findViewById(R.id.progressBar);
+    tvError = findViewById(R.id.tv_error);
+    progressBar = findViewById(R.id.progressBar);
 
     mLayoutManager = new LinearLayoutManager(this);
 
@@ -95,7 +96,6 @@ public class PermissionGroupActivity extends BaseActivity implements
       @Override
       public void onOtherClick(int groupPosition, View view) {
         contextGroupPosition = groupPosition;
-        ATracker.send(AEvent.C_GROUP_MENU);
         showPopMenu(groupPosition, view);
       }
     });
@@ -198,8 +198,7 @@ public class PermissionGroupActivity extends BaseActivity implements
               sp.edit().putBoolean("key_g_show_ignored", item.isChecked()).apply();
               break;
           }
-
-          ActivityCompat.invalidateOptionsMenu(PermissionGroupActivity.this);
+          invalidateOptionsMenu();
           return true;
         }
       };
@@ -239,7 +238,7 @@ public class PermissionGroupActivity extends BaseActivity implements
 
     mWrappedAdapter = mRecyclerViewExpandableItemManager.createWrappedAdapter(myItemAdapter);
     recyclerView.setAdapter(mWrappedAdapter);
-    ActivityCompat.invalidateOptionsMenu(PermissionGroupActivity.this);
+    invalidateOptionsMenu();
   }
 
   @Override
@@ -282,11 +281,9 @@ public class PermissionGroupActivity extends BaseActivity implements
     switch (item.getItemId()) {
       case R.id.action_close_all:
         changeAll(AppOpsManager.MODE_IGNORED);
-        ATracker.send(AEvent.C_GROUP_IGNORE_ALL);
         return true;
       case R.id.action_open_all:
         changeAll(AppOpsManager.MODE_ALLOWED);
-        ATracker.send(AEvent.C_GROUP_OPEN_ALL);
         return true;
     }
     return super.onContextItemSelected(item);
@@ -314,10 +311,9 @@ public class PermissionGroupActivity extends BaseActivity implements
     int childItemHeight =
         getResources().getDimensionPixelSize(android.R.dimen.app_icon_size) + pad * 2;
     int topMargin = (int) (getResources().getDisplayMetrics().density * 16);
-    int bottomMargin = topMargin;
 
     mRecyclerViewExpandableItemManager
-        .scrollToGroup(groupPosition, childItemHeight, topMargin, bottomMargin);
+        .scrollToGroup(groupPosition, childItemHeight, topMargin, topMargin);
 
     recyclerView.smoothScrollBy(0,-100);
   }

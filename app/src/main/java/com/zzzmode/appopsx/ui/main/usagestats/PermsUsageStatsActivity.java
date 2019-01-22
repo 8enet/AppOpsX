@@ -2,11 +2,12 @@ package com.zzzmode.appopsx.ui.main.usagestats;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.util.Pair;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -33,7 +34,6 @@ public class PermsUsageStatsActivity extends BaseActivity {
   private RecyclerView recyclerView;
 
   private SwipeRefreshLayout mSwipeRefreshLayout;
-  private View containerApp;
 
   private UsageStatsAdapter adapter;
 
@@ -42,16 +42,17 @@ public class PermsUsageStatsActivity extends BaseActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_usage_stats);
 
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     setTitle(R.string.menu_stats);
 
-    mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+    mProgressBar = findViewById(R.id.progressBar);
 
-    containerApp = findViewById(R.id.container_app);
-
-    recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-    mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefreshlayout);
+    recyclerView = findViewById(R.id.recyclerView);
+    mSwipeRefreshLayout = findViewById(R.id.swiperefreshlayout);
     mSwipeRefreshLayout.setRefreshing(false);
     mSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
     mSwipeRefreshLayout.setEnabled(false);

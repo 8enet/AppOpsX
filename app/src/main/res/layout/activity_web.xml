@@ -11,8 +11,8 @@
   app:layout_behavior="@string/appbar_scrolling_view_behavior"
   >
 
-  <FrameLayout
-    android:id="@+id/flag_container"
+  <WebView
+    android:id="@+id/web_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>
 

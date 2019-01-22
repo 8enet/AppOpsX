@@ -6,17 +6,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.preference.PreferenceManager;
-import android.support.v4.text.BidiFormatter;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.Toast;
-
+import androidx.core.text.BidiFormatter;
 import com.zzzmode.appopsx.R;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.permission.AlertInstalledPremActivity;
-
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -26,7 +22,7 @@ import io.reactivex.schedulers.Schedulers;
  * Created by zl on 2017/1/16.
  */
 
-public class AppInstalledRevicer extends BroadcastReceiver {
+public class AppInstalledReceiver extends BroadcastReceiver {
 
   private static final String TAG = "AppInstalledRevicer";
 
@@ -99,7 +95,6 @@ public class AppInstalledRevicer extends BroadcastReceiver {
               Toast
                   .makeText(context, context.getString(R.string.disable_toast, label, value.size()),
                       Toast.LENGTH_LONG).show();
-              ATracker.send(context.getApplicationContext(), AEvent.U_AUTO_IGNORE, null);
             } catch (Exception e) {
               e.printStackTrace();
             }

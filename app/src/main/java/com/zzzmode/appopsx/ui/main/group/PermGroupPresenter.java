@@ -25,8 +25,6 @@ class PermGroupPresenter {
 
   private ResourceSingleObserver<List<PermissionGroup>> subscriber;
 
-  private List<PermissionGroup> mPermsGroup;
-
   private boolean loadSuccess = false;
 
   PermGroupPresenter(IPermGroupView mView, Context context) {
