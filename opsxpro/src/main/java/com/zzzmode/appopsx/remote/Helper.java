@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.UserHandle;
+import com.zzzmode.appopsx.common.FixCompat;
 import com.zzzmode.appopsx.common.ReflectUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,18 +54,13 @@ class Helper {
   static int permissionToCode(String permission) {
     if (sRuntimePermToOp == null) {
       sRuntimePermToOp = new HashMap<>();
-      Object sOpPerms = ReflectUtils.getFieldValue(AppOpsManager.class, "sOpPerms");
-      Object sOpToSwitch = ReflectUtils.getFieldValue(AppOpsManager.class, "sOpToSwitch");
+      String[] opPerms = FixCompat.sOpPerms();
+      int[] opToSwitch = FixCompat.sOpToSwitch();
 
-      if (sOpPerms instanceof String[] && sOpToSwitch instanceof int[]) {
-        String[] opPerms = (String[]) sOpPerms;
-        int[] opToSwitch = (int[]) sOpToSwitch;
-
-        if (opPerms.length == opToSwitch.length) {
-          for (int i = 0; i < opToSwitch.length; i++) {
-            if (opPerms[i] != null) {
-              sRuntimePermToOp.put(opPerms[i], opToSwitch[i]);
-            }
+      if (opPerms != null && opToSwitch != null && opPerms.length == opToSwitch.length) {
+        for (int i = 0; i < opToSwitch.length; i++) {
+          if (opPerms[i] != null) {
+            sRuntimePermToOp.put(opPerms[i], opToSwitch[i]);
           }
         }
       }

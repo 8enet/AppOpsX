@@ -16,7 +16,6 @@ public class ReflectUtils {
   private static final Map<String, Field> sFieldCache = new HashMap<String, Field>();
   private static final Map<String, Method> sMethodCache = new HashMap<String, Method>();
 
-
   public static PackageOps opsConvert(Object object) {
     String packageName = null;
     int uid = 0;
@@ -36,10 +35,10 @@ public class ReflectUtils {
       List list = (List) mEntries;
       entries = new ArrayList<>();
       for (Object o : list) {
-        int mOp = getIntFieldValue(o, "mOp");
+        int mOp =  getIntFieldValue(o, "mOp");
         int mMode = getIntFieldValue(o, "mMode");
-        long mTime = getLongFieldValue(o, "mTime");
-        long mRejectTime = getLongFieldValue(o, "mRejectTime");
+        long mTime = (Long) invokMethod(o, "getTime",null,null);
+        long mRejectTime = (long)invokMethod(o, "getRejectTime",null,null);
         int mDuration = getIntFieldValue(o, "mDuration");
         int mProxyUid = getIntFieldValue(o, "mProxyUid");
         String mProxyPackageName = String.valueOf(getFieldValue(o, "mProxyPackageName"));

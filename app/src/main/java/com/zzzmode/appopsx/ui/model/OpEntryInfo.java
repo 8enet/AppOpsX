@@ -1,8 +1,8 @@
 package com.zzzmode.appopsx.ui.model;
 
 import android.app.AppOpsManager;
+import com.zzzmode.appopsx.common.FixCompat;
 import com.zzzmode.appopsx.common.OpEntry;
-import com.zzzmode.appopsx.common.ReflectUtils;
 
 /**
  * Created by zl on 2016/11/18.
@@ -25,23 +25,25 @@ public class OpEntryInfo {
     if (opEntry != null) {
       this.opEntry = opEntry;
       this.mode = opEntry.getMode();
-
+      String[] sOpNames = FixCompat.sOpNames();
       if (sMaxLength == null) {
-        Object sOpNames = ReflectUtils.getFieldValue(AppOpsManager.class, "sOpNames");
-        if (sOpNames instanceof String[]) {
-          sMaxLength = ((String[]) sOpNames).length;
+        if (sOpNames != null) {
+          sMaxLength = sOpNames.length;
         }
       }
 
       if (opEntry.getOp() < sMaxLength) {
+        String[] sOpPerms = FixCompat.sOpPerms();
 
-        Object sOpNames = ReflectUtils
-            .getArrayFieldValue(AppOpsManager.class, "sOpNames", opEntry.getOp());
         if (sOpNames != null) {
-          this.opName = String.valueOf(sOpNames);
-          this.opPermsName = String.valueOf(
-              ReflectUtils.getArrayFieldValue(AppOpsManager.class, "sOpPerms", opEntry.getOp()));
+          this.opName = sOpNames[opEntry.getOp()];
         }
+        if (sOpPerms != null) {
+          this.opPermsName = sOpPerms[opEntry.getOp()];
+        }
+
+
+
       }
     }
   }
