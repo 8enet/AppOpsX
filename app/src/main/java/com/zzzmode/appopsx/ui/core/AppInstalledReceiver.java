@@ -26,7 +26,7 @@ import io.reactivex.schedulers.Schedulers;
  * Created by zl on 2017/1/16.
  */
 
-public class AppInstalledRevicer extends BroadcastReceiver {
+public class AppInstalledReceiver extends BroadcastReceiver {
 
   private static final String TAG = "AppInstalledRevicer";
 

@@ -2,13 +2,18 @@ package com.zzzmode.appopsx.ui.core;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
-
+import com.zzzmode.appopsx.BuildConfig;
 import com.zzzmode.appopsx.ui.analytics.ATracker;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -22,12 +27,47 @@ public class AppGlobal extends Application implements Application.ActivityLifecy
   @Override
   public void onCreate() {
     super.onCreate();
+
+    if (BuildConfig.DEBUG) {
+
+      StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        builder.detectNonSdkApiUsage();
+      }
+      StrictMode.setVmPolicy(builder.penaltyLog()
+          .build());
+
+    }
+
+
+
     LangHelper.updateLanguage(this);
     registerActivityLifecycleCallbacks(this);
     Helper.updataShortcuts(this);
     ATracker.init(getApplicationContext());
     AppOpsx.getInstance(getApplicationContext());
+    installReceiver();
+
   }
+
+
+  private void installReceiver(){
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+
+      IntentFilter filter = new IntentFilter();
+      filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+      filter.addDataScheme("package");
+      registerReceiver(new AppInstalledReceiver(),filter);
+    }else {
+
+      ComponentName componentName = new ComponentName(this,AppInstalledReceiver.class);
+      getPackageManager().setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED,PackageManager.DONT_KILL_APP);
+
+    }
+
+  }
+
 
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
