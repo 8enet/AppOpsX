@@ -2,15 +2,14 @@ package com.zzzmode.appopsx.ui.main.backup;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.zzzmode.appopsx.R;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 
 /**
  * 导入配置
@@ -21,20 +20,20 @@ public class ImportFragment extends BaseConfigFragment {
 
   private SwipeRefreshLayout swipeRefreshLayout;
   private ConfigPresenter mPresenter;
-  ImportAdapter adapter;
+  private ImportAdapter adapter;
 
   @Nullable
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_import, container, false);
   }
 
   @Override
-  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefreshlayout);
+    swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
     swipeRefreshLayout.setRefreshing(false);
     swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
     swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -73,8 +72,6 @@ public class ImportFragment extends BaseConfigFragment {
           @Override
           public void onClick(DialogInterface dialog, int which) {
             mPresenter.restoreOps(model);
-
-            ATracker.send(AEvent.A_RESTORE_CONFIRM);
           }
         })
         .setNegativeButton(android.R.string.cancel, null)

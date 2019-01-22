@@ -34,7 +34,6 @@ public class PermsUsageStatsActivity extends BaseActivity {
   private RecyclerView recyclerView;
 
   private SwipeRefreshLayout mSwipeRefreshLayout;
-  private View containerApp;
 
   private UsageStatsAdapter adapter;
 
@@ -50,12 +49,10 @@ public class PermsUsageStatsActivity extends BaseActivity {
 
     setTitle(R.string.menu_stats);
 
-    mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+    mProgressBar = findViewById(R.id.progressBar);
 
-    containerApp = findViewById(R.id.container_app);
-
-    recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-    mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefreshlayout);
+    recyclerView = findViewById(R.id.recyclerView);
+    mSwipeRefreshLayout = findViewById(R.id.swiperefreshlayout);
     mSwipeRefreshLayout.setRefreshing(false);
     mSwipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
     mSwipeRefreshLayout.setEnabled(false);

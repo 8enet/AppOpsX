@@ -1,6 +1,5 @@
 package com.android.internal.app;
 
-import android.app.AppOpsManager;
 import android.os.Parcelable;
 import java.util.List;
 

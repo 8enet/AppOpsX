@@ -26,10 +26,8 @@ public class OpEntryInfo {
       this.opEntry = opEntry;
       this.mode = opEntry.getMode();
       String[] sOpNames = FixCompat.sOpNames();
-      if (sMaxLength == null) {
-        if (sOpNames != null) {
-          sMaxLength = sOpNames.length;
-        }
+      if (sMaxLength == null && sOpNames != null) {
+        sMaxLength = sOpNames.length;
       }
 
       if (opEntry.getOp() < sMaxLength) {

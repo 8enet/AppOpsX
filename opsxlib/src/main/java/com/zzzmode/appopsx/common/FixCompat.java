@@ -167,7 +167,7 @@ public final class FixCompat {
   /**  */
   public static final int _NUM_OP = 78;
 
-
+  private static final int _NUM_UID_STATE = 6;
 
   private static int[] _sOpToSwitch = new int[] {
       OP_COARSE_LOCATION,                 // COARSE_LOCATION
@@ -455,5 +455,5 @@ public final class FixCompat {
     }
   }
 
-  static final int _NUM_UID_STATE = 6;
+
 }

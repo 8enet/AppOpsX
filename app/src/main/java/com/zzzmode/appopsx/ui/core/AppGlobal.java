@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import com.zzzmode.appopsx.BuildConfig;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -45,7 +44,6 @@ public class AppGlobal extends Application implements Application.ActivityLifecy
     LangHelper.updateLanguage(this);
     registerActivityLifecycleCallbacks(this);
     Helper.updataShortcuts(this);
-    ATracker.init(getApplicationContext());
     AppOpsx.getInstance(getApplicationContext());
     installReceiver();
 

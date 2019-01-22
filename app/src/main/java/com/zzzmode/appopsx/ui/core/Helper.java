@@ -19,12 +19,12 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import androidx.annotation.RequiresApi;
-import androidx.core.text.BidiFormatter;
-import androidx.core.util.Pair;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import androidx.annotation.RequiresApi;
+import androidx.core.text.BidiFormatter;
+import androidx.core.util.Pair;
 import com.zzzmode.appopsx.BuildConfig;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.FixCompat;
@@ -32,8 +32,6 @@ import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.OtherOp;
 import com.zzzmode.appopsx.common.PackageOps;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.AppPermissions;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
@@ -944,7 +942,6 @@ public class Helper {
     Map<String, String> map = new HashMap<String, String>(2);
     map.put("new_mode", String.valueOf(opEntryInfo.mode));
     map.put("op_name", opEntryInfo.opName);
-    ATracker.send(AEvent.C_PERM_ITEM, map);
     return setMode(context, pkgName, opEntryInfo);
   }
 

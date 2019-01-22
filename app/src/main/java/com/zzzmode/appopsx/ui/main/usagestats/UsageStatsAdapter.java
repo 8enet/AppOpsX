@@ -1,6 +1,7 @@
 package com.zzzmode.appopsx.ui.main.usagestats;
 
 import android.content.Intent;
+import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SwitchCompat;
@@ -44,12 +45,13 @@ import java.util.List;
   }
 
   @Override
-  public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+  @NonNull
+  public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_app_usagestats_item,parent,false));
   }
 
   @Override
-  public void onBindViewHolder(ViewHolder holder, int position) {
+  public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
     Pair<AppInfo, OpEntryInfo> pair = mDatas.get(position);
 
@@ -127,12 +129,12 @@ import java.util.List;
 
     ViewHolder(View itemView) {
       super(itemView);
-      imgIcon = (ImageView) itemView.findViewById(R.id.app_icon);
-      tvName = (TextView) itemView.findViewById(R.id.app_name);
-      switchCompat = (SwitchCompat) itemView.findViewById(R.id.switch_compat);
-      tvLastTime = (TextView) itemView.findViewById(R.id.perm_last_time);
-      tvPermName = (TextView)itemView.findViewById(R.id.perm_name);
-      imgPerm = (ImageView) itemView.findViewById(R.id.img_group);
+      imgIcon = itemView.findViewById(R.id.app_icon);
+      tvName = itemView.findViewById(R.id.app_name);
+      switchCompat = itemView.findViewById(R.id.switch_compat);
+      tvLastTime = itemView.findViewById(R.id.perm_last_time);
+      tvPermName = itemView.findViewById(R.id.perm_name);
+      imgPerm = itemView.findViewById(R.id.img_group);
     }
   }
 }

@@ -1,5 +1,6 @@
 package com.zzzmode.appopsx.ui.main.backup;
 
+import androidx.annotation.NonNull;
 import androidx.collection.SparseArrayCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -22,7 +23,7 @@ class ExportAdapter extends RecyclerView.Adapter<ExportAdapter.ExportViewHolder>
 
   private List<AppInfo> appInfos;
 
-  private SparseArrayCompat<AppInfo> mCheckedApps = new SparseArrayCompat<AppInfo>();
+  private SparseArrayCompat<AppInfo> mCheckedApps = new SparseArrayCompat<>();
 
   ExportAdapter(List<AppInfo> appInfos) {
     this.appInfos = appInfos;
@@ -40,13 +41,14 @@ class ExportAdapter extends RecyclerView.Adapter<ExportAdapter.ExportViewHolder>
   }
 
   @Override
-  public ExportAdapter.ExportViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+  @NonNull
+  public ExportAdapter.ExportViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     return new ExportAdapter.ExportViewHolder(
         LayoutInflater.from(parent.getContext()).inflate(R.layout.item_export_app, parent, false));
   }
 
   @Override
-  public void onBindViewHolder(ExportAdapter.ExportViewHolder holder, int position) {
+  public void onBindViewHolder(@NonNull ExportAdapter.ExportViewHolder holder, int position) {
     holder.bindData(appInfos.get(position));
     holder.itemView.setOnClickListener(this);
     holder.itemView.setTag(holder);
@@ -106,7 +108,7 @@ class ExportAdapter extends RecyclerView.Adapter<ExportAdapter.ExportViewHolder>
 
     ExportViewHolder(View itemView) {
       super(itemView);
-      checkBox = (CheckBox) itemView.findViewById(R.id.checkbox);
+      checkBox = itemView.findViewById(R.id.checkbox);
     }
   }
 }

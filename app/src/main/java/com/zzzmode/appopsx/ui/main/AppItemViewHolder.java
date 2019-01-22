@@ -14,13 +14,13 @@ import com.zzzmode.appopsx.ui.model.AppInfo;
 
 public class AppItemViewHolder extends RecyclerView.ViewHolder {
 
-  ImageView imgIcon;
+  private ImageView imgIcon;
   TextView tvName;
 
   public AppItemViewHolder(View itemView) {
     super(itemView);
-    imgIcon = (ImageView) itemView.findViewById(R.id.app_icon);
-    tvName = (TextView) itemView.findViewById(R.id.app_name);
+    imgIcon = itemView.findViewById(R.id.app_icon);
+    tvName = itemView.findViewById(R.id.app_name);
   }
 
 

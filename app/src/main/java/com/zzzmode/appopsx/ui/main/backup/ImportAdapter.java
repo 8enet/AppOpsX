@@ -2,16 +2,15 @@ package com.zzzmode.appopsx.ui.main.backup;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.RecyclerView;
 import com.zzzmode.appopsx.R;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.util.Formatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,8 @@ class ImportAdapter extends RecyclerView.Adapter<ImportAdapter.ViewHolder> imple
   private OnItemClickListener itemClickListener;
 
   @Override
-  public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+  @NonNull
+  public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     return new ImportAdapter.ViewHolder(LayoutInflater.from(parent.getContext())
         .inflate(R.layout.item_import_layout, parent, false));
   }
@@ -45,7 +45,7 @@ class ImportAdapter extends RecyclerView.Adapter<ImportAdapter.ViewHolder> imple
   }
 
   @Override
-  public void onBindViewHolder(ViewHolder holder, int position) {
+  public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
     holder.bindData(mDatas.get(position));
     holder.itemView.setTag(holder);
     holder.delete.setTag(holder);
@@ -68,7 +68,6 @@ class ImportAdapter extends RecyclerView.Adapter<ImportAdapter.ViewHolder> imple
       if (tag instanceof ViewHolder) {
         showDelete(((ViewHolder) tag));
       }
-      ATracker.send(AEvent.A_DELETE_BACKFILE);
     } else {
       //item
       if (tag instanceof ViewHolder) {
@@ -78,7 +77,6 @@ class ImportAdapter extends RecyclerView.Adapter<ImportAdapter.ViewHolder> imple
           itemClickListener.onItemClick(model);
         }
 
-        ATracker.send(AEvent.A_RESTORE);
       }
 
     }
@@ -95,7 +93,6 @@ class ImportAdapter extends RecyclerView.Adapter<ImportAdapter.ViewHolder> imple
         .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
           @Override
           public void onClick(DialogInterface dialog, int which) {
-            ATracker.send(AEvent.A_DELETE_CONFIRM);
             boolean ret = BFileUtils.deleteBackFile(model.path);
             if (ret) {
               mDatas.remove(position);
@@ -121,10 +118,10 @@ class ImportAdapter extends RecyclerView.Adapter<ImportAdapter.ViewHolder> imple
 
     ViewHolder(View itemView) {
       super(itemView);
-      tvName = (TextView) itemView.findViewById(R.id.title);
-      tvTime = (TextView) itemView.findViewById(R.id.tv_time);
-      tvBackCount = (TextView) itemView.findViewById(R.id.tv_back_count);
-      tvFileSize = (TextView) itemView.findViewById(R.id.tv_file_len);
+      tvName = itemView.findViewById(R.id.title);
+      tvTime = itemView.findViewById(R.id.tv_time);
+      tvBackCount = itemView.findViewById(R.id.tv_back_count);
+      tvFileSize = itemView.findViewById(R.id.tv_file_len);
       delete = itemView.findViewById(R.id.fl_delete);
     }
 

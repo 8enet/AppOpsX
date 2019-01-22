@@ -1,14 +1,13 @@
 package com.zzzmode.appopsx.ui.main.backup;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.collection.SparseArrayCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.SparseArrayCompat;
 import com.zzzmode.appopsx.R;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import java.util.ArrayList;
 
@@ -27,13 +26,13 @@ public class ExportFragment extends BaseConfigFragment implements View.OnClickLi
 
   @Nullable
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     return inflater.inflate(R.layout.fragment_export, container, false);
   }
 
   @Override
-  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
     ArrayList<AppInfo> appInfos = getArguments().getParcelableArrayList(BackupActivity.EXTRA_APPS);
@@ -50,7 +49,6 @@ public class ExportFragment extends BaseConfigFragment implements View.OnClickLi
     if (v.getId() == R.id.fab) {
       //导出
       export();
-      ATracker.send(AEvent.A_EXPORT);
     }
   }
 

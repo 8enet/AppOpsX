@@ -1,17 +1,16 @@
 package com.zzzmode.appopsx.ui.main;
 
 import android.graphics.Color;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator;
 import com.zzzmode.appopsx.R;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.widget.CommonDivderDecorator;
 import io.reactivex.Observable;
@@ -29,8 +28,6 @@ import java.util.regex.Pattern;
  */
 class SearchHandler {
 
-  private static final String TAG = "SearchHandler";
-
   private List<AppInfo> mBaseData;
 
   private RecyclerView recyclerView;
@@ -41,7 +38,7 @@ class SearchHandler {
   }
 
   void initView(View container) {
-    this.recyclerView = (RecyclerView) container.findViewById(R.id.search_result_recyclerView);
+    this.recyclerView =  container.findViewById(R.id.search_result_recyclerView);
     recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
     recyclerView.addItemDecoration(new CommonDivderDecorator(recyclerView.getContext()));
     recyclerView.setItemAnimator(new RefactoredDefaultItemAnimator());
@@ -93,7 +90,7 @@ class SearchHandler {
   private Observable<List<AppInfo>> search(final String key) {
     return Observable.create(new ObservableOnSubscribe<List<AppInfo>>() {
       @Override
-      public void subscribe(ObservableEmitter<List<AppInfo>> e) throws Exception {
+      public void subscribe(ObservableEmitter<List<AppInfo>> e)  {
         Pattern p = Pattern.compile(".*(?i)(" + key + ").*");
         List<AppInfo> result = new ArrayList<>();
         for (AppInfo info : mBaseData) {
@@ -137,10 +134,6 @@ class SearchHandler {
       return resultHighlight(kw, name, color);
     }
 
-    @Override
-    protected String getAEventId() {
-      return AEvent.C_SEARCH_APP;
-    }
 
     private CharSequence resultHighlight(String key, String text, int color) {
       String phantom = text.toLowerCase();

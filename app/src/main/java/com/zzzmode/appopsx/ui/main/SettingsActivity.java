@@ -12,25 +12,23 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
+import android.util.SparseBooleanArray;
+import android.view.MenuItem;
+import android.widget.Toast;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceGroupAdapter;
 import androidx.preference.PreferenceScreen;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
-import androidx.appcompat.widget.Toolbar;
-import android.text.TextUtils;
-import android.util.SparseBooleanArray;
-import android.view.MenuItem;
-import android.widget.Toast;
 import com.zzzmode.appopsx.BuildConfig;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.BaseActivity;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.core.LangHelper;
@@ -43,7 +41,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.internal.operators.single.SingleJust;
 import io.reactivex.schedulers.Schedulers;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -122,7 +119,6 @@ public class SettingsActivity extends BaseActivity {
           .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-              ATracker.send(AEvent.C_SETTING_KNOWLEDGMENTS);
               StringBuilder sb = new StringBuilder();
               String[] stringArray = getResources().getStringArray(R.array.acknowledgments_list);
               for (String s : stringArray) {
@@ -138,7 +134,6 @@ public class SettingsActivity extends BaseActivity {
           .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-              ATracker.send(AEvent.C_SETTING_IGNORE_TEMPLETE);
               showPremissionTemplete();
               return true;
             }
@@ -151,7 +146,6 @@ public class SettingsActivity extends BaseActivity {
       mPrefAppSort.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
         @Override
         public boolean onPreferenceClick(Preference preference) {
-          ATracker.send(AEvent.C_SETTING_APP_SORE);
           showAppSortDialog(preference);
           return true;
         }
@@ -161,7 +155,6 @@ public class SettingsActivity extends BaseActivity {
           .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-              ATracker.send(AEvent.C_SETTING_SHOW_LOG);
               showLog();
               return true;
             }
@@ -171,7 +164,6 @@ public class SettingsActivity extends BaseActivity {
           .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-              ATracker.send(AEvent.C_SETTING_CLOSE_SERVER);
               closeServer();
               return true;
             }
@@ -182,7 +174,6 @@ public class SettingsActivity extends BaseActivity {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
 
-              ATracker.send(AEvent.C_SETTING_SWITCH_THEME);
               return true;
             }
           });
@@ -425,7 +416,6 @@ public class SettingsActivity extends BaseActivity {
                 .putString(preference.getKey(), language).apply();
           }
           preference.setSummary(getResources().getStringArray(R.array.languages)[index]);
-          ATracker.send(AEvent.C_LANG, Collections.singletonMap("lang", language));
           switchLanguage();
         }
       });
@@ -503,43 +493,24 @@ public class SettingsActivity extends BaseActivity {
     @Override
     public boolean onPreferenceClick(Preference preference) {
       String key = preference.getKey();
-      String id = null;
-      if ("ignore_premission".equals(key)) {
-        id = AEvent.C_SETTING_AUTO_IGNORE;
-      } else if ("show_sysapp".equals(key)) {
-        id = AEvent.C_SETTING_SHOW_SYS;
-      } else if ("use_adb".equals(key)) {
-        id = AEvent.C_SETTING_USE_ADB;
-      } else if ("allow_bg_remote".equals(key)) {
-        id = AEvent.C_SETTING_ALLOW_BG;
-      } else if ("version".equals(key)) {
-        showVersion();
-        id = AEvent.C_SETTING_VERSION;
-      } else if ("project".equals(key)) {
-        id = AEvent.C_SETTING_GITHUB;
-      } else if ("opensource_licenses".equals(key)) {
-        id = AEvent.C_SETTING_OPENSOURCE;
+
+      if ("opensource_licenses".equals(key)) {
         Intent intent = new Intent(getContext(), HtmlActionActivity.class);
         intent.putExtra(Intent.EXTRA_TITLE, preference.getTitle());
         intent.putExtra(HtmlActionActivity.EXTRA_URL, "file:///android_res/raw/licenses.html");
         getActivity().startActivity(intent);
       } else if ("help".equals(key)) {
-        id = AEvent.C_SETTING_HELP;
+
         Intent intent = new Intent(getContext(), HtmlActionActivity.class);
         intent.putExtra(Intent.EXTRA_TITLE, preference.getTitle());
         intent.putExtra(HtmlActionActivity.EXTRA_URL, "file:///android_res/raw/help.html");
         getActivity().startActivity(intent);
-      } else if ("translate".equals(key)) {
-        id = AEvent.C_SETTING_TRANSLATE;
       } else if ("pref_app_language".equals(key)) {
-        id = AEvent.C_SETTING_LANGUAGE;
+
         showLanguageDialog(preference);
       } else if ("shell_start".equals(key)){
-        id = AEvent.C_SETTING_SHELL_START;
+
         showShellStart();
-      }
-      if (id != null) {
-        ATracker.send(id);
       }
       return false;
     }

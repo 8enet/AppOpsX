@@ -5,7 +5,6 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.LangHelper;
 import com.zzzmode.appopsx.ui.core.SpHelper;
 
@@ -28,15 +27,4 @@ public class BaseActivity extends AppCompatActivity {
     super.attachBaseContext(LangHelper.attachBaseContext(newBase));
   }
 
-  @Override
-  protected void onResume() {
-    super.onResume();
-    ATracker.onResume(this);
-  }
-
-  @Override
-  protected void onPause() {
-    super.onPause();
-    ATracker.onPause(this);
-  }
 }

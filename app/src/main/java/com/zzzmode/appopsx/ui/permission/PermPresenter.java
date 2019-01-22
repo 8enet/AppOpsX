@@ -7,8 +7,6 @@ import android.util.SparseIntArray;
 import com.zzzmode.appopsx.OpsxManager;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.common.OpsResult;
-import com.zzzmode.appopsx.ui.analytics.AEvent;
-import com.zzzmode.appopsx.ui.analytics.ATracker;
 import com.zzzmode.appopsx.ui.core.AppOpsx;
 import com.zzzmode.appopsx.ui.core.Helper;
 import com.zzzmode.appopsx.ui.model.AppInfo;
@@ -209,7 +207,6 @@ class PermPresenter {
     Map<String, String> map = new HashMap<String, String>(2);
     map.put("new_mode", String.valueOf(info.mode));
     map.put("op_name", info.opName);
-    ATracker.send(AEvent.C_PERM_ITEM, map);
 
     setMode(info);
   }
