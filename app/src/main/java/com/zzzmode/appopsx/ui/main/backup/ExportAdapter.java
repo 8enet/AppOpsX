@@ -1,7 +1,7 @@
 package com.zzzmode.appopsx.ui.main.backup;
 
-import android.support.v4.util.SparseArrayCompat;
-import android.support.v7.widget.RecyclerView;
+import androidx.collection.SparseArrayCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

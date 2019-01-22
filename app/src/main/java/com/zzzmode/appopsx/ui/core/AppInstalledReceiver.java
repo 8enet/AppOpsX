@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.preference.PreferenceManager;
-import android.support.v4.text.BidiFormatter;
+import androidx.core.text.BidiFormatter;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.Toast;

@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.preference.PreferenceScreen
+<androidx.preference.PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   >
-  <android.support.v7.preference.PreferenceCategory
+  <androidx.preference.PreferenceCategory
     android:key="normal"
     android:title="@string/normal">
-    <android.support.v7.preference.CheckBoxPreference
+    <androidx.preference.CheckBoxPreference
       android:defaultValue="true"
       android:key="ignore_premission"
       android:title="@string/auto_ignore_premission"
       android:summary="@string/auto_ignore_summary"/>
 
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="ignore_premission_templete"
       android:title="@string/auto_ignore_permission_title"
       android:summary="@string/auto_ignore_permission_temp_summary"/>
 
 
-    <android.support.v7.preference.CheckBoxPreference
+    <androidx.preference.CheckBoxPreference
       android:defaultValue="false"
       android:key="use_adb"
       android:title="@string/use_adb_mode"
@@ -34,44 +34,44 @@
       android:summary="@string/use_adb_port_summary"/>
 
 
-    <android.support.v7.preference.CheckBoxPreference
+    <androidx.preference.CheckBoxPreference
       android:defaultValue="true"
       android:key="allow_bg_remote"
       android:title="@string/allow_bg_remote"
       android:summary="@string/allow_bg_remote_summary"/>
 
-    <android.support.v7.preference.CheckBoxPreference
+    <androidx.preference.CheckBoxPreference
       android:defaultValue="false"
       android:key="allow_root_over_adb"
       android:title="@string/root_over_adb_mode"
       android:summary="@string/root_over_adb_mode_summary"/>
 
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="shell_start"
       android:title="@string/shell_start"
       android:summary="@string/shell_start_description"/>
-  </android.support.v7.preference.PreferenceCategory>
+  </androidx.preference.PreferenceCategory>
 
-  <android.support.v7.preference.PreferenceCategory
+  <androidx.preference.PreferenceCategory
     android:key="app_ui"
     android:title="@string/app_ui">
-    <android.support.v7.preference.CheckBoxPreference
+    <androidx.preference.CheckBoxPreference
       android:defaultValue="false"
       android:key="show_sysapp"
       android:title="@string/show_sys_apps"
       android:summary="@string/show_sys_apps_summary"/>
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="pref_app_sort_type"
       android:title="@string/app_sort_type"
       android:summary="@string/app_sort_type_summary"/>
 
-    <android.support.v7.preference.SwitchPreferenceCompat
+    <androidx.preference.SwitchPreferenceCompat
       android:key="pref_app_daynight_mode"
       android:title="@string/app_daynight_mode"
       android:summary="@string/app_daynight_mode_summary"
       />
 
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="pref_app_language"
       android:title="@string/app_language"
       />
@@ -79,59 +79,59 @@
     <!--android:key="app_perm_detail"-->
     <!--android:title="@string/app_perm_detail_summary"-->
     <!--android:summary="@string/app_perm_detail_title" />-->
-  </android.support.v7.preference.PreferenceCategory>
+  </androidx.preference.PreferenceCategory>
 
   <!--<PreferenceCategory android:key="experience" android:title="@string/experience">-->
 
 
   <!--</PreferenceCategory>-->
 
-  <android.support.v7.preference.PreferenceCategory
+  <androidx.preference.PreferenceCategory
     android:key="about"
     android:title="@string/about">
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="version"
       android:title="@string/version"/>
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="project"
       android:summary="https://github.com/8enet/AppOpsX"
       android:title="Github">
       <intent
         android:action="android.intent.action.VIEW"
         android:data="https://github.com/8enet/AppOpsX"/>
-    </android.support.v7.preference.Preference>
-    <android.support.v7.preference.Preference
+    </androidx.preference.Preference>
+    <androidx.preference.Preference
       android:key="translate"
       android:title="@string/translate"
       android:summary="https://crowdin.com/project/appopsx">
       <intent
         android:action="android.intent.action.VIEW"
         android:data="https://crowdin.com/project/appopsx"/>
-    </android.support.v7.preference.Preference>
+    </androidx.preference.Preference>
 
-  </android.support.v7.preference.PreferenceCategory>
+  </androidx.preference.PreferenceCategory>
 
 
-  <android.support.v7.preference.PreferenceCategory
+  <androidx.preference.PreferenceCategory
     android:key="others"
     android:title="@string/others">
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="close_server"
       android:title="@string/close_bg_server_summary"
       android:summary="@string/close_bg_server_title"/>
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="acknowledgments"
       android:summary="@string/acknowledgment_description"
       android:title="@string/acknowledgment"/>
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="show_log"
       android:title="@string/show_log"/>
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="help"
       android:title="@string/help"/>
-    <android.support.v7.preference.Preference
+    <androidx.preference.Preference
       android:key="opensource_licenses"
       android:title="@string/open_source"/>
-  </android.support.v7.preference.PreferenceCategory>
+  </androidx.preference.PreferenceCategory>
 
-</android.support.v7.preference.PreferenceScreen>
+</androidx.preference.PreferenceScreen>

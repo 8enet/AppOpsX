@@ -1,9 +1,9 @@
 package com.zzzmode.appopsx.ui.main.usagestats;
 
 import android.content.Intent;
-import android.support.v4.util.Pair;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SwitchCompat;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +20,6 @@ import com.zzzmode.appopsx.ui.core.LocalImageLoader;
 import com.zzzmode.appopsx.ui.model.AppInfo;
 import com.zzzmode.appopsx.ui.model.OpEntryInfo;
 import com.zzzmode.appopsx.ui.permission.AppPermissionActivity;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import java.util.ArrayList;

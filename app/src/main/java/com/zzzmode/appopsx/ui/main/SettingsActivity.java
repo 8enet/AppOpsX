@@ -12,16 +12,16 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceGroup;
-import android.support.v7.preference.PreferenceGroupAdapter;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.widget.RecyclerView.Adapter;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
+import androidx.preference.PreferenceGroupAdapter;
+import androidx.preference.PreferenceScreen;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.MenuItem;
@@ -215,6 +215,7 @@ public class SettingsActivity extends BaseActivity {
           PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("use_adb", false));
     }
 
+
     private void setAllPreferencesToAvoidHavingExtraSpace(Preference preference){
       if (preference != null){
         preference.setIconSpaceReserved(false);
@@ -231,7 +232,7 @@ public class SettingsActivity extends BaseActivity {
     @Override
     public void setPreferenceScreen(PreferenceScreen preferenceScreen) {
       super.setPreferenceScreen(preferenceScreen);
-      //setAllPreferencesToAvoidHavingExtraSpace(preferenceScreen);
+      setAllPreferencesToAvoidHavingExtraSpace(preferenceScreen);
     }
 
     @Override
@@ -239,7 +240,7 @@ public class SettingsActivity extends BaseActivity {
       return new PreferenceGroupAdapter(preferenceScreen){
         @SuppressLint("RestrictedApi")
         public void onPreferenceHierarchyChange(Preference preference){
-          //setAllPreferencesToAvoidHavingExtraSpace(preference);
+          setAllPreferencesToAvoidHavingExtraSpace(preference);
           super.onPreferenceHierarchyChange(preference);
         }
       };

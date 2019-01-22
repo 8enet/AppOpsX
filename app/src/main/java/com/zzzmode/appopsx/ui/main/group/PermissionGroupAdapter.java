@@ -1,8 +1,8 @@
 package com.zzzmode.appopsx.ui.main.group;
 
-import android.support.annotation.IntRange;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
+import androidx.annotation.IntRange;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;

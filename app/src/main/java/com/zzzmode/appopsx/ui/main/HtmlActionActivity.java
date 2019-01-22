@@ -2,12 +2,11 @@ package com.zzzmode.appopsx.ui.main;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.FrameLayout;
 import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.BaseActivity;
 

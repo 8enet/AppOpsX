@@ -7,8 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.os.UserHandle;
-import android.support.v4.util.LruCache;
+import androidx.collection.LruCache;
 import android.widget.ImageView;
 
 import com.zzzmode.appopsx.R;

@@ -6,17 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
 import android.os.Bundle;
-import android.os.Process;
-import android.os.UserHandle;
-import android.os.UserManager;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.view.MenuItemCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -266,7 +263,7 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
     searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
     searchView.setOnQueryTextListener(this);
 
-    final View searchFrame = searchView.findViewById(android.support.v7.appcompat.R.id.search_edit_frame);
+    final View searchFrame = searchView.findViewById(androidx.appcompat.R.id.search_edit_frame);
 
     final int[] oldVisibility = {-1};
 

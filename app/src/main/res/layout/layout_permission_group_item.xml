@@ -20,7 +20,7 @@
     />
 
 
-  <android.support.v7.widget.AppCompatImageView
+  <androidx.appcompat.widget.AppCompatImageView
     android:id="@+id/img_menu_ups"
     android:layout_width="48dp"
     android:layout_height="48dp"
@@ -33,7 +33,7 @@
     android:background="?attr/selectableItemBackgroundBorderless"
     />
 
-  <android.support.v7.widget.AppCompatImageView
+  <androidx.appcompat.widget.AppCompatImageView
     android:id="@+id/img_group"
     android:layout_width="24dp"
     android:layout_height="24dp"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   android:id="@+id/activity_main"
   android:layout_width="match_parent"
@@ -46,19 +46,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
       android:id="@+id/swiperefreshlayout"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
 
-      <android.support.v7.widget.RecyclerView
+      <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:overScrollMode="never"
         android:scrollbars="vertical"
         android:splitMotionEvents="false"/>
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
   </FrameLayout>
 
   <FrameLayout
@@ -67,7 +67,7 @@
     android:layout_height="match_parent"
     android:visibility="gone"
     >
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/search_result_recyclerView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
@@ -76,4 +76,4 @@
       android:splitMotionEvents="false"/>
   </FrameLayout>
 </RelativeLayout>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
