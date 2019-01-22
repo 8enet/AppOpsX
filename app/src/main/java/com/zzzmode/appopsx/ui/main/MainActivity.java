@@ -16,12 +16,14 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator;
@@ -75,6 +77,10 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+    setTitle(R.string.app_name);
 
     Log.e(TAG, "onCreate --> ");
     mSearchHandler = new SearchHandler();
@@ -255,40 +261,34 @@ public class MainActivity extends BaseActivity implements SearchView.OnQueryText
 
     }
 
-
-    searchMenu
-        .setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-          @Override
-          public boolean onMenuItemActionExpand(MenuItem item) {
-            containerApp.setVisibility(View.GONE);
-            containerSearch.setVisibility(View.VISIBLE);
-
-            settingsMenu.setVisible(false);
-            premsMenu.setVisible(false);
-
-            ATracker.send(AEvent.C_SEARCH);
-
-            ActivityCompat.invalidateOptionsMenu(MainActivity.this);
-            return true;
-          }
-
-          @Override
-          public boolean onMenuItemActionCollapse(MenuItem item) {
-            containerApp.setVisibility(View.VISIBLE);
-            containerSearch.setVisibility(View.GONE);
-
-            settingsMenu.setVisible(true);
-            premsMenu.setVisible(true);
-            ActivityCompat.invalidateOptionsMenu(MainActivity.this);
-
-            return true;
-          }
-        });
-
     SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
     SearchView searchView = (SearchView) searchMenu.getActionView();
     searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
     searchView.setOnQueryTextListener(this);
+
+    final View searchFrame = searchView.findViewById(android.support.v7.appcompat.R.id.search_edit_frame);
+
+    final int[] oldVisibility = {-1};
+
+    searchFrame.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+      @Override
+      public void onGlobalLayout() {
+
+        int currentVisibility = searchFrame.getVisibility();
+
+        if (currentVisibility != oldVisibility[0]){
+          if (currentVisibility == View.VISIBLE){
+            containerApp.setVisibility(View.GONE);
+            containerSearch.setVisibility(View.VISIBLE);
+          }else {
+            containerApp.setVisibility(View.VISIBLE);
+            containerSearch.setVisibility(View.GONE);
+          }
+          oldVisibility[0] = currentVisibility;
+        }
+
+      }
+    });
 
     return true;
   }

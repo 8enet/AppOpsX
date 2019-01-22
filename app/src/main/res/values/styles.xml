@@ -1,6 +1,9 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-  <style name="BaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+
+
+  <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
     <!-- Customize your theme here. -->
     <item name="colorPrimary">@color/colorPrimary</item>
     <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -11,8 +14,21 @@
 
   <!-- Base application theme. -->
   <style name="AppTheme" parent="BaseTheme">
+    <item name="actionOverflowButtonStyle">@style/OverFlow</item>
+    <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
 
   </style>
+
+  <style name="OverFlow" parent="Widget.AppCompat.ActionButton.Overflow">
+    <item name="android:src">@drawable/ic_md_menu</item>
+  </style>
+
+
+  <style name="Toolbar.Theme" parent="@style/Theme.AppCompat.Light">
+    <item name="colorAccent">@color/colorAccent</item>
+  </style>
+
 
   <style name="SettingsTheme" parent="AppTheme">
     <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>

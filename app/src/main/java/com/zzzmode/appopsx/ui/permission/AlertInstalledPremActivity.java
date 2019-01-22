@@ -56,6 +56,8 @@ public class AlertInstalledPremActivity extends BaseActivity implements IPermVie
   private void initView() {
     final View inflate = getLayoutInflater().inflate(R.layout.activity_opsx, null);
 
+    inflate.findViewById(R.id.appBar).setVisibility(View.GONE);
+
     tvError = (TextView) inflate.findViewById(R.id.tv_error);
     mProgressBar = (ProgressBar) inflate.findViewById(R.id.progressBar);
 

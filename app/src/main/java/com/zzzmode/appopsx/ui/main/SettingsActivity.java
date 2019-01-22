@@ -1,5 +1,6 @@
 package com.zzzmode.appopsx.ui.main;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -16,6 +17,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceGroup;
+import android.support.v7.preference.PreferenceGroupAdapter;
+import android.support.v7.preference.PreferenceScreen;
+import android.support.v7.widget.RecyclerView.Adapter;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.SparseBooleanArray;
 import android.view.MenuItem;
@@ -49,10 +55,14 @@ public class SettingsActivity extends BaseActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_setting);
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     setTitle(R.string.menu_setting);
     getSupportFragmentManager().beginTransaction()
-        .replace(android.R.id.content, new MyPreferenceFragment()).commit();
+        .replace(R.id.flag_container, new MyPreferenceFragment()).commit();
 
   }
 
@@ -203,6 +213,36 @@ public class SettingsActivity extends BaseActivity {
 
       adbPortPreference.setVisible(
           PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("use_adb", false));
+    }
+
+    private void setAllPreferencesToAvoidHavingExtraSpace(Preference preference){
+      if (preference != null){
+        preference.setIconSpaceReserved(false);
+        if (preference instanceof PreferenceGroup){
+          PreferenceGroup group =  ((PreferenceGroup) preference);
+          int count = group.getPreferenceCount();
+          for (int i = 0; i < count; i++){
+            setAllPreferencesToAvoidHavingExtraSpace(group.getPreference(i));
+          }
+        }
+      }
+    }
+
+    @Override
+    public void setPreferenceScreen(PreferenceScreen preferenceScreen) {
+      super.setPreferenceScreen(preferenceScreen);
+      //setAllPreferencesToAvoidHavingExtraSpace(preferenceScreen);
+    }
+
+    @Override
+    protected Adapter onCreateAdapter(PreferenceScreen preferenceScreen) {
+      return new PreferenceGroupAdapter(preferenceScreen){
+        @SuppressLint("RestrictedApi")
+        public void onPreferenceHierarchyChange(Preference preference){
+          //setAllPreferencesToAvoidHavingExtraSpace(preference);
+          super.onPreferenceHierarchyChange(preference);
+        }
+      };
     }
 
     @Override

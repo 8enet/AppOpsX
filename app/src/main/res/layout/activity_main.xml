@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   android:id="@+id/activity_main"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical">
+
+  <include layout="@layout/layout_appbar"/>
+
+<RelativeLayout
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
   <ProgressBar
     android:id="@+id/progressBar"
@@ -67,3 +76,4 @@
       android:splitMotionEvents="false"/>
   </FrameLayout>
 </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

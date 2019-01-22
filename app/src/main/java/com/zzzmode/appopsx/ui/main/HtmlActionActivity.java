@@ -3,10 +3,12 @@ package com.zzzmode.appopsx.ui.main;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
+import com.zzzmode.appopsx.R;
 import com.zzzmode.appopsx.ui.BaseActivity;
 
 /**
@@ -22,13 +24,17 @@ public class HtmlActionActivity extends BaseActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    initView();
+    setContentView(R.layout.activity_web);
+    Toolbar toolbar = findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
 
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
     Intent intent = getIntent();
     setTitle(intent.getStringExtra(Intent.EXTRA_TITLE));
     String url = intent.getStringExtra(EXTRA_URL);
+
+    webView = findViewById(R.id.web_view);
 
     webView.loadUrl(url);
   }
@@ -44,14 +50,6 @@ public class HtmlActionActivity extends BaseActivity {
     }
   }
 
-  private void initView() {
-    FrameLayout layout = new FrameLayout(this);
-    webView = new WebView(this);
-    layout.addView(webView, FrameLayout.LayoutParams.MATCH_PARENT,
-        FrameLayout.LayoutParams.MATCH_PARENT);
-    setContentView(layout, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.MATCH_PARENT));
-  }
 
   @Override
   protected void onDestroy() {
