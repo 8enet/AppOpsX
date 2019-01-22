@@ -2,7 +2,6 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
@@ -38,7 +37,7 @@ def isWin(){
 String.metaClass.toPath = { -> toPath(delegate) }
 
 ext{
-    debugClassDir=project.buildDir.absolutePath+'/intermediates/classes/debug'.toPath()
+    debugClassDir=project.buildDir.absolutePath+'/intermediates/javac/debug/compileDebugJavaWithJavac/classes'.toPath()
     commonJar=project.buildDir.absolutePath+'/appopsx-common.jar'.toPath()
     appopsxJar=project.buildDir.absolutePath+'/appopsx.jar'.toPath()
     appopsxOrigJar=project.buildDir.absolutePath+'/appopsx-orig.jar'.toPath()
