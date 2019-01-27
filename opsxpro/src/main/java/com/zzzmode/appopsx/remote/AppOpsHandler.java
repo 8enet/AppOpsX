@@ -6,10 +6,7 @@ import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ParceledListSlice;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.os.Process;
 import android.os.ServiceManager;
 import android.util.Log;
@@ -22,7 +19,6 @@ import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.OtherOp;
 import com.zzzmode.appopsx.common.PackageOps;
 import com.zzzmode.appopsx.common.ReflectUtils;
-import com.zzzmode.appopsx.common.ServerRunInfo;
 import com.zzzmode.appopsx.common.Shell;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,10 +48,10 @@ public class AppOpsHandler extends ClassCallerProcessor {
     OpsResult result = null;
 
     try {
-      OpsCommands.Builder builder = args.getParcelable("args");
+      OpsCommands commands = args.getParcelable("args");
       args.clear();
-      FLog.log(" appops "+builder);
-      result = handleCommand(builder);
+      FLog.log(" appops "+commands);
+      result = handleCommand(commands);
       if(result == null){
         result = new OpsResult(null,null);
       }
@@ -67,42 +63,42 @@ public class AppOpsHandler extends ClassCallerProcessor {
     return args;
   }
 
-  private OpsResult handleCommand(OpsCommands.Builder builder) throws Throwable {
-    String s = builder.getAction();
+  private OpsResult handleCommand(OpsCommands commands) throws Throwable {
+    String s = commands.getAction();
     OpsResult result = null;
     if (OpsCommands.ACTION_GET.equals(s)) {
-      result = runGet(builder);
+      result = runGet(commands);
     } else if (OpsCommands.ACTION_SET.equals(s)) {
-      runSet(builder);
+      runSet(commands);
     } else if (OpsCommands.ACTION_RESET.equals(s)) {
-      runReset(builder);
+      runReset(commands);
     } else if (OpsCommands.ACTION_GET_FOR_OPS.equals(s)) {
-      result = runGetForOps(builder);
+      result = runGetForOps(commands);
     }
     return result;
   }
 
 
-  private OpsResult runGet(OpsCommands.Builder getBuilder) throws Throwable {
+  private OpsResult runGet(OpsCommands commands) throws Throwable {
 
 
     final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
         ServiceManager.getService(Context.APP_OPS_SERVICE));
-    String packageName = getBuilder.getPackageName();
+    String packageName = commands.getPackageName();
 
-    int uid = Helper.getPackageUid(packageName, getBuilder.getUserHandleId());
+    int uid = Helper.getPackageUid(packageName, commands.getUserHandleId());
 
     List opsForPackage = appOpsService.getOpsForPackage(uid, packageName, null);
     ArrayList<PackageOps> packageOpses = new ArrayList<>();
     if (opsForPackage != null) {
       for (Object o : opsForPackage) {
         PackageOps packageOps = ReflectUtils.opsConvert(o);
-        addSupport(appOpsService, packageOps, getBuilder.getUserHandleId());
+        addSupport(appOpsService, packageOps, commands.getUserHandleId());
         packageOpses.add(packageOps);
       }
     } else {
       PackageOps packageOps = new PackageOps(packageName, uid, new ArrayList<OpEntry>());
-      addSupport(appOpsService, packageOps, getBuilder.getUserHandleId());
+      addSupport(appOpsService, packageOps, commands.getUserHandleId());
       packageOpses.add(packageOps);
     }
 
@@ -162,25 +158,25 @@ public class AppOpsHandler extends ClassCallerProcessor {
     }
   }
 
-  private void runSet(OpsCommands.Builder builder) throws Throwable {
+  private void runSet(OpsCommands commands) throws Throwable {
 
-    final int uid = Helper.getPackageUid(builder.getPackageName(), builder.getUserHandleId());
-    if (OtherOp.isOtherOp(builder.getOpInt())) {
-      setOther(builder, uid);
+    final int uid = Helper.getPackageUid(commands.getPackageName(), commands.getUserHandleId());
+    if (OtherOp.isOtherOp(commands.getOpInt())) {
+      setOther(commands, uid);
     } else {
       final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
           ServiceManager.getService(Context.APP_OPS_SERVICE));
       appOpsService
-          .setMode(builder.getOpInt(), uid, builder.getPackageName(), builder.getModeInt());
+          .setMode(commands.getOpInt(), uid, commands.getPackageName(), commands.getModeInt());
     }
 
 
   }
 
-  private void setOther(OpsCommands.Builder builder, int uid) {
+  private void setOther(OpsCommands commands, int uid) {
     if (mIptablesController != null) {
-      boolean enable = builder.getModeInt() == AppOpsManager.MODE_ALLOWED;
-      switch (builder.getOpInt()) {
+      boolean enable = commands.getModeInt() == AppOpsManager.MODE_ALLOWED;
+      switch (commands.getOpInt()) {
         case OtherOp.OP_ACCESS_PHONE_DATA:
           mIptablesController.setMobileData(uid, enable);
           break;
@@ -191,26 +187,26 @@ public class AppOpsHandler extends ClassCallerProcessor {
     }
   }
 
-  private void runReset(OpsCommands.Builder builder) throws Throwable {
+  private void runReset(OpsCommands commands) throws Throwable {
     final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
         ServiceManager.getService(Context.APP_OPS_SERVICE));
 
-    appOpsService.resetAllModes(builder.getUserHandleId(), builder.getPackageName());
+    appOpsService.resetAllModes(commands.getUserHandleId(), commands.getPackageName());
 
   }
 
-  private OpsResult runGetForOps(OpsCommands.Builder builder) throws Throwable {
+  private OpsResult runGetForOps(OpsCommands commands) throws Throwable {
 
     final IAppOpsService appOpsService = IAppOpsService.Stub.asInterface(
         ServiceManager.getService(Context.APP_OPS_SERVICE));
 
-    List opsForPackage = appOpsService.getPackagesForOps(builder.getOps());
+    List opsForPackage = appOpsService.getPackagesForOps(commands.getOps());
     ArrayList<PackageOps> packageOpses = new ArrayList<>();
 
     if (opsForPackage != null) {
       for (Object o : opsForPackage) {
         PackageOps packageOps = ReflectUtils.opsConvert(o);
-        addSupport(appOpsService, packageOps, builder.getUserHandleId(), builder.isReqNet());
+        addSupport(appOpsService, packageOps, commands.getUserHandleId(), commands.isReqNet());
         packageOpses.add(packageOps);
       }
 

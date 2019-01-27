@@ -2,10 +2,8 @@ package com.zzzmode.appopsx;
 
 import android.app.AppOpsManager;
 import android.content.Context;
-import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.os.Process;
-import android.util.Log;
 import com.zzzmode.android.opsxpro.BuildConfig;
 import com.zzzmode.appopsx.common.CallerResult;
 import com.zzzmode.appopsx.common.ClassCaller;
@@ -13,9 +11,7 @@ import com.zzzmode.appopsx.common.OpEntry;
 import com.zzzmode.appopsx.common.OpsCommands;
 import com.zzzmode.appopsx.common.OpsResult;
 import com.zzzmode.appopsx.common.PackageOps;
-import com.zzzmode.appopsx.common.SystemServiceCaller;
 import com.zzzmode.appopsx.remote.AppOpsHandler;
-import java.io.File;
 import java.util.List;
 
 /**
@@ -78,19 +74,19 @@ public class OpsxManager {
 
   public OpsResult getOpsForPackage(final String packageName) throws Exception {
     checkConnect();
-    OpsCommands.Builder builder = new OpsCommands.Builder();
-    builder.setAction(OpsCommands.ACTION_GET);
-    builder.setPackageName(packageName);
-    builder.setUserHandleId(userId);
+    OpsCommands commands = new OpsCommands();
+    commands.setAction(OpsCommands.ACTION_GET);
+    commands.setPackageName(packageName);
+    commands.setUserHandleId(userId);
 
 
-    return wrapOps(builder);
+    return wrapOps(commands);
   }
 
 
-  private OpsResult wrapOps(OpsCommands.Builder builder) throws Exception {
+  private OpsResult wrapOps(OpsCommands commands) throws Exception {
     Bundle bundle = new Bundle();
-    bundle.putParcelable("args",builder);
+    bundle.putParcelable("args",commands);
     ClassCaller classCaller = new ClassCaller(pkgName,AppOpsHandler.class.getName(),bundle);
     CallerResult result = mLocalServerManager.execNew(classCaller);
     Bundle replyBundle = result.getReplyBundle();
@@ -99,31 +95,31 @@ public class OpsxManager {
 
   public OpsResult getPackagesForOps(int[] ops,boolean reqNet)throws Exception{
     checkConnect();
-    OpsCommands.Builder builder = new OpsCommands.Builder();
-    builder.setAction(OpsCommands.ACTION_GET_FOR_OPS);
-    builder.setOps(ops);
-    builder.setReqNet(reqNet);
-    builder.setUserHandleId(userId);
-    return wrapOps(builder);
+    OpsCommands commands = new OpsCommands();
+    commands.setAction(OpsCommands.ACTION_GET_FOR_OPS);
+    commands.setOps(ops);
+    commands.setReqNet(reqNet);
+    commands.setUserHandleId(userId);
+    return wrapOps(commands);
   }
 
   public OpsResult setOpsMode(String packageName, int opInt, int modeInt) throws Exception {
     checkConnect();
-    OpsCommands.Builder builder = new OpsCommands.Builder();
-    builder.setAction(OpsCommands.ACTION_SET);
-    builder.setPackageName(packageName);
-    builder.setOpInt(opInt);
-    builder.setModeInt(modeInt);
-    builder.setUserHandleId(userId);
-    return wrapOps(builder);
+    OpsCommands commands = new OpsCommands();
+    commands.setAction(OpsCommands.ACTION_SET);
+    commands.setPackageName(packageName);
+    commands.setOpInt(opInt);
+    commands.setModeInt(modeInt);
+    commands.setUserHandleId(userId);
+    return wrapOps(commands);
   }
 
   public OpsResult resetAllModes(String packageName) throws Exception {
-    OpsCommands.Builder builder = new OpsCommands.Builder();
-    builder.setAction(OpsCommands.ACTION_RESET);
-    builder.setPackageName(packageName);
-    builder.setUserHandleId(userId);
-    return wrapOps(builder);
+    OpsCommands commands = new OpsCommands();
+    commands.setAction(OpsCommands.ACTION_RESET);
+    commands.setPackageName(packageName);
+    commands.setUserHandleId(userId);
+    return wrapOps(commands);
   }
 
 
