@@ -13,8 +13,10 @@ AppOpsX is a front-end application for the Android AppOpsService. It allows you 
 
 [简体中文](README.zh.md)
 
-<a href='https://play.google.com/store/apps/details?id=com.zzzmode.appopsx'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' width='150'/></a>
-
+[<img src="https://f-droid.org/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/com.zzzmode.appopsx/)
+     
 ## Features
 * Search Applications
 * Group apps by permissions
